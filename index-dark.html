@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MemoryMe — Memórias Digitais</title>
+  <meta name="description" content="Transformamos as tuas fotos em vídeos emocionantes — para ti, para oferecer ou para homenagear quem partiu.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles-dark.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#home" class="logo">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="6" y="16" width="52" height="36" rx="6" ry="6"></rect>
+          <circle cx="32" cy="34" r="10"></circle>
+          <rect x="14" y="12" width="12" height="8" rx="2" ry="2"></rect>
+        </g></svg>
+        <span>Memory<span class="gold">Me</span></span>
+      </a>
+      <nav>
+        <a href="#servicos">Serviços</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#portfolio">Exemplos</a>
+        <a href="#contactos">Contactos</a>
+      </nav>
+      <a class="btn primary" href="#pedido">Começar</a>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="hero container">
+      <div class="hero-text">
+        <h1>Memórias digitais bonitas e cheias de significado</h1>
+        <p>Cria um vídeo para <strong>guardar</strong>, para <strong>oferecer</strong> a alguém especial ou para <strong>homenagear</strong> quem já partiu. Tu envias as fotos — nós tratamos da magia.</p>
+        <div class="hero-ctas">
+          <a class="btn primary" href="#pedido">Quero criar o meu vídeo</a>
+          <a class="btn ghost" href="#portfolio">Ver exemplos</a>
+        </div>
+        <div class="trust">
+          <span class="badge">Entrega em 3–5 dias*</span>
+          <span class="muted">*Serviço Expresso disponível</span>
+        </div>
+      </div>
+      <div class="hero-media">
+        <div class="video-placeholder" aria-label="Pré-visualização de vídeo"></div>
+      </div>
+    </section>
+
+    <section id="servicos" class="section container">
+      <h2>Serviços</h2>
+      <div class="grid cards">
+        <article class="card">
+          <h3>Vídeo Express</h3>
+          <p>Até 20 fotos + 1 música. Ideal para presentes rápidos e partilhas nas redes.</p>
+          <ul>
+            <li>Duração 30–45s</li>
+            <li>Transições suaves</li>
+            <li>Entrega rápida</li>
+          </ul>
+          <a class="btn link" href="#pedido" data-plan="express">Pedir este vídeo</a>
+        </article>
+        <article class="card">
+          <h3>Vídeo Premium</h3>
+          <p>Até 50 fotos, legendas criativas e edição cuidada para momentos marcantes.</p>
+          <ul>
+            <li>Duração 1–3 min</li>
+            <li>Legendagem e storytelling</li>
+            <li>Export em Full HD</li>
+          </ul>
+          <a class="btn link" href="#pedido" data-plan="premium">Pedir este vídeo</a>
+        </article>
+        <article class="card">
+          <h3>Homenagem Digital</h3>
+          <p>Um tributo delicado para celebrar a vida de quem partiu — pensado para cerimónias ou partilha em família.</p>
+          <ul>
+            <li>Texto e mensagens personalizadas</li>
+            <li>Música ao teu gosto</li>
+            <li>Entrega prioritária disponível</li>
+          </ul>
+          <a class="btn link" href="#pedido" data-plan="tributo">Pedir este vídeo</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="como-funciona" class="section alt">
+      <div class="container">
+        <h2>Como funciona</h2>
+        <div class="grid steps">
+          <div class="step">
+            <div class="num">1</div>
+            <h4>Upload</h4>
+            <p>Envia as tuas fotos e vídeos através do formulário seguro.</p>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <h4>Personaliza</h4>
+            <p>Escolhe o estilo, música e envia mensagens especiais.</p>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <h4>Recebe</h4>
+            <p>Entregamos o teu vídeo final por link privado — pronto para partilhar.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="portfolio" class="section container">
+      <h2>Exemplos</h2>
+      <div class="grid media-grid">
+        <div class="media-embed"><div class="thumb"></div><span>Exemplo 1</span></div>
+        <div class="media-embed"><div class="thumb"></div><span>Exemplo 2</span></div>
+        <div class="media-embed"><div class="thumb"></div><span>Exemplo 3</span></div>
+      </div>
+      <p class="muted small">Substitui as miniaturas por <em>embeds</em> do Vimeo/YouTube quando tiveres vídeos reais.</p>
+    </section>
+
+    <section id="pedido" class="section alt">
+      <div class="container narrow">
+        <h2>Fazer pedido (sem pagamento) — Dark</h2>
+        <p class="muted">Usa o formulário abaixo para enviares os teus ficheiros e preferências. Depois entramos em contacto para confirmar detalhes e prazos.</p>
+        <form class="request-form" onsubmit="return handleSubmit(event)">
+          <div class="grid form-grid">
+            <label>Nome
+              <input type="text" name="nome" required />
+            </label>
+            <label>Email
+              <input type="email" name="email" required />
+            </label>
+            <label>Tipo de vídeo
+              <select name="tipo" required>
+                <option value="Express">Vídeo Express</option>
+                <option value="Premium">Vídeo Premium</option>
+                <option value="Homenagem">Homenagem Digital</option>
+              </select>
+            </label>
+            <label>Link para fotos/vídeos (Drive/WeTransfer)
+              <input type="url" name="link" placeholder="https://..." required />
+            </label>
+            <label class="full">Mensagem/Notas
+              <textarea name="mensagem" rows="5" placeholder="Preferências de música, estilo e mensagens a incluir..."></textarea>
+            </label>
+          </div>
+          <div class="agree">
+            <label><input type="checkbox" required/> Aceito a política de privacidade e o tratamento dos meus dados para este pedido.</label>
+          </div>
+          <button class="btn primary" type="submit">Enviar pedido</button>
+          <p id="form-status" class="muted small" role="status"></p>
+        </form>
+        <p class="muted small">Preferes WhatsApp? <a href="#" aria-label="WhatsApp">Clica aqui</a> para falar connosco.</p>
+      </div>
+    </section>
+
+    <section id="contactos" class="section container">
+      <h2>Contactos</h2>
+      <div class="grid contacts">
+        <div>
+          <h4>Email</h4>
+          <a href="mailto:hello@memoryme.pt">hello@memoryme.pt</a>
+        </div>
+        <div>
+          <h4>Redes</h4>
+          <p><a href="#" aria-label="Instagram">Instagram</a> · <a href="#" aria-label="TikTok">TikTok</a> · <a href="#" aria-label="Pinterest">Pinterest</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> MemoryMe · Todos os direitos reservados</p>
+      <nav class="footnav">
+        <a href="privacidade.html">Privacidade</a>
+        <a href="termos.html">Termos</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

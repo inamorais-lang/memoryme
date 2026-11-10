@@ -141,7 +141,7 @@ export default function ResultScreen() {
     setBusy('save');
     try {
       const uri = await renderToImage(canvasRef);
-      const outcome = await saveImageToLibrary(uri);
+      const outcome = await saveImageToLibrary(uri, `pet-thought-${item?.id}.png`);
       if (outcome === 'denied') {
         Alert.alert(t('permissions.saveTitle'), t('permissions.saveBody'), [
           { text: t('common.cancel'), style: 'cancel' },
@@ -210,7 +210,6 @@ export default function ResultScreen() {
   }
 
   const personality = findPersonality(item.personalityId);
-  const isWeb = Platform.OS === 'web';
   const spot: BalloonSpot =
     item.balloonX !== undefined && item.balloonY !== undefined
       ? { x: item.balloonX, y: item.balloonY }
@@ -240,25 +239,23 @@ export default function ResultScreen() {
 
   const actionsFooter = (
     <>
-      <Button testID="share" label={t('result.share')} onPress={share} loading={busy === 'share'} />
       <View style={styles.row}>
-        {!isWeb ? (
-          <View style={styles.flex}>
-            <Button
-              testID="save"
-              variant="secondary"
-              label={saved ? t('result.saved') : t('result.save')}
-              onPress={save}
-              loading={busy === 'save'}
-              disabled={saved}
-            />
-          </View>
-        ) : null}
         <View style={styles.flex}>
-          <Button testID="move-balloon" variant="secondary" label={t('result.moveBalloon')} onPress={nextCorner} />
+          <Button testID="share" label={t('result.share')} onPress={share} loading={busy === 'share'} />
+        </View>
+        <View style={styles.flex}>
+          <Button
+            testID="save"
+            variant="secondary"
+            label={saved ? t('result.saved') : t('result.save')}
+            onPress={save}
+            loading={busy === 'save'}
+            disabled={saved}
+          />
         </View>
       </View>
       <View style={styles.secondary}>
+        <Button testID="move-balloon" variant="tertiary" label={t('result.moveBalloon')} onPress={nextCorner} />
         <Button testID="write-own-line" variant="tertiary" label={t('result.writeOwn')} onPress={startWriting} />
         {item.customPhrase ? (
           <Button testID="use-ai-line" variant="tertiary" label={t('result.useAi')} onPress={useAiLine} />
@@ -278,7 +275,8 @@ export default function ResultScreen() {
   );
 
   return (
-    <Screen footer={editing ? writingFooter : actionsFooter}>
+    // No scroll here: a vertical drag on the balloon must move the balloon, not the page.
+    <Screen scroll={false} footer={editing ? writingFooter : actionsFooter}>
       <TranslationCanvas
         ref={canvasRef}
         photoUri={item.imageUri}

@@ -27,7 +27,11 @@ export async function shareImage(uri: string, fileName: string): Promise<ShareOu
 
 export type SaveOutcome = 'saved' | 'denied';
 
-export async function saveImageToLibrary(uri: string): Promise<SaveOutcome> {
+export async function saveImageToLibrary(uri: string, fileName = 'pet-thought.png'): Promise<SaveOutcome> {
+  if (Platform.OS === 'web') {
+    downloadOnWeb(uri, fileName);
+    return 'saved';
+  }
   const permission = await MediaLibrary.requestPermissionsAsync(true);
   if (!permission.granted) return 'denied';
   await MediaLibrary.Asset.create(uri);
@@ -43,9 +47,13 @@ async function shareOnWeb(dataUri: string, fileName: string): Promise<ShareOutco
     await nav.share({ files: [file] });
     return 'shared';
   }
+  downloadOnWeb(dataUri, fileName);
+  return 'shared';
+}
+
+function downloadOnWeb(dataUri: string, fileName: string) {
   const link = document.createElement('a');
   link.href = dataUri;
   link.download = fileName;
   link.click();
-  return 'shared';
 }

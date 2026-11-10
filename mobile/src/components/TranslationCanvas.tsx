@@ -1,10 +1,16 @@
-import { Image } from 'expo-image';
-import { useMemo, useState, type Ref } from 'react';
-import { PanResponder, StyleSheet, View } from 'react-native';
+import { Image } from "expo-image";
+import { useState, type Ref } from "react";
+import { StyleSheet, View } from "react-native";
+import {
+  GestureDetector,
+  useExclusiveGestures,
+  usePanGesture,
+  useTapGesture,
+} from "react-native-gesture-handler";
 
-import { colors, radius, shadow } from '@/design';
+import { colors, radius, shadow } from "@/design";
 
-import { ThoughtBalloon } from './ThoughtBalloon';
+import { ThoughtBalloon } from "./ThoughtBalloon";
 
 export type CanvasRef = React.ComponentRef<typeof View>;
 
@@ -52,9 +58,18 @@ export function TranslationCanvas({
   balloonTint,
   onBalloonPress,
 }: Props) {
-  const [loaded, setLoaded] = useState<{ width: number; height: number } | null>(null);
-  const aspectRatio = clamp((photoWidth ?? loaded?.width ?? 4) / (photoHeight ?? loaded?.height ?? 5), 0.56, 1.5);
-  const sizing = maxHeight ? { maxWidth: maxHeight * aspectRatio, alignSelf: 'center' as const } : null;
+  const [loaded, setLoaded] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+  const aspectRatio = clamp(
+    (photoWidth ?? loaded?.width ?? 4) / (photoHeight ?? loaded?.height ?? 5),
+    0.56,
+    1.5,
+  );
+  const sizing = maxHeight
+    ? { maxWidth: maxHeight * aspectRatio, alignSelf: "center" as const }
+    : null;
 
   const [frame, setFrame] = useState<Size>({ w: 360, h: 450 });
   const [bubble, setBubble] = useState<Size>({ w: 250, h: 120 });
@@ -64,23 +79,34 @@ export function TranslationCanvas({
   const balloonScale = Math.min(1, Math.max(0.6, frame.w / 360));
   const spot = fit(drag ?? balloonSpot, frame, bubble);
 
-  const pan = useMemo(() => {
-    // Drags are measured from where the balloon was when they started.
-    const start = fit(balloonSpot, frame, bubble);
-    const moved = (dx: number, dy: number) => ({ x: start.x + dx / frame.w, y: start.y + dy / frame.h });
-    return PanResponder.create({
-        // Taps go to the balloon (colour change); only real drags move it.
-        onMoveShouldSetPanResponder: (_e, g) => !!onBalloonMove && Math.abs(g.dx) + Math.abs(g.dy) > 6,
-        // Capture phase: take the gesture from the balloon's tap handler once it moves.
-        onMoveShouldSetPanResponderCapture: (_e, g) => !!onBalloonMove && Math.abs(g.dx) + Math.abs(g.dy) > 6,
-        onPanResponderMove: (_e, g) => setDrag(moved(g.dx, g.dy)),
-        onPanResponderRelease: (_e, g) => {
-          setDrag(null);
-          onBalloonMove?.(fit(moved(g.dx, g.dy), frame, bubble));
-        },
-        onPanResponderTerminate: () => setDrag(null),
-      });
-  }, [onBalloonMove, balloonSpot, frame, bubble]);
+  // Native gestures: a drag moves the balloon, a tap changes its colour.
+  // (Gesture handler wins over the page scroll on iOS.)
+  const start = fit(balloonSpot, frame, bubble);
+  const moved = (dx: number, dy: number) => ({
+    x: start.x + dx / frame.w,
+    y: start.y + dy / frame.h,
+  });
+  const pan = usePanGesture({
+    enabled: !!onBalloonMove,
+    minDistance: 4,
+    runOnJS: true,
+    onUpdate: (e) => setDrag(moved(e.translationX, e.translationY)),
+    onDeactivate: (e) => {
+      if (!e.canceled)
+        onBalloonMove?.(
+          fit(moved(e.translationX, e.translationY), frame, bubble),
+        );
+    },
+    onFinalize: () => setDrag(null),
+  });
+  const tap = useTapGesture({
+    enabled: !!onBalloonPress,
+    runOnJS: true,
+    onDeactivate: (e) => {
+      if (!e.canceled) onBalloonPress?.();
+    },
+  });
+  const gesture = useExclusiveGestures(pan, tap);
 
   // Trail points from the bubble towards the middle of the photo (the pet).
   const centreX = spot.x + bubble.w / frame.w / 2;
@@ -92,27 +118,44 @@ export function TranslationCanvas({
       collapsable={false}
       style={[styles.frame, { aspectRatio }, sizing]}
       testID="translation-canvas"
-      onLayout={(e) => setFrame({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+      onLayout={(e) =>
+        setFrame({
+          w: e.nativeEvent.layout.width,
+          h: e.nativeEvent.layout.height,
+        })
+      }
+    >
       <Image
         source={{ uri: photoUri }}
         style={StyleSheet.absoluteFill}
         contentFit="cover"
-        onLoad={(e) => setLoaded({ width: e.source.width, height: e.source.height })}
+        onLoad={(e) =>
+          setLoaded({ width: e.source.width, height: e.source.height })
+        }
       />
       {phrase ? (
-        <View
-          {...pan.panHandlers}
-          style={[styles.balloon, { left: spot.x * frame.w, top: spot.y * frame.h }]}
-          onLayout={(e) => setBubble({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
-          <ThoughtBalloon
-            text={phrase}
-            tail={centreY < 0.5 ? 'down' : 'up'}
-            trailSide={centreX < 0.5 ? 'right' : 'left'}
-            scale={balloonScale}
-            tint={balloonTint}
-            onPress={onBalloonPress}
-          />
-        </View>
+        <GestureDetector gesture={gesture}>
+          <View
+            style={[
+              styles.balloon,
+              { left: spot.x * frame.w, top: spot.y * frame.h },
+            ]}
+            onLayout={(e) =>
+              setBubble({
+                w: e.nativeEvent.layout.width,
+                h: e.nativeEvent.layout.height,
+              })
+            }
+          >
+            <ThoughtBalloon
+              text={phrase}
+              tail={centreY < 0.5 ? "down" : "up"}
+              trailSide={centreX < 0.5 ? "right" : "left"}
+              scale={balloonScale}
+              tint={balloonTint}
+            />
+          </View>
+        </GestureDetector>
       ) : null}
     </View>
   );
@@ -131,12 +174,13 @@ function clamp(value: number, min: number, max: number) {
 
 const styles = StyleSheet.create({
   frame: {
-    width: '100%',
-    overflow: 'hidden',
+    width: "100%",
+    overflow: "hidden",
     borderRadius: radius.lg,
     backgroundColor: colors.inkFaint,
     boxShadow: shadow.md,
   },
   // Narrow enough to leave the pet's face visible.
-  balloon: { position: 'absolute', width: '68%' },
+  // touchAction stops the mobile browser from scrolling while dragging (web only).
+  balloon: { position: "absolute", width: "68%", touchAction: "none" },
 });

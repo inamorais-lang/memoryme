@@ -1,0 +1,67 @@
+import { addTranslation, getTranslation, loadHistory, newId, updateTranslation, type Translation } from '@/features/history/history';
+import { findPersonality, personalitiesFor } from '@/features/personalities/data';
+import { translatePhoto } from '@/features/translate/translate';
+import type { AppLanguage } from '@/i18n';
+import { persistPhoto } from '@/lib/photos';
+
+import type { Backend, TranslationView } from './types';
+
+/** Phase 1 behaviour: local phrases, original photo, history on the device. */
+function toView(t: Translation): TranslationView {
+  return {
+    id: t.id,
+    status: 'succeeded',
+    personalityId: t.personalityId,
+    imageUri: t.photoUri,
+    width: t.photoWidth,
+    height: t.photoHeight,
+    phrase: t.phrase,
+    freePhraseUsed: t.freeRetryUsed,
+    balloonPosition: t.balloonPosition,
+    createdAt: t.createdAt,
+  };
+}
+
+export const localBackend: Backend = {
+  mode: 'local',
+  async listPersonalities(language) {
+    return personalitiesFor(language as AppLanguage).map(({ id, name, tagline }) => ({ id, name, tagline }));
+  },
+  async createTranslation(photo, personalityId) {
+    const id = newId();
+    const [{ phrase }, photoUri] = await Promise.all([
+      translatePhoto({ photoUri: photo.uri, personalityId }),
+      persistPhoto(photo.uri, id),
+    ]);
+    await addTranslation({
+      id,
+      createdAt: Date.now(),
+      photoUri,
+      photoWidth: photo.width,
+      photoHeight: photo.height,
+      personalityId,
+      phrase,
+      shownPhrases: [phrase],
+      freeRetryUsed: false,
+      balloonPosition: 'top',
+    });
+    return id;
+  },
+  async getTranslation(id) {
+    const t = await getTranslation(id);
+    return t ? toView(t) : null;
+  },
+  async newPhrase(id) {
+    const t = await getTranslation(id);
+    if (!t || t.freeRetryUsed || !findPersonality(t.personalityId)) throw new Error('no_free_phrase');
+    const { phrase } = await translatePhoto({ photoUri: t.photoUri, personalityId: t.personalityId, exclude: t.shownPhrases });
+    await updateTranslation(id, { phrase, shownPhrases: [...t.shownPhrases, phrase], freeRetryUsed: true });
+    return phrase;
+  },
+  async setBalloon(id, position) {
+    await updateTranslation(id, { balloonPosition: position });
+  },
+  async listHistory() {
+    return (await loadHistory()).map(toView);
+  },
+};

@@ -1,0 +1,137 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { FunctionsHttpError } from '@supabase/supabase-js';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
+import { Platform } from 'react-native';
+
+import { newId } from '@/features/history/history';
+import type { PickedPhoto } from '@/lib/photos';
+
+import { BackendError, type Backend, type BackendErrorCode, type TranslationView } from './types';
+
+const MAX_SIDE = 1536;
+const COLUMNS = 'id, status, personality_id, image_path, phrase, free_phrase_used, balloon_position, failure_reason, created_at';
+
+type Row = {
+  id: string;
+  status: TranslationView['status'];
+  personality_id: string;
+  image_path: string | null;
+  phrase: string | null;
+  free_phrase_used: boolean;
+  balloon_position: TranslationView['balloonPosition'];
+  failure_reason: string | null;
+  created_at: string;
+};
+
+const KNOWN_CODES: BackendErrorCode[] = ['insufficient_credits', 'rate_limited', 'daily_limit', 'no_free_phrase'];
+
+/** Turns an Edge Function error into a code the screens understand. */
+async function toBackendError(error: unknown): Promise<BackendError> {
+  if (error instanceof FunctionsHttpError) {
+    const response = error.context as Response;
+    if (response.status === 401) return new BackendError('auth_required');
+    const body = await response.json().catch(() => null);
+    const code = KNOWN_CODES.find((c) => c === body?.code);
+    return new BackendError(code ?? 'server_error');
+  }
+  return new BackendError('network');
+}
+
+/** Smaller uploads: faster, cheaper for the AI, and within Edge Function limits. */
+async function prepareUpload(photo: PickedPhoto): Promise<ArrayBuffer> {
+  let uri = photo.uri;
+  if (Platform.OS !== 'web') {
+    const context = ImageManipulator.manipulate(photo.uri);
+    if (Math.max(photo.width, photo.height) > MAX_SIDE) {
+      context.resize(photo.width >= photo.height ? { width: MAX_SIDE } : { height: MAX_SIDE });
+    }
+    const image = await context.renderAsync();
+    uri = (await image.saveAsync({ compress: 0.85, format: SaveFormat.JPEG })).uri;
+  }
+  return (await fetch(uri)).arrayBuffer();
+}
+
+export function remoteBackend(supabase: SupabaseClient): Backend {
+  async function userId() {
+    const { data } = await supabase.auth.getSession();
+    const id = data.session?.user.id;
+    if (!id) throw new BackendError('auth_required');
+    return id;
+  }
+
+  async function toViews(rows: Row[]): Promise<TranslationView[]> {
+    const paths = rows.map((r) => r.image_path).filter((p): p is string => !!p);
+    const urls = new Map<string, string>();
+    if (paths.length > 0) {
+      const { data } = await supabase.storage.from('generated').createSignedUrls(paths, 3600);
+      for (const item of data ?? []) if (item.path && item.signedUrl) urls.set(item.path, item.signedUrl);
+    }
+    return rows.map((r) => ({
+      id: r.id,
+      status: r.status,
+      personalityId: r.personality_id,
+      imageUri: r.image_path ? urls.get(r.image_path) : undefined,
+      phrase: r.phrase ?? undefined,
+      freePhraseUsed: r.free_phrase_used,
+      balloonPosition: r.balloon_position,
+      failureReason: r.failure_reason ?? undefined,
+      createdAt: Date.parse(r.created_at),
+    }));
+  }
+
+  return {
+    mode: 'remote',
+    async listPersonalities(language) {
+      const { data, error } = await supabase
+        .from('personalities')
+        .select('id, name, tagline')
+        .eq('language', language)
+        .order('sort_order');
+      if (error) throw new BackendError('network');
+      return data ?? [];
+    },
+    async createTranslation(photo, personalityId) {
+      const uid = await userId();
+      const originalPath = `${uid}/${newId()}.jpg`;
+      try {
+        const body = await prepareUpload(photo);
+        const { error } = await supabase.storage
+          .from('originals')
+          .upload(originalPath, body, { contentType: 'image/jpeg' });
+        if (error) throw error;
+      } catch {
+        throw new BackendError('network');
+      }
+      const { data, error } = await supabase.functions.invoke('generate', {
+        body: { personalityId, originalPath },
+      });
+      if (error) throw await toBackendError(error);
+      return data.generationId as string;
+    },
+    async getTranslation(id) {
+      const { data, error } = await supabase.from('generations').select(COLUMNS).eq('id', id).maybeSingle();
+      if (error) throw new BackendError('network');
+      if (!data) return null;
+      return (await toViews([data as Row]))[0];
+    },
+    async newPhrase(id) {
+      const { data, error } = await supabase.functions.invoke('new-phrase', { body: { generationId: id } });
+      if (error) throw await toBackendError(error);
+      return data.phrase as string;
+    },
+    async setBalloon(id, position) {
+      const { error } = await supabase.from('generations').update({ balloon_position: position }).eq('id', id);
+      if (error) throw new BackendError('network');
+    },
+    async listHistory() {
+      const { data, error } = await supabase
+        .from('generations')
+        .select(COLUMNS)
+        .eq('status', 'succeeded')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (error) throw new BackendError('network');
+      return toViews((data ?? []) as Row[]);
+    },
+  };
+}

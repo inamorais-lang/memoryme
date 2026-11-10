@@ -1,98 +1,93 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Alert, Linking, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { ThoughtBalloon } from '@/components/ThoughtBalloon';
+import { AppText, Button, colors, layout, space } from '@/design';
+import { useDraft } from '@/features/draft/DraftContext';
+import { loadHistory } from '@/features/history/history';
+import { pickPhoto, takePhoto, type PickOutcome } from '@/lib/photos';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+export default function Home() {
+  const { t } = useTranslation();
+  const draft = useDraft();
+  const [historyCount, setHistoryCount] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadHistory().then((items) => setHistoryCount(items.length));
+    }, []),
   );
-}
 
-export default function HomeScreen() {
+  async function handle(outcome: PickOutcome, deniedTitle: string, deniedBody: string) {
+    if (outcome.status === 'denied') {
+      Alert.alert(deniedTitle, deniedBody, [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.openSettings'), onPress: () => Linking.openSettings() },
+      ]);
+      return;
+    }
+    if (outcome.status !== 'picked') return;
+    draft.reset();
+    draft.setPhoto(outcome.photo);
+    router.push('/personality');
+  }
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <SafeAreaView style={styles.root}>
+      <View style={styles.inner}>
+        <View style={styles.hero}>
+          <View style={styles.sample}>
+            <ThoughtBalloon text={t('home.sampleThought')} />
+          </View>
+          <AppText variant="hero">{t('home.title')}</AppText>
+          <AppText color={colors.inkMuted}>{t('home.subtitle')}</AppText>
+        </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+        <View style={styles.actions}>
+          <Button
+            testID="take-photo"
+            label={t('home.takePhoto')}
+            onPress={async () =>
+              handle(await takePhoto(), t('permissions.cameraTitle'), t('permissions.cameraBody'))
+            }
           />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
+          <Button
+            testID="pick-photo"
+            variant="secondary"
+            label={t('home.pickPhoto')}
+            onPress={async () =>
+              handle(await pickPhoto(), t('permissions.photosTitle'), t('permissions.photosBody'))
+            }
           />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+          {historyCount > 0 ? (
+            <Button
+              testID="open-history"
+              variant="ghost"
+              label={t('home.history', { count: historyCount })}
+              onPress={() => router.push('/history')}
+            />
+          ) : null}
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: { flex: 1, backgroundColor: colors.paper },
+  inner: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    width: '100%',
+    maxWidth: layout.maxContentWidth,
+    alignSelf: 'center',
+    paddingHorizontal: layout.gutter,
+    paddingVertical: space.xl,
+    justifyContent: 'space-between',
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  hero: { flex: 1, justifyContent: 'center', gap: space.lg },
+  sample: { transform: [{ rotate: '-2deg' }], marginBottom: space.lg, marginHorizontal: space.sm },
+  actions: { gap: space.md },
 });

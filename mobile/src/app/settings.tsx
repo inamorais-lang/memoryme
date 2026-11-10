@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, View } from 'react-native';
 
-import { AppText, border, Button, colors, radius, Screen, space } from '@/design';
+import { AppText, Button, colors, radius, Screen, shadow, space } from '@/design';
 import { useAuth } from '@/features/auth/AuthContext';
 
 export default function SettingsScreen() {
@@ -50,7 +50,7 @@ export default function SettingsScreen() {
             <Button testID="sign-out" variant="secondary" label={t('settings.signOut')} onPress={auth.signOut} />
             <Button
               testID="delete-account"
-              variant="ghost"
+              variant="tertiary"
               label={t('settings.deleteAccount')}
               onPress={confirmDelete}
               loading={deleting}
@@ -70,7 +70,6 @@ const styles = StyleSheet.create({
     padding: space.lg,
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    borderWidth: border.width,
-    borderColor: border.color,
+    boxShadow: shadow.sm,
   },
 });

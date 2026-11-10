@@ -201,13 +201,13 @@ export default function ResultScreen() {
             {!item.freePhraseUsed ? (
               <Button
                 testID="retry"
-                variant="ghost"
+                variant="tertiary"
                 label={t('result.retryFree')}
                 onPress={newPhrase}
                 loading={busy === 'retry'}
               />
             ) : null}
-            <Button testID="new-photo" variant="ghost" label={t('result.newPhoto')} onPress={newPhoto} />
+            <Button testID="new-photo" variant="tertiary" label={t('result.newPhoto')} onPress={newPhoto} />
           </View>
         </>
       }>

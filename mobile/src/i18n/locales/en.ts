@@ -9,6 +9,9 @@ const en: Strings = {
   },
   home: {
     title: 'What is your pet really thinking?',
+    titleStart: 'What is your pet really ',
+    titleHighlight: 'thinking',
+    titleEnd: '?',
     subtitle: 'Snap your cat or dog and finally learn the truth.',
     sampleThought: 'Another photo? I charge by the hour.',
     takePhoto: 'Take a photo',

@@ -2,11 +2,11 @@ import '@/i18n';
 
 import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import {
-  Fraunces_600SemiBold,
-  Fraunces_700Bold,
-  Fraunces_900Black,
+  BricolageGrotesque_600SemiBold,
+  BricolageGrotesque_700Bold,
+  BricolageGrotesque_800ExtraBold,
   useFonts,
-} from '@expo-google-fonts/fraunces';
+} from '@expo-google-fonts/bricolage-grotesque';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -23,9 +23,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const { t } = useTranslation();
   const [loaded, error] = useFonts({
-    Fraunces_600SemiBold,
-    Fraunces_700Bold,
-    Fraunces_900Black,
+    BricolageGrotesque_600SemiBold,
+    BricolageGrotesque_700Bold,
+    BricolageGrotesque_800ExtraBold,
     DMSans_400Regular,
     DMSans_500Medium,
     DMSans_700Bold,

@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppText, border, Button, colors, radius, Screen, shadow, space } from '@/design';
+import { AppText, Button, colors, radius, Screen, shadow, space } from '@/design';
 import { backend, type TranslationView } from '@/features/backend';
 import { findPersonality } from '@/features/personalities/data';
 
@@ -65,12 +65,10 @@ const styles = StyleSheet.create({
     width: '47.5%',
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    borderWidth: border.width,
-    borderColor: border.color,
     boxShadow: shadow.sm,
     overflow: 'hidden',
   },
   pressed: { opacity: 0.85 },
-  photo: { width: '100%', aspectRatio: 1, borderBottomWidth: border.width, borderColor: border.color },
+  photo: { width: '100%', aspectRatio: 1 },
   caption: { padding: space.md, gap: space.xs },
 });

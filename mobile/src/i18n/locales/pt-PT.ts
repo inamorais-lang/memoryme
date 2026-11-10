@@ -7,6 +7,9 @@ const ptPT = {
   },
   home: {
     title: 'O que está o teu bicho a pensar?',
+    titleStart: 'O que está o teu bicho a ',
+    titleHighlight: 'pensar',
+    titleEnd: '?',
     subtitle: 'Tira uma foto ao teu gato ou cão e descobre, finalmente, a verdade.',
     sampleThought: 'Mais uma foto? Cobro à hora.',
     takePhoto: 'Tirar foto',

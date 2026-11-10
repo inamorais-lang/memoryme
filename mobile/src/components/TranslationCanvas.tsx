@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { useState, type Ref } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { border, colors, radius } from '@/design';
+import { colors, radius, shadow } from '@/design';
 import type { BalloonPosition } from '@/features/history/history';
 
 import { ThoughtBalloon } from './ThoughtBalloon';
@@ -61,9 +61,8 @@ const styles = StyleSheet.create({
     width: '100%',
     overflow: 'hidden',
     borderRadius: radius.lg,
-    borderWidth: border.width,
-    borderColor: border.color,
     backgroundColor: colors.inkFaint,
+    boxShadow: shadow.md,
   },
   balloon: { position: 'absolute', left: '5%', right: '5%' },
   top: { top: '5%' },

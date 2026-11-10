@@ -30,7 +30,8 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Sem Mac: EAS Build na cloud + Expo Go/builds de teste no iPhone; testes automáticos na web | O dono do produto só tem iPhone |
 | Só modo claro na v1 | Identidade visual única; menos trabalho de design |
 | App em `mobile/`, site antigo na raiz | Não misturar com o site existente |
-| Fontes: Fraunces (títulos e balão) + DM Sans (texto) | Personalidade própria, não parecer "feito por IA" |
+| Design limpo e minimalista, cores vivas da moda (rosa choque, verde-lima, lilás); todos os botões com cor (primary/secondary/tertiary, sem botões só de texto); sem contornos, sombras suaves | Pedido do dono do produto: app jovem, com humor |
+| Fontes: Bricolage Grotesque (títulos e balão) + DM Sans (texto) | Moderna e irreverente, não parecer "feito por IA" |
 | Frase primeiro (Claude, barato), imagem depois (fal) | A frase também verifica se há animal: foto sem animal nunca chega ao modelo caro |
 | Imagem por fal.ai com modelo configurável | Uma só chave para comparar modelos; trocar sem nova versão |
 | Login com a Apple testável na Expo Go (client ID `host.exp.Exponent`) | Conta Apple Developer só é precisa na Fase 3 |

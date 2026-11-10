@@ -5,7 +5,7 @@ import { Alert, Linking, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThoughtBalloon } from '@/components/ThoughtBalloon';
-import { AppText, border, Button, colors, layout, radius, space } from '@/design';
+import { AppText, Button, colors, layout, radius, space } from '@/design';
 import { useAuth } from '@/features/auth/AuthContext';
 import { backend } from '@/features/backend';
 import { useDraft } from '@/features/draft/DraftContext';
@@ -54,14 +54,20 @@ export default function Home() {
             ) : (
               <View />
             )}
-            <Button testID="open-settings" variant="ghost" label={t('home.settings')} onPress={() => router.push('/settings')} />
+            <Button testID="open-settings" variant="tertiary" label={t('home.settings')} onPress={() => router.push('/settings')} />
           </View>
         ) : null}
         <View style={styles.hero}>
           <View style={styles.sample}>
             <ThoughtBalloon text={t('home.sampleThought')} />
           </View>
-          <AppText variant="hero">{t('home.title')}</AppText>
+          <AppText variant="hero" accessibilityLabel={t('home.title')}>
+            {t('home.titleStart')}
+            <AppText variant="hero" style={styles.highlight}>
+              {` ${t('home.titleHighlight')} `}
+            </AppText>
+            {t('home.titleEnd')}
+          </AppText>
           <AppText color={colors.inkMuted}>{t('home.subtitle')}</AppText>
         </View>
 
@@ -84,7 +90,7 @@ export default function Home() {
           {historyCount > 0 ? (
             <Button
               testID="open-history"
-              variant="ghost"
+              variant="tertiary"
               label={t('home.history', { count: historyCount })}
               onPress={() => router.push('/history')}
             />
@@ -111,11 +117,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.md,
     paddingVertical: space.xs,
     borderRadius: radius.pill,
-    borderWidth: border.width,
-    borderColor: border.color,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.secondary,
   },
   hero: { flex: 1, justifyContent: 'center', gap: space.lg },
   sample: { transform: [{ rotate: '-2deg' }], marginBottom: space.lg, marginHorizontal: space.sm },
   actions: { gap: space.md },
+  highlight: { backgroundColor: colors.secondary },
 });

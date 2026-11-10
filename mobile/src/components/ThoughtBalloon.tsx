@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, border, colors, radius, shadow, space, type } from '@/design';
+import { AppText, colors, radius, shadow, space, type } from '@/design';
 
 type Props = {
   text: string;
@@ -55,10 +55,8 @@ function dotSize(size: number) {
 const styles = StyleSheet.create({
   bubble: {
     backgroundColor: colors.surface,
-    borderWidth: border.widthBold,
-    borderColor: border.color,
     borderRadius: radius.balloon,
-    boxShadow: shadow.md,
+    boxShadow: shadow.balloon,
   },
   dots: {
     alignSelf: 'flex-end',
@@ -69,9 +67,7 @@ const styles = StyleSheet.create({
   },
   dot: {
     backgroundColor: colors.surface,
-    borderWidth: border.width,
-    borderColor: border.color,
-    boxShadow: shadow.sm,
+    boxShadow: shadow.balloon,
   },
   smallOffset: { marginRight: -space.md },
 });

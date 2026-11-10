@@ -97,6 +97,8 @@ Deno.test('parsePhrase trims quotes and rejects an empty phrase for a pet', () =
   assert.deepEqual(parsePhrase('{"is_pet":false,"phrase":""}'), { isPet: false, phrase: '' });
   assert.throws(() => parsePhrase('{"is_pet":true,"phrase":""}'));
   assert.throws(() => parsePhrase('not json'));
+  assert.equal(parsePhrase('{"is_pet":true,"phrase":"Come, carago.</br>"}').phrase, 'Come, carago.');
+  assert.equal(parsePhrase('{"is_pet":true,"phrase":"Linha um<br/>linha  dois"}').phrase, 'Linha um linha dois');
 });
 
 Deno.test('falInput uses each model\'s field names', () => {

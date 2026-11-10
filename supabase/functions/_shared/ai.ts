@@ -79,7 +79,14 @@ export class ClaudePhraseWriter implements PhraseWriter {
 export function parsePhrase(raw: string): PhraseResult {
   const data = JSON.parse(raw);
   const isPet = data.is_pet === true;
-  const phrase = typeof data.phrase === 'string' ? data.phrase.trim().replace(/^["“”']+|["“”']+$/g, '') : '';
+  const phrase =
+    typeof data.phrase === 'string'
+      ? data.phrase
+          .replace(/<[^>]*>/g, ' ') // stray markup such as </br>
+          .replace(/\s+/g, ' ')
+          .trim()
+          .replace(/^["“”']+|["“”']+$/g, '')
+      : '';
   if (isPet && phrase.length === 0) throw new Error('phrase_empty');
   return { isPet, phrase: phrase.slice(0, 160) };
 }

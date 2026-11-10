@@ -6,107 +6,85 @@ import { ActivityIndicator, Alert, Linking, Platform, StyleSheet, useWindowDimen
 
 import { TranslationCanvas, type CanvasRef } from '@/components/TranslationCanvas';
 import { AppText, Button, colors, Screen, space } from '@/design';
+import { useAuth } from '@/features/auth/AuthContext';
+import { backend, type TranslationView } from '@/features/backend';
 import { useDraft } from '@/features/draft/DraftContext';
-import {
-  addTranslation,
-  getTranslation,
-  newId,
-  updateTranslation,
-  type Translation,
-} from '@/features/history/history';
 import { findPersonality } from '@/features/personalities/data';
-import { translatePhoto } from '@/features/translate/translate';
 import { renderToImage, saveImageToLibrary, shareImage } from '@/lib/exportImage';
-import { persistPhoto } from '@/lib/photos';
 
-type Status = 'loading' | 'ready' | 'error' | 'missing';
+const POLL_MS = 2000;
+const GIVE_UP_MS = 3 * 60 * 1000;
+
+type Status = 'loading' | 'ready' | 'failed' | 'slow' | 'missing';
 
 export default function ResultScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const draft = useDraft();
+  const auth = useAuth();
   const canvasRef = useRef<CanvasRef>(null);
   // Header, pinned actions and the retry link take roughly half the screen.
   const canvasMaxHeight = useWindowDimensions().height * 0.5;
-  const started = useRef(false);
 
-  const [item, setItem] = useState<Translation | null>(null);
+  const [item, setItem] = useState<TranslationView | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const [busy, setBusy] = useState<'retry' | 'share' | 'save' | null>(null);
   const [saved, setSaved] = useState(false);
   const [loadingText] = useState(() => pickOne(t('result.loading', { returnObjects: true }) as string[]));
 
+  // Load the translation; while the server is still working on it, poll.
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    if (id) {
-      getTranslation(id).then((found) => {
-        setItem(found ?? null);
-        setStatus(found ? 'ready' : 'missing');
-      });
-    } else {
-      createFromDraft();
+    if (!id) return;
+    let cancelled = false;
+    const startedAt = Date.now();
+    async function poll() {
+      try {
+        const found = await backend.getTranslation(id!);
+        if (cancelled) return;
+        if (!found) return setStatus('missing');
+        setItem(found);
+        if (found.status === 'succeeded') {
+          setStatus('ready');
+          auth.refreshCredits();
+          if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          return;
+        }
+        if (found.status === 'failed') {
+          setStatus('failed');
+          auth.refreshCredits();
+          return;
+        }
+      } catch {
+        // Network blip: keep polling until we give up.
+      }
+      if (Date.now() - startedAt > GIVE_UP_MS) return setStatus('slow');
+      setTimeout(poll, POLL_MS);
     }
+    poll();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [id]);
 
-  async function createFromDraft() {
-    const { photo, personalityId } = draft;
-    if (!photo || !personalityId) {
-      setStatus('missing');
-      return;
-    }
-    setStatus('loading');
-    try {
-      const translationId = newId();
-      const [{ phrase }, photoUri] = await Promise.all([
-        translatePhoto({ photoUri: photo.uri, personalityId }),
-        persistPhoto(photo.uri, translationId),
-      ]);
-      const created: Translation = {
-        id: translationId,
-        createdAt: Date.now(),
-        photoUri,
-        photoWidth: photo.width,
-        photoHeight: photo.height,
-        personalityId,
-        phrase,
-        shownPhrases: [phrase],
-        freeRetryUsed: false,
-        balloonPosition: 'top',
-      };
-      await addTranslation(created);
-      setItem(created);
-      setStatus('ready');
-      router.setParams({ id: translationId });
-      if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch {
-      setStatus('error');
-    }
-  }
-
-  async function update(patch: Partial<Translation>) {
-    if (!item) return;
-    const next = { ...item, ...patch };
-    setItem(next);
-    await updateTranslation(item.id, patch);
-  }
-
-  async function retry() {
-    if (!item || item.freeRetryUsed) return;
+  async function newPhrase() {
+    if (!item || item.freePhraseUsed) return;
     setBusy('retry');
     try {
-      const { phrase } = await translatePhoto({
-        photoUri: item.photoUri,
-        personalityId: item.personalityId,
-        exclude: item.shownPhrases,
-      });
-      await update({ phrase, shownPhrases: [...item.shownPhrases, phrase], freeRetryUsed: true });
+      const phrase = await backend.newPhrase(item.id);
+      setItem({ ...item, phrase, freePhraseUsed: true });
     } catch {
       Alert.alert(t('result.errorTitle'), t('result.errorBody'));
     } finally {
       setBusy(null);
     }
+  }
+
+  function moveBalloon() {
+    if (!item) return;
+    const balloonPosition = item.balloonPosition === 'top' ? 'bottom' : 'top';
+    setItem({ ...item, balloonPosition });
+    backend.setBalloon(item.id, balloonPosition).catch(() => {});
   }
 
   async function share() {
@@ -148,24 +126,25 @@ export default function ResultScreen() {
     router.dismissAll();
   }
 
-  if (status === 'missing') {
+  if (!id || status === 'missing' || status === 'failed' || status === 'slow') {
+    const message =
+      !id || status === 'missing'
+        ? t('result.notFound')
+        : status === 'slow'
+          ? t('result.slow')
+          : item?.failureReason === 'not_a_pet'
+            ? t('result.notAPet')
+            : t('result.failedRefunded');
     return (
-      <Screen footer={<Button label={t('result.newPhoto')} onPress={newPhoto} />}>
-        <AppText variant="heading">{t('result.notFound')}</AppText>
+      <Screen footer={<Button testID="new-photo" label={t('result.newPhoto')} onPress={newPhoto} />}>
+        <AppText variant="heading" testID="result-message">
+          {message}
+        </AppText>
       </Screen>
     );
   }
 
-  if (status === 'error') {
-    return (
-      <Screen footer={<Button label={t('result.tryAgain')} onPress={createFromDraft} />}>
-        <AppText variant="heading">{t('result.errorTitle')}</AppText>
-        <AppText color={colors.inkMuted}>{t('result.errorBody')}</AppText>
-      </Screen>
-    );
-  }
-
-  if (status === 'loading' || !item) {
+  if (status === 'loading' || !item?.imageUri) {
     const photo = draft.photo;
     return (
       <Screen scroll={false}>
@@ -183,6 +162,11 @@ export default function ResultScreen() {
         <View style={styles.loading} testID="result-loading">
           <ActivityIndicator color={colors.ink} />
           <AppText variant="bodyStrong">{loadingText}</AppText>
+          {backend.mode === 'remote' ? (
+            <AppText variant="small" color={colors.inkMuted}>
+              {t('result.loadingHint')}
+            </AppText>
+          ) : null}
         </View>
       </Screen>
     );
@@ -210,21 +194,16 @@ export default function ResultScreen() {
               </View>
             ) : null}
             <View style={styles.flex}>
-              <Button
-                testID="move-balloon"
-                variant="secondary"
-                label={t('result.moveBalloon')}
-                onPress={() => update({ balloonPosition: item.balloonPosition === 'top' ? 'bottom' : 'top' })}
-              />
+              <Button testID="move-balloon" variant="secondary" label={t('result.moveBalloon')} onPress={moveBalloon} />
             </View>
           </View>
           <View style={styles.secondary}>
-            {!item.freeRetryUsed ? (
+            {!item.freePhraseUsed ? (
               <Button
                 testID="retry"
                 variant="ghost"
                 label={t('result.retryFree')}
-                onPress={retry}
+                onPress={newPhrase}
                 loading={busy === 'retry'}
               />
             ) : null}
@@ -234,9 +213,9 @@ export default function ResultScreen() {
       }>
       <TranslationCanvas
         ref={canvasRef}
-        photoUri={item.photoUri}
-        photoWidth={item.photoWidth}
-        photoHeight={item.photoHeight}
+        photoUri={item.imageUri}
+        photoWidth={item.width}
+        photoHeight={item.height}
         phrase={item.phrase}
         balloonPosition={item.balloonPosition}
         maxHeight={canvasMaxHeight}

@@ -5,20 +5,27 @@ import { Alert, Linking, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThoughtBalloon } from '@/components/ThoughtBalloon';
-import { AppText, Button, colors, layout, space } from '@/design';
+import { AppText, border, Button, colors, layout, radius, space } from '@/design';
+import { useAuth } from '@/features/auth/AuthContext';
+import { backend } from '@/features/backend';
 import { useDraft } from '@/features/draft/DraftContext';
-import { loadHistory } from '@/features/history/history';
 import { pickPhoto, takePhoto, type PickOutcome } from '@/lib/photos';
 
 export default function Home() {
   const { t } = useTranslation();
   const draft = useDraft();
+  const auth = useAuth();
   const [historyCount, setHistoryCount] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
-      loadHistory().then((items) => setHistoryCount(items.length));
-    }, []),
+      backend
+        .listHistory()
+        .then((items) => setHistoryCount(items.length))
+        .catch(() => setHistoryCount(0));
+      auth.refreshCredits();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [auth.session]),
   );
 
   async function handle(outcome: PickOutcome, deniedTitle: string, deniedBody: string) {
@@ -38,6 +45,18 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.inner}>
+        {auth.enabled ? (
+          <View style={styles.topBar}>
+            {auth.credits !== null ? (
+              <View style={styles.creditPill} testID="credits">
+                <AppText variant="smallStrong">{t('home.credits', { count: auth.credits })}</AppText>
+              </View>
+            ) : (
+              <View />
+            )}
+            <Button testID="open-settings" variant="ghost" label={t('home.settings')} onPress={() => router.push('/settings')} />
+          </View>
+        ) : null}
         <View style={styles.hero}>
           <View style={styles.sample}>
             <ThoughtBalloon text={t('home.sampleThought')} />
@@ -86,6 +105,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.gutter,
     paddingVertical: space.xl,
     justifyContent: 'space-between',
+  },
+  topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  creditPill: {
+    paddingHorizontal: space.md,
+    paddingVertical: space.xs,
+    borderRadius: radius.pill,
+    borderWidth: border.width,
+    borderColor: border.color,
+    backgroundColor: colors.surface,
   },
   hero: { flex: 1, justifyContent: 'center', gap: space.lg },
   sample: { transform: [{ rotate: '-2deg' }], marginBottom: space.lg, marginHorizontal: space.sm },

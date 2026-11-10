@@ -5,16 +5,19 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, border, Button, colors, radius, Screen, shadow, space } from '@/design';
-import { loadHistory, type Translation } from '@/features/history/history';
+import { backend, type TranslationView } from '@/features/backend';
 import { findPersonality } from '@/features/personalities/data';
 
 export default function HistoryScreen() {
   const { t } = useTranslation();
-  const [items, setItems] = useState<Translation[] | null>(null);
+  const [items, setItems] = useState<TranslationView[] | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      loadHistory().then(setItems);
+      backend
+        .listHistory()
+        .then(setItems)
+        .catch(() => setItems([]));
     }, []),
   );
 
@@ -37,10 +40,10 @@ export default function HistoryScreen() {
             key={item.id}
             testID={`history-${item.id}`}
             accessibilityRole="button"
-            accessibilityLabel={item.phrase}
+            accessibilityLabel={item.phrase ?? ''}
             onPress={() => router.push({ pathname: '/result', params: { id: item.id } })}
             style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-            <Image source={{ uri: item.photoUri }} style={styles.photo} contentFit="cover" />
+            <Image source={{ uri: item.imageUri }} style={styles.photo} contentFit="cover" />
             <View style={styles.caption}>
               <AppText variant="smallStrong" numberOfLines={3}>
                 {item.phrase}

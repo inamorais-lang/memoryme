@@ -12,8 +12,9 @@ export type CanvasRef = React.ComponentRef<typeof View>;
 type Props = {
   ref?: Ref<CanvasRef>;
   photoUri: string;
-  photoWidth: number;
-  photoHeight: number;
+  /** Unknown for remote images until they load. */
+  photoWidth?: number;
+  photoHeight?: number;
   phrase?: string;
   balloonPosition: BalloonPosition;
   /** Keeps the whole image on screen; the width shrinks to respect it. */
@@ -22,16 +23,24 @@ type Props = {
 
 /** Photo + balloon. This exact view is captured as the image people share. */
 export function TranslationCanvas({ ref, photoUri, photoWidth, photoHeight, phrase, balloonPosition, maxHeight }: Props) {
-  const aspectRatio = clamp(photoWidth / photoHeight, 0.56, 1.5);
+  const [loaded, setLoaded] = useState<{ width: number; height: number } | null>(null);
+  const width0 = photoWidth ?? loaded?.width ?? 4;
+  const height0 = photoHeight ?? loaded?.height ?? 5;
+  const aspectRatio = clamp(width0 / height0, 0.56, 1.5);
   // The balloon is designed for a ~360pt-wide photo and scales with it.
-  const [width, setWidth] = useState(360);
-  const balloonScale = Math.min(1, Math.max(0.65, width / 360));
+  const [frameWidth, setFrameWidth] = useState(360);
+  const balloonScale = Math.min(1, Math.max(0.65, frameWidth / 360));
   const sizing = maxHeight ? { maxWidth: maxHeight * aspectRatio, alignSelf: 'center' as const } : null;
 
   return (
     <View ref={ref} collapsable={false} style={[styles.frame, { aspectRatio }, sizing]} testID="translation-canvas"
-      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
-      <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} contentFit="cover" />
+      onLayout={(e) => setFrameWidth(e.nativeEvent.layout.width)}>
+      <Image
+        source={{ uri: photoUri }}
+        style={StyleSheet.absoluteFill}
+        contentFit="cover"
+        onLoad={(e) => setLoaded({ width: e.source.width, height: e.source.height })}
+      />
       {phrase ? (
         <View style={[styles.balloon, balloonPosition === 'top' ? styles.top : styles.bottom]}>
           <ThoughtBalloon text={phrase} tail={balloonPosition === 'top' ? 'down' : 'up'}

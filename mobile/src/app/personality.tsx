@@ -1,18 +1,63 @@
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { Redirect, router } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText, border, Button, colors, radius, Screen, shadow, space } from '@/design';
+import { useAuth } from '@/features/auth/AuthContext';
+import { backend, BackendError, type PersonalityInfo } from '@/features/backend';
 import { useDraft } from '@/features/draft/DraftContext';
-import { personalitiesFor } from '@/features/personalities/data';
 import { currentLanguage } from '@/i18n';
 
 export default function PersonalityScreen() {
   const { t } = useTranslation();
   const draft = useDraft();
-  const list = personalitiesFor(currentLanguage());
+  const auth = useAuth();
+  const [list, setList] = useState<PersonalityInfo[] | null>(null);
+  const [starting, setStarting] = useState(false);
+  const waitingForSignIn = useRef(false);
+
+  useEffect(() => {
+    backend
+      .listPersonalities(currentLanguage())
+      .then(setList)
+      .catch(() => setList([]));
+  }, []);
+
+  const start = useCallback(async () => {
+    if (!draft.photo || !draft.personalityId) return;
+    if (backend.mode === 'remote' && !auth.session) {
+      waitingForSignIn.current = true;
+      router.push('/sign-in');
+      return;
+    }
+    setStarting(true);
+    try {
+      const id = await backend.createTranslation(draft.photo, draft.personalityId);
+      router.push({ pathname: '/result', params: { id } });
+    } catch (e) {
+      const code = e instanceof BackendError ? e.code : 'server_error';
+      if (code === 'insufficient_credits') router.push('/no-credits');
+      else if (code === 'auth_required') router.push('/sign-in');
+      else if (code === 'rate_limited') Alert.alert(t('result.rateLimited'));
+      else if (code === 'daily_limit') Alert.alert(t('result.dailyLimit'));
+      else if (code === 'network') Alert.alert(t('result.network'));
+      else Alert.alert(t('result.errorTitle'), t('result.errorBody'));
+    } finally {
+      setStarting(false);
+      auth.refreshCredits();
+    }
+  }, [draft.photo, draft.personalityId, auth, t]);
+
+  // Coming back from "Sign in with Apple": carry on with the translation.
+  useEffect(() => {
+    if (waitingForSignIn.current && auth.session) {
+      waitingForSignIn.current = false;
+      start();
+    }
+  }, [auth.session, start]);
 
   if (!draft.photo) return <Redirect href="/" />;
 
@@ -28,7 +73,8 @@ export default function PersonalityScreen() {
           testID="translate"
           label={draft.personalityId ? t('personality.translate') : t('personality.pickFirst')}
           disabled={!draft.personalityId}
-          onPress={() => router.push('/result')}
+          loading={starting}
+          onPress={start}
         />
       }>
       <View style={styles.header}>
@@ -39,8 +85,11 @@ export default function PersonalityScreen() {
         </View>
       </View>
 
+      {list === null ? <ActivityIndicator color={colors.ink} /> : null}
+      {list?.length === 0 ? <AppText color={colors.inkMuted}>{t('result.network')}</AppText> : null}
+
       <View style={styles.grid}>
-        {list.map((p, index) => {
+        {(list ?? []).map((p, index) => {
           const selected = draft.personalityId === p.id;
           return (
             <Pressable

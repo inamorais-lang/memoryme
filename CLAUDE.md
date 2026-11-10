@@ -4,7 +4,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 
 - Produto: `docs/PRD.md`
 - Fases: `docs/ROADMAP.md`
-- Estado atual: **Fase 1 concluída** (fluxo principal com frases locais, sem servidor)
+- Estado atual: **Fase 1 concluída** (fluxo principal com frases locais, sem servidor). Na Fase 1 a imagem ainda não é transformada: isso chega com a IA na Fase 2.
 
 ## Regras não negociáveis
 - Chaves secretas (IA, service role do Supabase) **só** em Supabase Edge Functions. Nunca no código da app nem em variáveis `EXPO_PUBLIC_*`.
@@ -20,9 +20,9 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 ## Decisões
 | Decisão | Motivo |
 |---|---|
-| A IA só escreve texto; o balão é desenhado na app | ~0,01 €/foto, rápido, não deforma o animal |
+| A IA transforma a imagem no estilo da personalidade **e** escreve a frase; o balão é sempre desenhado pela app | Pedido do dono do produto (opção B). A IA escreve mal texto dentro de imagens. Custo alvo < 0,15 €/geração |
 | Sem foto grátis; packs consumíveis de 0,99 € / 3,99 € / 7,99 € / 19,99 € (1/5/10/30) | Evita abuso e custos de IA sem receita |
-| 1 nova tentativa grátis por foto e personalidade | Custo baixo; evita frustração |
+| 1 nova **frase** grátis por tradução (a imagem mantém-se); nova imagem gasta 1 crédito | A imagem é cara; a frase é quase grátis |
 | Login com a Apple só na primeira compra | Menos fricção no início |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |

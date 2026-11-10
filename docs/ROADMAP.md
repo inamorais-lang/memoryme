@@ -26,8 +26,10 @@ Cada fase começa com um plano curto, que tem de ser aprovado antes de executar.
 - Supabase: tabelas `profiles`, `credit_ledger`, `generations`, `personalities` e `purchases`, todas com RLS
 - Iniciar sessão com a Apple
 - Supabase Storage para as fotos (pastas privadas por utilizador)
-- Edge Function `generate`: valida o crédito, desconta-o de forma atómica, aplica rate limiting, chama a IA e devolve o crédito se falhar
-- Escolha do modelo de IA, com testes de qualidade e custo
+- Edge Function `generate`: valida o crédito, desconta-o de forma atómica, aplica rate limiting, chama a IA de imagem e a IA de texto e devolve o crédito se falhar
+- Geração em segundo plano (10–30 s): a app acompanha o estado da geração até ficar pronta
+- Estilo visual de cada personalidade (instruções para a IA de imagem)
+- Escolha dos modelos de IA (imagem e texto), com testes de qualidade, fidelidade ao animal, tempo e custo
 - Personalidades vindas do servidor
 - Histórico sincronizado
 - Apagar conta (com revogação do token da Apple)
@@ -60,6 +62,6 @@ Cada fase começa com um plano curto, que tem de ser aprovado antes de executar.
 
 ## Depois do lançamento
 - PT-BR, ES, FR, IT, com personalidades locais
-- Estilo "premium" com imagem gerada pela IA
+- Vários estilos visuais por personalidade
 - Novas personalidades por temporada (Natal, Santos Populares, Halloween)
 - Android

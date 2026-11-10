@@ -5,7 +5,7 @@
 
 ## 1. Resumo
 
-O utilizador tira ou carrega uma foto do seu gato ou cão, escolhe uma personalidade e a app devolve a mesma foto com um balão de pensamento engraçado e sarcástico, pronta a partilhar no Instagram, TikTok ou WhatsApp. É uma app **paga desde a primeira foto**, com pacotes de créditos consumíveis.
+O utilizador tira ou carrega uma foto do seu gato ou cão, escolhe uma personalidade e a app devolve **o seu animal transformado no estilo dessa personalidade** (ex.: pérolas e óculos de sol para a Tia de Cascais), com um balão de pensamento engraçado e sarcástico, pronta a partilhar no Instagram, TikTok ou WhatsApp. É uma app **paga desde a primeira foto**, com pacotes de créditos consumíveis.
 
 ## 2. O problema
 
@@ -36,21 +36,26 @@ O utilizador tira ou carrega uma foto do seu gato ou cão, escolhe uma personali
 ### 5.1 Criar uma "tradução"
 1. Tirar uma foto com a câmara ou escolher uma da galeria.
 2. Escolher uma personalidade (6 por língua, ver 5.2).
-3. Tocar em "Traduzir": a IA analisa a foto (expressão, pose, cenário) e escreve **uma frase**.
-4. A app desenha o balão de pensamento por cima da **foto original**, que nunca é alterada pela IA.
-5. **1 nova tentativa grátis** por foto e personalidade. As tentativas seguintes gastam 1 crédito.
-6. Se a IA não detetar nenhum animal na foto, o crédito **não é gasto** e o utilizador vê uma mensagem clara.
+3. Tocar em "Traduzir": a IA faz duas coisas:
+   - **transforma a imagem** no estilo da personalidade (acessórios, roupa, cenário), mantendo o animal reconhecível;
+   - **escreve uma frase** a partir da foto (expressão, pose, cenário).
+4. A app desenha o balão de pensamento por cima da imagem transformada. O texto nunca é escrito pela IA dentro da imagem, porque sai muitas vezes com erros.
+5. **1 nova frase grátis** por tradução: muda só o texto e mantém a imagem, por isso custa quase nada. Uma nova imagem gasta 1 crédito.
+6. A geração demora 10–30 segundos: ecrã de espera com frases divertidas e a foto original em fundo.
+7. Se a IA não detetar nenhum animal na foto, ou a geração falhar, o crédito **é devolvido** e o utilizador vê uma mensagem clara.
 
 ### 5.2 Personalidades
 
-| PT-PT (sotaques e tipos portugueses) | EN (arquétipos americanos, sem nomes reais) |
-|---|---|
-| Nortenho | The Tech Billionaire |
-| Alentejano | The Campaign Rally |
-| Tia de Cascais | The Influencer |
-| Dramático de novela | The Wall Street Bro |
-| Preguiçoso | The Southern Grandma |
-| Avó portuguesa | The Drama Queen |
+| PT-PT | Estilo visual | EN | Estilo visual |
+|---|---|---|---|
+| Nortenho | Cachecol, tasca, francesinha | The Tech Billionaire | Gola alta preta, palco de apresentação |
+| Alentejano | Chapéu de palha, sobreiro, sol | The Campaign Rally | Fato, gravata, palanque com bandeirinhas |
+| Tia de Cascais | Pérolas, óculos de sol, iate | The Influencer | Ring light, telemóvel, estilo "aesthetic" |
+| Dramático de novela | Luz dramática, lágrima, cortinas | The Wall Street Bro | Colete, ecrãs de bolsa |
+| Preguiçoso | Pijama, manta, sofá | The Southern Grandma | Alpendre, cadeira de baloiço, chá gelado |
+| Avó portuguesa | Lenço na cabeça, xaile, panela de sopa | The Drama Queen | Coroa, capa de veludo, palco |
+
+O animal tem de continuar reconhecível como **o mesmo animal** (raça, cor, padrões). A IA nunca pode dar ao animal a cara de uma pessoa real.
 
 **Regra:** nunca usar nomes, fotos ou citações de pessoas reais (regra 5.2 da App Store e direito de imagem nos EUA).
 
@@ -60,6 +65,7 @@ As personalidades são **configuradas no servidor**, para podermos acrescentar o
 - Folha de partilha nativa do iOS: Instagram, TikTok, WhatsApp, Mensagens, etc.
 - Guardar no rolo da câmara.
 - Formato da imagem final: o da foto original, com opção de recorte 9:16 para stories.
+- A foto original fica guardada ao lado da transformada.
 - **Sem marca de água**: todas as fotos são pagas.
 
 ### 5.4 Histórico
@@ -96,7 +102,7 @@ Compras **consumíveis** através da Apple (StoreKit), com o paywall apresentado
 ## 6. O que fica de fora da v1
 
 - PT-BR, ES, FR e IT (a estrutura fica pronta, as traduções vêm depois).
-- Geração de imagens novas pela IA (estilo "premium"). Na v1 a IA só escreve texto.
+- Escolher vários estilos visuais para a mesma personalidade.
 - Vídeo ou fotos animadas.
 - Subscrições.
 - Outros logins (Google, email).
@@ -135,12 +141,12 @@ Compras **consumíveis** através da Apple (StoreKit), com o paywall apresentado
       │  ("para guardar os teus créditos em segurança")
       │  → compra na Apple → servidor valida → créditos adicionados
       │
-[8] Geração (2–4 s, com animação a carregar)
+[8] Geração (10–30 s): imagem transformada + frase, com ecrã de espera
       │
 [9] Resultado: foto + balão
       ├─ Partilhar  (Instagram / TikTok / WhatsApp / …)
       ├─ Guardar no rolo
-      ├─ Tentar outra vez (1.ª grátis, as seguintes gastam crédito)
+      ├─ Nova frase (grátis, 1 vez) · Nova imagem (1 crédito)
       └─ Nova foto → [3]
 ```
 
@@ -159,7 +165,9 @@ Quem já tem créditos salta diretamente de [5] para [8]. O paywall volta a apar
 | Onboarding concluído | ≥ 80% |
 | Paywall visto → compra | ≥ 15% |
 | Gerações falhadas (erro técnico) | < 2% |
-| Custo de IA por geração | < 0,02 € |
+| Custo de IA por geração (imagem + frase) | < 0,15 € |
+| Tempo de geração (mediana) | < 20 s |
+| Gerações reconhecidas como "o meu animal" (inquérito/feedback) | ≥ 90% |
 
 ### Eventos do funil (PostHog)
 | Evento | Propriedades |
@@ -171,7 +179,7 @@ Quem já tem créditos salta diretamente de [5] para [8]. O paywall volta a apar
 | `paywall_viewed` | `trigger` |
 | `sign_in_completed` | — |
 | `pack_purchased` | `pack_id`, `price`, `currency` |
-| `photo_generated` | `personality_id`, `is_retry`, `credits_left` |
+| `photo_generated` | `personality_id`, `is_retry`, `credits_left`, `duration_ms` |
 | `photo_shared` | `destination` (quando o iOS o indica) |
 | `photo_saved` | — |
 | `generation_failed` | `reason` |
@@ -193,7 +201,7 @@ Não enviamos fotos nem dados pessoais para o PostHog.
 ## 10. Privacidade
 
 - As fotos são guardadas no Supabase Storage em pastas privadas por utilizador, com RLS.
-- A foto é enviada ao fornecedor de IA só para gerar a frase, sem ser usada para treino (a confirmar nos termos do fornecedor).
+- A foto é enviada aos fornecedores de IA só para gerar a imagem e a frase, sem ser usada para treino (a confirmar nos termos do fornecedor).
 - Apagar a conta apaga todas as fotos e dados.
 - RGPD: os dados ficam na UE (região do Supabase em Frankfurt ou Irlanda).
 
@@ -205,7 +213,7 @@ Não enviamos fotos nem dados pessoais para o PostHog.
 | Backend | Supabase: Postgres com RLS, Auth, Storage, Edge Functions |
 | Login | Iniciar sessão com a Apple |
 | Pagamentos | Superwall (paywall) + StoreKit (consumíveis) + validação própria numa Edge Function (App Store Server API + notificações de reembolso) |
-| IA | Modelo com visão, chamado só a partir de uma Edge Function. Escrevemos só texto |
+| IA | Dois modelos, chamados só a partir de Edge Functions: um de **edição de imagem** (transforma a foto no estilo da personalidade) e um de **texto com visão** (escreve a frase) |
 | Analytics | PostHog |
 | Erros | Sentry |
 | Emails | Resend, a partir de Edge Functions (ex.: confirmação de conta apagada) |
@@ -217,5 +225,5 @@ Não enviamos fotos nem dados pessoais para o PostHog.
 ## 12. Perguntas em aberto
 
 - Nome comercial e ícone da app.
-- Fornecedor e modelo de IA final: escolhemos na Fase 2, com testes de qualidade e custo nas 12 personalidades.
+- Fornecedores e modelos de IA finais (imagem e texto): escolhemos na Fase 2, com testes de qualidade, fidelidade ao animal, tempo e custo nas 12 personalidades.
 - Texto exato da política de privacidade e dos termos (Fase 3).

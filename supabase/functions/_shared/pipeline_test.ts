@@ -109,6 +109,8 @@ Deno.test('prompts carry the safety and language rules', () => {
   assert.match(phraseSystemPrompt('pt-PT'), /never Brazilian Portuguese/);
   assert.match(phraseSystemPrompt('en'), /American English/);
   assert.match(phraseSystemPrompt('en'), /at most 70 characters/);
+  assert.match(phraseSystemPrompt('pt-PT'), /impeccable logic/);
+  assert.doesNotMatch(phraseSystemPrompt('en'), /impeccable logic/);
   assert.match(phraseSystemPrompt('pt-PT'), /never copy/);
   assert.match(phraseSystemPrompt('pt-PT'), /2026/);
   assert.match(phraseSystemPrompt('en'), /Never name or imitate real people/);

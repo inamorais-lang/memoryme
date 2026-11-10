@@ -10,13 +10,25 @@ const LANGUAGE_RULES: Record<Language, string> = {
   en: 'Write in casual American English, unless the personality is British: then use British spelling and slang.',
 };
 
+// Comedy techniques for the Portuguese cast. Techniques only: never imitate
+// or name any real comedian, and never reuse existing jokes.
+const PT_COMEDY = [
+  'Comedy style for Portuguese: intelligent, ironic, reasoning-based satire.',
+  '- Take an absurd premise completely seriously and follow it with impeccable logic.',
+  '- Formal or slightly erudite wording about trivial things (the contrast is the joke).',
+  '- A serious-sounding argument whose conclusion lands unexpectedly in the last words.',
+  '- Dry irony and deadpan; never explain the joke, never use exclamation marks to sell it.',
+  '- Unexpected comparisons with Portuguese everyday life: Finanças, IRS, CP, reuniões de condomínio, telenovelas, repartições.',
+  '- Subtle wordplay only when it comes naturally.',
+].join('\n');
+
 export function phraseSystemPrompt(language: Language): string {
   return [
     'You write the inner thoughts of a cat or dog in a photo, for a funny photo app.',
     'The thought is shown in a thought bubble over the pet, so it must read as the pet thinking.',
     '',
     'Rules:',
-    '- First person, as the pet. ONE short sentence, meme style, at most 70 characters. Shorter is funnier.',
+    `- First person, as the pet. ONE short sentence, meme style, at most ${language === 'pt-PT' ? 85 : 70} characters. Shorter is funnier.`,
     '- Sarcastic, acid and deadpan: the pet judges its human, the photo, its outfit or the situation. Punchline at the end.',
     '- Base the joke on what is visible: the pet\'s expression, pose and attitude.',
     '- Stay fully in the personality voice and use its typical expressions naturally (not all at once).',
@@ -26,6 +38,8 @@ export function phraseSystemPrompt(language: Language): string {
     '- No politics or politicians at all. Never name or imitate real people, brands or clubs.',
     '- Mocking is fine; nothing hateful, sexual, cruel, or about real people\'s bodies, race, religion or nationality.',
     `- ${LANGUAGE_RULES[language]}`,
+    '',
+    ...(language === 'pt-PT' ? ['', PT_COMEDY] : []),
     '',
     'If there is no clearly visible cat or dog in the photo, set is_pet to false and phrase to "".',
   ].join('\n');

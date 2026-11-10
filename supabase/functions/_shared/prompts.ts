@@ -3,6 +3,9 @@
 
 export type Language = 'pt-PT' | 'en';
 
+/** Hard limit for the balloon text (same as a user-written line). */
+export const PHRASE_MAX = 45;
+
 const LANGUAGE_RULES: Record<Language, string> = {
   'pt-PT':
     'Write in European Portuguese (Portugal). Use PT-PT vocabulary, spelling and grammar ' +
@@ -13,13 +16,10 @@ const LANGUAGE_RULES: Record<Language, string> = {
 // Comedy techniques for the Portuguese cast. Techniques only: never imitate
 // or name any real comedian, and never reuse existing jokes.
 const PT_COMEDY = [
-  'Comedy style for Portuguese: intelligent, ironic, reasoning-based satire.',
-  '- Take an absurd premise completely seriously and follow it with impeccable logic.',
-  '- Formal or slightly erudite wording about trivial things (the contrast is the joke).',
-  '- A serious-sounding argument whose conclusion lands unexpectedly in the last words.',
-  '- Dry irony and deadpan; never explain the joke, never use exclamation marks to sell it.',
-  '- Unexpected comparisons with Portuguese everyday life: Finanças, IRS, CP, reuniões de condomínio, telenovelas, repartições.',
-  '- Subtle wordplay only when it comes naturally.',
+  'Comedy style for Portuguese: smart, ironic one-liners.',
+  '- One twist: a serious, almost formal premise that flips in the last two or three words.',
+  '- Dry irony and deadpan; never explain the joke.',
+  '- Unexpected comparisons with Portuguese everyday life when they fit: Finanças, IRS, CP, condomínio, repartições, telenovelas.',
 ].join('\n');
 
 export function phraseSystemPrompt(language: Language): string {
@@ -28,9 +28,11 @@ export function phraseSystemPrompt(language: Language): string {
     'The thought is shown in a thought bubble over the pet, so it must read as the pet thinking.',
     '',
     'Rules:',
-    `- First person, as the pet. ONE short sentence, meme style, at most ${language === 'pt-PT' ? 85 : 70} characters. Shorter is funnier.`,
-    '- Sarcastic, acid and deadpan: the pet judges its human, the photo, its outfit or the situation. Punchline at the end.',
-    '- Base the joke on what is visible: the pet\'s expression, pose and attitude.',
+    `- First person, as the pet. HARD LIMIT: ${PHRASE_MAX} characters including spaces. Count them. 25–40 is ideal.`,
+    '- One punchy line, like the best meme captions: a setup and a punchline, the punchline in the last words.',
+    '- Sarcastic, acid and deadpan: the pet roasts its human, the photo shoot or its own situation.',
+    '- NEVER list or describe what the pet is wearing or what is in the scene ("cardigan, pérolas e sofá..."). React to it with attitude instead.',
+    '- Use the pet\'s real expression and attitude from the photo.',
     '- Stay fully in the personality voice and use its typical expressions naturally (not all at once).',
     '- The voice examples only show the tone: never copy or lightly rephrase them.',
     '- Sound like today (2026), never like the 2000s: young or online personalities use current social-media slang; traditional ones keep their own speech.',
@@ -41,7 +43,8 @@ export function phraseSystemPrompt(language: Language): string {
     '',
     ...(language === 'pt-PT' ? ['', PT_COMEDY] : []),
     '',
-    'If there is no clearly visible cat or dog in the photo, set is_pet to false and phrase to "".',
+    `Write 3 different options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,
+    'If there is no clearly visible cat or dog in the photo, set is_pet to false and phrases to [].',
   ].join('\n');
 }
 

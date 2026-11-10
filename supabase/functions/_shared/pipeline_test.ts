@@ -92,13 +92,15 @@ Deno.test('upload error: refunds the credit', async () => {
   assert.deepEqual(calls, ['fail g1 upload_boom']);
 });
 
-Deno.test('parsePhrase trims quotes and rejects an empty phrase for a pet', () => {
-  assert.deepEqual(parsePhrase('{"is_pet":true,"phrase":"  \\"Olá, humano.\\" "}'), { isPet: true, phrase: 'Olá, humano.' });
-  assert.deepEqual(parsePhrase('{"is_pet":false,"phrase":""}'), { isPet: false, phrase: '' });
-  assert.throws(() => parsePhrase('{"is_pet":true,"phrase":""}'));
+Deno.test('parsePhrase picks the funniest option that fits 45 characters', () => {
+  assert.deepEqual(parsePhrase('{"is_pet":true,"phrases":["  \\"Olá, humano.\\" "]}'), { isPet: true, phrase: 'Olá, humano.' });
+  const long = 'x'.repeat(46);
+  assert.equal(parsePhrase(JSON.stringify({ is_pet: true, phrases: [long, 'Curta e boa.', 'Outra.'] })).phrase, 'Curta e boa.');
+  assert.deepEqual(parsePhrase('{"is_pet":false,"phrases":[]}'), { isPet: false, phrase: '' });
+  assert.throws(() => parsePhrase(JSON.stringify({ is_pet: true, phrases: [long] })), /phrase_too_long/);
+  assert.throws(() => parsePhrase('{"is_pet":true,"phrases":[]}'), /phrase_empty/);
   assert.throws(() => parsePhrase('not json'));
-  assert.equal(parsePhrase('{"is_pet":true,"phrase":"Come, carago.</br>"}').phrase, 'Come, carago.');
-  assert.equal(parsePhrase('{"is_pet":true,"phrase":"Linha um<br/>linha  dois"}').phrase, 'Linha um linha dois');
+  assert.equal(parsePhrase('{"is_pet":true,"phrases":["Come, carago.</br>"]}').phrase, 'Come, carago.');
 });
 
 Deno.test('falInput uses each model\'s field names', () => {
@@ -110,9 +112,10 @@ Deno.test('falInput uses each model\'s field names', () => {
 Deno.test('prompts carry the safety and language rules', () => {
   assert.match(phraseSystemPrompt('pt-PT'), /never Brazilian Portuguese/);
   assert.match(phraseSystemPrompt('en'), /American English/);
-  assert.match(phraseSystemPrompt('en'), /at most 70 characters/);
-  assert.match(phraseSystemPrompt('pt-PT'), /impeccable logic/);
-  assert.doesNotMatch(phraseSystemPrompt('en'), /impeccable logic/);
+  assert.match(phraseSystemPrompt('en'), /HARD LIMIT: 45/);
+  assert.match(phraseSystemPrompt('pt-PT'), /NEVER list or describe/);
+  assert.match(phraseSystemPrompt('pt-PT'), /One twist/);
+  assert.doesNotMatch(phraseSystemPrompt('en'), /One twist/);
   assert.match(phraseSystemPrompt('pt-PT'), /never copy/);
   assert.match(phraseSystemPrompt('pt-PT'), /2026/);
   assert.match(phraseSystemPrompt('en'), /Never name or imitate real people/);

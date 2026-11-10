@@ -2,7 +2,7 @@
 // tested with fakes. Keys come only from Edge Function secrets.
 import Anthropic from 'npm:@anthropic-ai/sdk@1.6.0';
 
-import { imageEditPrompt, phraseSystemPrompt, phraseUserPrompt, type Language } from './prompts.ts';
+import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type Language } from './prompts.ts';
 
 export type PhraseResult = { isPet: boolean; phrase: string };
 
@@ -27,9 +27,9 @@ const PHRASE_SCHEMA = {
   type: 'object',
   properties: {
     is_pet: { type: 'boolean' },
-    phrase: { type: 'string' },
+    phrases: { type: 'array', items: { type: 'string' } },
   },
-  required: ['is_pet', 'phrase'],
+  required: ['is_pet', 'phrases'],
   additionalProperties: false,
 };
 
@@ -44,6 +44,16 @@ export class ClaudePhraseWriter implements PhraseWriter {
   }
 
   async write(args: Parameters<PhraseWriter['write']>[0]): Promise<PhraseResult> {
+    try {
+      return await this.ask(args, '');
+    } catch (error) {
+      if (!(error instanceof Error) || error.message !== 'phrase_too_long') throw error;
+      // One more try with a firm reminder; the balloon cannot take more.
+      return await this.ask(args, `Your previous options were longer than ${PHRASE_MAX} characters. Every option must be ${PHRASE_MAX} characters or fewer.`);
+    }
+  }
+
+  private async ask(args: Parameters<PhraseWriter['write']>[0], reminder: string): Promise<PhraseResult> {
     const response = await this.client.beta.messages.create({
       model: this.model,
       max_tokens: 4000,
@@ -62,7 +72,9 @@ export class ClaudePhraseWriter implements PhraseWriter {
             { type: 'image', source: { type: 'url', url: args.imageUrl } },
             {
               type: 'text',
-              text: phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude }),
+              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude }), reminder]
+                .filter(Boolean)
+                .join('\n\n'),
             },
           ],
         },
@@ -76,19 +88,24 @@ export class ClaudePhraseWriter implements PhraseWriter {
   }
 }
 
+/** Picks the first (funniest) option that fits the balloon; never returns more than PHRASE_MAX. */
 export function parsePhrase(raw: string): PhraseResult {
   const data = JSON.parse(raw);
   const isPet = data.is_pet === true;
-  const phrase =
-    typeof data.phrase === 'string'
-      ? data.phrase
-          .replace(/<[^>]*>/g, ' ') // stray markup such as </br>
-          .replace(/\s+/g, ' ')
-          .trim()
-          .replace(/^["“”']+|["“”']+$/g, '')
-      : '';
-  if (isPet && phrase.length === 0) throw new Error('phrase_empty');
-  return { isPet, phrase: phrase.slice(0, 160) };
+  const options: string[] = (Array.isArray(data.phrases) ? data.phrases : [data.phrase])
+    .filter((p: unknown): p is string => typeof p === 'string')
+    .map((p: string) =>
+      p
+        .replace(/<[^>]*>/g, ' ') // stray markup such as </br>
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/^["“”']+|["“”']+$/g, ''),
+    )
+    .filter((p: string) => p.length > 0);
+  if (!isPet) return { isPet: false, phrase: '' };
+  const fitting = options.find((p) => p.length <= PHRASE_MAX);
+  if (!fitting) throw new Error(options.length ? 'phrase_too_long' : 'phrase_empty');
+  return { isPet: true, phrase: fitting };
 }
 
 // ───────────────────────── fal.ai (image restyle) ─────────────────────────

@@ -158,7 +158,7 @@ export default function ResultScreen() {
 
   if (status === 'error') {
     return (
-      <Screen footer={<Button label={t('result.retryFree')} onPress={createFromDraft} />}>
+      <Screen footer={<Button label={t('result.tryAgain')} onPress={createFromDraft} />}>
         <AppText variant="heading">{t('result.errorTitle')}</AppText>
         <AppText color={colors.inkMuted}>{t('result.errorBody')}</AppText>
       </Screen>

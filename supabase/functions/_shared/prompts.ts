@@ -35,8 +35,9 @@ export function phraseUserPrompt(args: {
 }): string {
   const lines = [
     `Personality voice: ${args.voice}`,
-    `In the final picture the pet will be restyled like this: ${args.scene}`,
-    'Write the thought for the pet in this photo.',
+    `The photo is restyled before people see it. The final picture shows the pet like this: ${args.scene}`,
+    'Write the thought for the pet as it appears in that final picture: use its real expression, pose and attitude from the photo,',
+    'but the outfit and setting of the final picture. Never mention the original background, room or furniture.',
   ];
   if (args.exclude.length > 0) {
     lines.push(`Do not repeat or paraphrase these earlier thoughts:\n- ${args.exclude.join('\n- ')}`);

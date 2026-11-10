@@ -8,6 +8,8 @@ type Props = {
   tail?: 'down' | 'up';
   /** 1 = full size; smaller for previews. */
   scale?: number;
+  /** Which side the trail hangs from (towards the pet). */
+  trailSide?: 'left' | 'right';
   /** Index into colors.balloonTints. */
   tint?: number;
   /** Tapping the balloon (e.g. to change its colour). */
@@ -25,8 +27,9 @@ export function tintFor(id: string): number {
  * A classic thought bubble: a trail of three dots that grow from the pet
  * up to the big rounded bubble holding the text. Soft pastel, never white.
  */
-export function ThoughtBalloon({ text, tail = 'down', scale = 1, tint = 0, onPress }: Props) {
-  const base = text.length > 90 ? 18 : text.length > 70 ? 20 : text.length > 45 ? type.balloon.fontSize : 25;
+export function ThoughtBalloon({ text, tail = 'down', trailSide = 'right', scale = 1, tint = 0, onPress }: Props) {
+  // Short lines get big type; longer ones shrink so the bubble stays compact.
+  const base = text.length > 70 ? 16 : text.length > 45 ? 18 : type.balloon.fontSize;
   const fontSize = Math.round(base * scale);
   const fill = { backgroundColor: colors.balloonTints[tint % colors.balloonTints.length] };
 
@@ -35,16 +38,23 @@ export function ThoughtBalloon({ text, tail = 'down', scale = 1, tint = 0, onPre
   const dots = sizes.map((size, i) => (
     <View
       key={size}
-      style={[styles.dot, fill, { width: size, height: size, borderRadius: size / 2, marginRight: `${18 + i * 5}%` }]}
+      style={[
+        styles.dot,
+        fill,
+        { width: size, height: size, borderRadius: size / 2 },
+        trailSide === 'right' ? { marginRight: `${16 + i * 6}%` } : { marginLeft: `${16 + i * 6}%` },
+      ]}
     />
   ));
+
+  const trailAlign = { alignItems: trailSide === 'right' ? ('flex-end' as const) : ('flex-start' as const) };
 
   const bubble = (
     <View
       style={[
         styles.bubble,
         fill,
-        { paddingVertical: space.xl * scale, paddingHorizontal: space.xl * 1.25 * scale, borderRadius: 999 },
+        { paddingVertical: space.lg * scale, paddingHorizontal: space.xl * scale, borderRadius: 999 },
       ]}>
       <AppText variant="balloon" align="center" style={{ fontSize, lineHeight: Math.round(fontSize * 1.22) }}>
         {text}
@@ -60,9 +70,9 @@ export function ThoughtBalloon({ text, tail = 'down', scale = 1, tint = 0, onPre
       accessibilityRole="text"
       accessibilityLabel={text}
       testID="thought-balloon">
-      {tail === 'up' ? <View style={styles.trail}>{[...dots].reverse()}</View> : null}
+      {tail === 'up' ? <View style={[styles.trail, trailAlign]}>{[...dots].reverse()}</View> : null}
       {bubble}
-      {tail === 'down' ? <View style={styles.trail}>{dots}</View> : null}
+      {tail === 'down' ? <View style={[styles.trail, trailAlign]}>{dots}</View> : null}
     </Pressable>
   );
 }
@@ -72,7 +82,6 @@ const styles = StyleSheet.create({
     boxShadow: shadow.balloon,
   },
   trail: {
-    alignItems: 'flex-end',
     gap: space.xs,
     paddingVertical: space.xs,
   },

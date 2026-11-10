@@ -1,13 +1,24 @@
 import { Image } from 'expo-image';
-import { useState, type Ref } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useMemo, useState, type Ref } from 'react';
+import { PanResponder, StyleSheet, View } from 'react-native';
 
 import { colors, radius, shadow } from '@/design';
-import type { BalloonPosition } from '@/features/history/history';
 
 import { ThoughtBalloon } from './ThoughtBalloon';
 
 export type CanvasRef = React.ComponentRef<typeof View>;
+
+/** Top-left corner of the balloon as a fraction (0..1) of the image. */
+export type BalloonSpot = { x: number; y: number };
+
+const MARGIN = 0.03;
+/** The four corners "Mover balão" cycles through (clamped to fit). */
+export const BALLOON_CORNERS: BalloonSpot[] = [
+  { x: 0, y: 0 },
+  { x: 1, y: 0 },
+  { x: 1, y: 1 },
+  { x: 0, y: 1 },
+];
 
 type Props = {
   ref?: Ref<CanvasRef>;
@@ -16,7 +27,9 @@ type Props = {
   photoWidth?: number;
   photoHeight?: number;
   phrase?: string;
-  balloonPosition: BalloonPosition;
+  balloonSpot: BalloonSpot;
+  /** When set, the balloon can be dragged; called when the drag ends. */
+  onBalloonMove?: (spot: BalloonSpot) => void;
   /** Keeps the whole image on screen; the width shrinks to respect it. */
   maxHeight?: number;
   /** Balloon colour (index into colors.balloonTints) and what tapping it does. */
@@ -24,20 +37,62 @@ type Props = {
   onBalloonPress?: () => void;
 };
 
+type Size = { w: number; h: number };
+
 /** Photo + balloon. This exact view is captured as the image people share. */
-export function TranslationCanvas({ ref, photoUri, photoWidth, photoHeight, phrase, balloonPosition, maxHeight, balloonTint, onBalloonPress }: Props) {
+export function TranslationCanvas({
+  ref,
+  photoUri,
+  photoWidth,
+  photoHeight,
+  phrase,
+  balloonSpot,
+  onBalloonMove,
+  maxHeight,
+  balloonTint,
+  onBalloonPress,
+}: Props) {
   const [loaded, setLoaded] = useState<{ width: number; height: number } | null>(null);
-  const width0 = photoWidth ?? loaded?.width ?? 4;
-  const height0 = photoHeight ?? loaded?.height ?? 5;
-  const aspectRatio = clamp(width0 / height0, 0.56, 1.5);
-  // The balloon is designed for a ~360pt-wide photo and scales with it.
-  const [frameWidth, setFrameWidth] = useState(360);
-  const balloonScale = Math.min(1, Math.max(0.65, frameWidth / 360));
+  const aspectRatio = clamp((photoWidth ?? loaded?.width ?? 4) / (photoHeight ?? loaded?.height ?? 5), 0.56, 1.5);
   const sizing = maxHeight ? { maxWidth: maxHeight * aspectRatio, alignSelf: 'center' as const } : null;
 
+  const [frame, setFrame] = useState<Size>({ w: 360, h: 450 });
+  const [bubble, setBubble] = useState<Size>({ w: 250, h: 120 });
+  const [drag, setDrag] = useState<BalloonSpot | null>(null);
+
+  // The balloon is designed for a ~360pt-wide photo and scales with it.
+  const balloonScale = Math.min(1, Math.max(0.6, frame.w / 360));
+  const spot = fit(drag ?? balloonSpot, frame, bubble);
+
+  const pan = useMemo(() => {
+    // Drags are measured from where the balloon was when they started.
+    const start = fit(balloonSpot, frame, bubble);
+    const moved = (dx: number, dy: number) => ({ x: start.x + dx / frame.w, y: start.y + dy / frame.h });
+    return PanResponder.create({
+        // Taps go to the balloon (colour change); only real drags move it.
+        onMoveShouldSetPanResponder: (_e, g) => !!onBalloonMove && Math.abs(g.dx) + Math.abs(g.dy) > 6,
+        // Capture phase: take the gesture from the balloon's tap handler once it moves.
+        onMoveShouldSetPanResponderCapture: (_e, g) => !!onBalloonMove && Math.abs(g.dx) + Math.abs(g.dy) > 6,
+        onPanResponderMove: (_e, g) => setDrag(moved(g.dx, g.dy)),
+        onPanResponderRelease: (_e, g) => {
+          setDrag(null);
+          onBalloonMove?.(fit(moved(g.dx, g.dy), frame, bubble));
+        },
+        onPanResponderTerminate: () => setDrag(null),
+      });
+  }, [onBalloonMove, balloonSpot, frame, bubble]);
+
+  // Trail points from the bubble towards the middle of the photo (the pet).
+  const centreX = spot.x + bubble.w / frame.w / 2;
+  const centreY = spot.y + bubble.h / frame.h / 2;
+
   return (
-    <View ref={ref} collapsable={false} style={[styles.frame, { aspectRatio }, sizing]} testID="translation-canvas"
-      onLayout={(e) => setFrameWidth(e.nativeEvent.layout.width)}>
+    <View
+      ref={ref}
+      collapsable={false}
+      style={[styles.frame, { aspectRatio }, sizing]}
+      testID="translation-canvas"
+      onLayout={(e) => setFrame({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       <Image
         source={{ uri: photoUri }}
         style={StyleSheet.absoluteFill}
@@ -45,8 +100,14 @@ export function TranslationCanvas({ ref, photoUri, photoWidth, photoHeight, phra
         onLoad={(e) => setLoaded({ width: e.source.width, height: e.source.height })}
       />
       {phrase ? (
-        <View style={[styles.balloon, balloonPosition === 'top' ? styles.top : styles.bottom]}>
-          <ThoughtBalloon text={phrase} tail={balloonPosition === 'top' ? 'down' : 'up'}
+        <View
+          {...pan.panHandlers}
+          style={[styles.balloon, { left: spot.x * frame.w, top: spot.y * frame.h }]}
+          onLayout={(e) => setBubble({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+          <ThoughtBalloon
+            text={phrase}
+            tail={centreY < 0.5 ? 'down' : 'up'}
+            trailSide={centreX < 0.5 ? 'right' : 'left'}
             scale={balloonScale}
             tint={balloonTint}
             onPress={onBalloonPress}
@@ -55,6 +116,13 @@ export function TranslationCanvas({ ref, photoUri, photoWidth, photoHeight, phra
       ) : null}
     </View>
   );
+}
+
+/** Keeps the balloon fully inside the photo, with a small margin. */
+function fit(spot: BalloonSpot, frame: Size, bubble: Size): BalloonSpot {
+  const maxX = Math.max(MARGIN, 1 - bubble.w / frame.w - MARGIN);
+  const maxY = Math.max(MARGIN, 1 - bubble.h / frame.h - MARGIN);
+  return { x: clamp(spot.x, MARGIN, maxX), y: clamp(spot.y, MARGIN, maxY) };
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -69,7 +137,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inkFaint,
     boxShadow: shadow.md,
   },
-  balloon: { position: 'absolute', left: '5%', right: '5%' },
-  top: { top: '5%' },
-  bottom: { bottom: '5%' },
+  // Narrow enough to leave the pet's face visible.
+  balloon: { position: 'absolute', width: '68%' },
 });

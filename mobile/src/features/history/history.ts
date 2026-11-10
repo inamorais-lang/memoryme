@@ -14,6 +14,11 @@ export type Translation = {
   shownPhrases: string[];
   freeRetryUsed: boolean;
   balloonPosition: BalloonPosition;
+  /** Line written by the user (max 45 chars); replaces the AI phrase when set. */
+  customPhrase?: string;
+  /** Dragged balloon position, as fractions of the image. */
+  balloonX?: number;
+  balloonY?: number;
 };
 
 const KEY = 'history.v1';

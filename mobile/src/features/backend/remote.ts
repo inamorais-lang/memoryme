@@ -9,7 +9,8 @@ import type { PickedPhoto } from '@/lib/photos';
 import { BackendError, type Backend, type BackendErrorCode, type TranslationView } from './types';
 
 const MAX_SIDE = 1536;
-const COLUMNS = 'id, status, personality_id, image_path, phrase, free_phrase_used, balloon_position, failure_reason, created_at';
+const COLUMNS =
+  'id, status, personality_id, image_path, phrase, custom_phrase, free_phrase_used, balloon_position, balloon_x, balloon_y, failure_reason, created_at';
 
 type Row = {
   id: string;
@@ -19,6 +20,9 @@ type Row = {
   phrase: string | null;
   free_phrase_used: boolean;
   balloon_position: TranslationView['balloonPosition'];
+  custom_phrase: string | null;
+  balloon_x: number | null;
+  balloon_y: number | null;
   failure_reason: string | null;
   created_at: string;
 };
@@ -74,6 +78,9 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       phrase: r.phrase ?? undefined,
       freePhraseUsed: r.free_phrase_used,
       balloonPosition: r.balloon_position,
+      customPhrase: r.custom_phrase ?? undefined,
+      balloonX: r.balloon_x ?? undefined,
+      balloonY: r.balloon_y ?? undefined,
       failureReason: r.failure_reason ?? undefined,
       createdAt: Date.parse(r.created_at),
     }));
@@ -119,8 +126,12 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       if (error) throw await toBackendError(error);
       return data.phrase as string;
     },
-    async setBalloon(id, position) {
-      const { error } = await supabase.from('generations').update({ balloon_position: position }).eq('id', id);
+    async setBalloonSpot(id, x, y) {
+      const { error } = await supabase.from('generations').update({ balloon_x: x, balloon_y: y }).eq('id', id);
+      if (error) throw new BackendError('network');
+    },
+    async setCustomPhrase(id, text) {
+      const { error } = await supabase.from('generations').update({ custom_phrase: text }).eq('id', id);
       if (error) throw new BackendError('network');
     },
     async listHistory() {

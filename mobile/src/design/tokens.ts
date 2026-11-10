@@ -53,7 +53,7 @@ export const type = {
   smallStrong: { fontFamily: fonts.bodyBold, fontSize: 13, lineHeight: 18 },
   button: { fontFamily: fonts.bodyBold, fontSize: 17, lineHeight: 22 },
   buttonSmall: { fontFamily: fonts.bodyBold, fontSize: 15, lineHeight: 20 },
-  balloon: { fontFamily: fonts.displayBold, fontSize: 21, lineHeight: 25, letterSpacing: -0.3 },
+  balloon: { fontFamily: fonts.displayBold, fontSize: 20, lineHeight: 24, letterSpacing: -0.3 },
 } as const;
 
 export type TypeVariant = keyof typeof type;

@@ -96,6 +96,8 @@ mobile/
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)
 ```
 
+- Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos; a IA deixa o terço de cima da imagem livre.
+- Frase própria: "Escrever a minha frase", máx. **45** caracteres (`CUSTOM_PHRASE_MAX` e `check` na BD), grátis, sem IA; `custom_phrase` substitui a frase da IA no balão.
 - Balão: rasto de 3 bolinhas a crescer até à bola do texto; cor pastel (`colors.balloonTints`) estável por tradução (`tintFor(id)`), tocar no balão troca a cor.
 - A imagem partilhada é a captura de `TranslationCanvas` (`react-native-view-shot`): foto original + balão desenhado pela app.
 - Ficheiros `*.web.ts` substituem os nativos na web (ex.: `kv.web.ts`).

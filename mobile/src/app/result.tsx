@@ -5,10 +5,15 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Linking, Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { tintFor } from '@/components/ThoughtBalloon';
-import { TranslationCanvas, type CanvasRef } from '@/components/TranslationCanvas';
-import { AppText, Button, colors, Screen, space } from '@/design';
+import {
+  BALLOON_CORNERS,
+  TranslationCanvas,
+  type BalloonSpot,
+  type CanvasRef,
+} from '@/components/TranslationCanvas';
+import { AppText, Button, colors, Screen, space, TextField } from '@/design';
 import { useAuth } from '@/features/auth/AuthContext';
-import { backend, type TranslationView } from '@/features/backend';
+import { backend, CUSTOM_PHRASE_MAX, type TranslationView } from '@/features/backend';
 import { useDraft } from '@/features/draft/DraftContext';
 import { findPersonality } from '@/features/personalities/data';
 import { renderToImage, saveImageToLibrary, shareImage } from '@/lib/exportImage';
@@ -25,7 +30,7 @@ export default function ResultScreen() {
   const auth = useAuth();
   const canvasRef = useRef<CanvasRef>(null);
   // Header, pinned actions and the retry link take roughly half the screen.
-  const canvasMaxHeight = useWindowDimensions().height * 0.5;
+  const canvasMaxHeight = useWindowDimensions().height * 0.45;
 
   const [item, setItem] = useState<TranslationView | null>(null);
   const [status, setStatus] = useState<Status>('loading');
@@ -33,6 +38,9 @@ export default function ResultScreen() {
   const [saved, setSaved] = useState(false);
   // Each translation gets its own pastel; tapping the balloon cycles it.
   const [tintShift, setTintShift] = useState(0);
+  const [corner, setCorner] = useState(0);
+  const [editing, setEditing] = useState(false);
+  const [draftText, setDraftText] = useState('');
   const [loadingText] = useState(() => pickOne(t('result.loading', { returnObjects: true }) as string[]));
 
   // Load the translation; while the server is still working on it, poll.
@@ -75,7 +83,8 @@ export default function ResultScreen() {
     setBusy('retry');
     try {
       const phrase = await backend.newPhrase(item.id);
-      setItem({ ...item, phrase, freePhraseUsed: true });
+      setItem({ ...item, phrase, customPhrase: undefined, freePhraseUsed: true });
+      if (item.customPhrase) backend.setCustomPhrase(item.id, null).catch(() => {});
     } catch {
       Alert.alert(t('result.errorTitle'), t('result.errorBody'));
     } finally {
@@ -83,11 +92,36 @@ export default function ResultScreen() {
     }
   }
 
-  function moveBalloon() {
+  function placeBalloon(spot: BalloonSpot) {
     if (!item) return;
-    const balloonPosition = item.balloonPosition === 'top' ? 'bottom' : 'top';
-    setItem({ ...item, balloonPosition });
-    backend.setBalloon(item.id, balloonPosition).catch(() => {});
+    setItem({ ...item, balloonX: spot.x, balloonY: spot.y });
+    backend.setBalloonSpot(item.id, spot.x, spot.y).catch(() => {});
+  }
+
+  function nextCorner() {
+    const next = (corner + 1) % BALLOON_CORNERS.length;
+    setCorner(next);
+    placeBalloon(BALLOON_CORNERS[next]);
+  }
+
+  function startWriting() {
+    setDraftText(item?.customPhrase ?? '');
+    setEditing(true);
+  }
+
+  function saveOwnLine() {
+    if (!item) return;
+    const text = draftText.replace(/\s+/g, ' ').trim().slice(0, CUSTOM_PHRASE_MAX);
+    if (!text) return;
+    setItem({ ...item, customPhrase: text });
+    setEditing(false);
+    backend.setCustomPhrase(item.id, text).catch(() => Alert.alert(t('result.network')));
+  }
+
+  function useAiLine() {
+    if (!item) return;
+    setItem({ ...item, customPhrase: undefined });
+    backend.setCustomPhrase(item.id, null).catch(() => {});
   }
 
   async function share() {
@@ -157,7 +191,7 @@ export default function ResultScreen() {
               photoUri={photo.uri}
               photoWidth={photo.width}
               photoHeight={photo.height}
-              balloonPosition="top"
+              balloonSpot={BALLOON_CORNERS[0]}
               maxHeight={canvasMaxHeight}
             />
           </View>
@@ -177,59 +211,90 @@ export default function ResultScreen() {
 
   const personality = findPersonality(item.personalityId);
   const isWeb = Platform.OS === 'web';
+  const spot: BalloonSpot =
+    item.balloonX !== undefined && item.balloonY !== undefined
+      ? { x: item.balloonX, y: item.balloonY }
+      : BALLOON_CORNERS[item.balloonPosition === 'bottom' ? 3 : 0];
+  const shownPhrase = editing ? draftText || t('result.writePlaceholder') : (item.customPhrase ?? item.phrase);
+  const charsLeft = CUSTOM_PHRASE_MAX - draftText.length;
+
+  const writingFooter = (
+    <>
+      <TextField
+        testID="own-line-input"
+        value={draftText}
+        onChangeText={setDraftText}
+        maxLength={CUSTOM_PHRASE_MAX}
+        placeholder={t('result.writePlaceholder')}
+        autoFocus
+        returnKeyType="done"
+        onSubmitEditing={saveOwnLine}
+        counterLabel={t('result.charsLeft', { count: charsLeft })}
+      />
+      <Button testID="use-own-line" label={t('result.useMine')} onPress={saveOwnLine} disabled={!draftText.trim()} />
+      <View style={styles.secondary}>
+        <Button testID="cancel-own-line" variant="tertiary" label={t('common.cancel')} onPress={() => setEditing(false)} />
+      </View>
+    </>
+  );
+
+  const actionsFooter = (
+    <>
+      <Button testID="share" label={t('result.share')} onPress={share} loading={busy === 'share'} />
+      <View style={styles.row}>
+        {!isWeb ? (
+          <View style={styles.flex}>
+            <Button
+              testID="save"
+              variant="secondary"
+              label={saved ? t('result.saved') : t('result.save')}
+              onPress={save}
+              loading={busy === 'save'}
+              disabled={saved}
+            />
+          </View>
+        ) : null}
+        <View style={styles.flex}>
+          <Button testID="move-balloon" variant="secondary" label={t('result.moveBalloon')} onPress={nextCorner} />
+        </View>
+      </View>
+      <View style={styles.secondary}>
+        <Button testID="write-own-line" variant="tertiary" label={t('result.writeOwn')} onPress={startWriting} />
+        {item.customPhrase ? (
+          <Button testID="use-ai-line" variant="tertiary" label={t('result.useAi')} onPress={useAiLine} />
+        ) : null}
+        {!item.freePhraseUsed ? (
+          <Button
+            testID="retry"
+            variant="tertiary"
+            label={t('result.retryFree')}
+            onPress={newPhrase}
+            loading={busy === 'retry'}
+          />
+        ) : null}
+        <Button testID="new-photo" variant="tertiary" label={t('result.newPhoto')} onPress={newPhoto} />
+      </View>
+    </>
+  );
 
   return (
-    <Screen
-      footer={
-        <>
-          <Button testID="share" label={t('result.share')} onPress={share} loading={busy === 'share'} />
-          <View style={styles.row}>
-            {!isWeb ? (
-              <View style={styles.flex}>
-                <Button
-                  testID="save"
-                  variant="secondary"
-                  label={saved ? t('result.saved') : t('result.save')}
-                  onPress={save}
-                  loading={busy === 'save'}
-                  disabled={saved}
-                />
-              </View>
-            ) : null}
-            <View style={styles.flex}>
-              <Button testID="move-balloon" variant="secondary" label={t('result.moveBalloon')} onPress={moveBalloon} />
-            </View>
-          </View>
-          <View style={styles.secondary}>
-            {!item.freePhraseUsed ? (
-              <Button
-                testID="retry"
-                variant="tertiary"
-                label={t('result.retryFree')}
-                onPress={newPhrase}
-                loading={busy === 'retry'}
-              />
-            ) : null}
-            <Button testID="new-photo" variant="tertiary" label={t('result.newPhoto')} onPress={newPhoto} />
-          </View>
-        </>
-      }>
+    <Screen footer={editing ? writingFooter : actionsFooter}>
       <TranslationCanvas
         ref={canvasRef}
         photoUri={item.imageUri}
         photoWidth={item.width}
         photoHeight={item.height}
-        phrase={item.phrase}
-        balloonPosition={item.balloonPosition}
+        phrase={shownPhrase}
+        balloonSpot={spot}
+        onBalloonMove={placeBalloon}
         maxHeight={canvasMaxHeight}
         balloonTint={tintFor(item.id) + tintShift}
         onBalloonPress={() => setTintShift((n) => n + 1)}
       />
-      {personality ? (
-        <AppText variant="smallStrong" color={colors.inkMuted} align="center">
-          {personality.name}
-        </AppText>
-      ) : null}
+      <AppText variant="small" color={colors.inkMuted} align="center">
+        {personality ? `${personality.name} · ` : ''}
+        {t('result.dragHint')}
+      </AppText>
     </Screen>
   );
 }

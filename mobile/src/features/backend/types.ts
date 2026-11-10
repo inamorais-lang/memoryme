@@ -4,6 +4,9 @@ import type { PickedPhoto } from '@/lib/photos';
 
 export type PersonalityInfo = { id: string; name: string; tagline: string };
 
+/** Max length of a line written by the user (also enforced in the database). */
+export const CUSTOM_PHRASE_MAX = 45;
+
 export type TranslationStatus = 'pending' | 'succeeded' | 'failed';
 
 /** What the screens need to show one translation, wherever it lives. */
@@ -18,6 +21,10 @@ export type TranslationView = {
   phrase?: string;
   freePhraseUsed: boolean;
   balloonPosition: BalloonPosition;
+  /** Line written by the user; shown instead of `phrase` when set. */
+  customPhrase?: string;
+  balloonX?: number;
+  balloonY?: number;
   failureReason?: string;
   createdAt: number;
 };
@@ -44,6 +51,7 @@ export interface Backend {
   createTranslation(photo: PickedPhoto, personalityId: string): Promise<string>;
   getTranslation(id: string): Promise<TranslationView | null>;
   newPhrase(id: string): Promise<string>;
-  setBalloon(id: string, position: BalloonPosition): Promise<void>;
+  setBalloonSpot(id: string, x: number, y: number): Promise<void>;
+  setCustomPhrase(id: string, text: string | null): Promise<void>;
   listHistory(): Promise<TranslationView[]>;
 }

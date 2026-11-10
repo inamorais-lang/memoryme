@@ -17,6 +17,9 @@ function toView(t: Translation): TranslationView {
     phrase: t.phrase,
     freePhraseUsed: t.freeRetryUsed,
     balloonPosition: t.balloonPosition,
+    customPhrase: t.customPhrase,
+    balloonX: t.balloonX,
+    balloonY: t.balloonY,
     createdAt: t.createdAt,
   };
 }
@@ -57,8 +60,11 @@ export const localBackend: Backend = {
     await updateTranslation(id, { phrase, shownPhrases: [...t.shownPhrases, phrase], freeRetryUsed: true });
     return phrase;
   },
-  async setBalloon(id, position) {
-    await updateTranslation(id, { balloonPosition: position });
+  async setBalloonSpot(id, x, y) {
+    await updateTranslation(id, { balloonX: x, balloonY: y });
+  },
+  async setCustomPhrase(id, text) {
+    await updateTranslation(id, { customPhrase: text ?? undefined });
   },
   async listHistory() {
     return (await loadHistory()).map(toView);

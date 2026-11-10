@@ -3,7 +3,8 @@
 import { ClaudePhraseWriter, FalImageEditor } from './ai.ts';
 
 function required(name: string): string {
-  const value = Deno.env.get(name);
+  // Keys pasted in a dashboard often carry stray spaces or line breaks.
+  const value = Deno.env.get(name)?.replace(/\s+/g, '');
   if (!value) throw new Error(`missing_secret_${name}`);
   return value;
 }

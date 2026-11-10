@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 
 import { falInput, parsePhrase, type ImageEditor, type PhraseWriter } from './ai.ts';
-import { httpErrorFor, runGeneration, type Store } from './pipeline.ts';
+import { httpErrorFor, runGeneration, safeReason, type Store } from './pipeline.ts';
 import { imageEditPrompt, phraseSystemPrompt, phraseUserPrompt } from './prompts.ts';
 
 function fakeStore() {
@@ -113,6 +113,29 @@ Deno.test('prompts carry the safety and language rules', () => {
   assert.match(imageEditPrompt('pearls'), /same animal/);
   assert.match(imageEditPrompt('pearls'), /never make it resemble a real person/);
   assert.match(imageEditPrompt('pearls'), /Do not add any text/);
+});
+
+Deno.test('failure reasons never leak provider messages or keys', () => {
+  assert.equal(safeReason('image_failed_401: {"detail":"credential has been revoked"}'), 'image_failed_401');
+  assert.equal(safeReason('Invalid header value: "Key fal_sk_secret"'), 'internal_error');
+  assert.equal(safeReason('not_a_pet'), 'not_a_pet');
+  assert.equal(safeReason('TypeError: fetch failed'), 'internal_error');
+});
+
+Deno.test('a crash stores only a safe code', async () => {
+  const { store, calls } = fakeStore();
+  await runGeneration(
+    {
+      store,
+      phrases: phrases({ isPet: true, phrase: 'x' }),
+      images: images(async () => {
+        throw new TypeError('Invalid header value: "Key fal_sk_123"');
+      }),
+      log: quiet,
+    },
+    gen,
+  );
+  assert.deepEqual(calls, ['fail g1 internal_error']);
 });
 
 Deno.test('SQL errors map to app-friendly HTTP codes', () => {

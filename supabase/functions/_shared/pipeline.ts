@@ -57,11 +57,21 @@ export async function runGeneration(
     if (!finished) throw new Error('finish_rejected');
     return 'succeeded';
   } catch (error) {
-    const reason = error instanceof Error ? error.message : String(error);
-    log(`generation ${gen.id} failed: ${reason}`);
-    await store.fail(gen.id, reason).catch((e) => log(`refund failed for ${gen.id}: ${e}`));
+    const message = error instanceof Error ? error.message : String(error);
+    log(`generation ${gen.id} failed: ${message.replace(/(Key|Bearer)\s+\S+/gi, '$1 [redacted]')}`);
+    await store.fail(gen.id, safeReason(message)).catch((e) => log(`refund failed for ${gen.id}: ${e}`));
     return 'failed';
   }
+}
+
+/**
+ * The failure reason is readable by the user, so it must never contain raw
+ * provider messages (they can echo request headers, i.e. API keys).
+ * Keep only our own short snake_case codes, e.g. "image_failed_401".
+ */
+export function safeReason(message: string): string {
+  const code = /^[a-z][a-z0-9_]{2,40}/.exec(message)?.[0];
+  return code ?? 'internal_error';
 }
 
 /** Maps errors raised by the SQL functions to HTTP responses for the app. */

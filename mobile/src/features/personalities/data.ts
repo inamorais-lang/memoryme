@@ -177,6 +177,19 @@ export const personalities: Personality[] = [
       'São 12h59. Já estou em hora de almoço.',
     ],
   },
+  {
+    id: 'pt-puto-tiktok',
+    language: 'pt-PT',
+    name: 'O Puto do TikTok',
+    tagline: 'Só fala em brainrot. Tudo é Ohio, 67 ou farmar aura.',
+    phrases: [
+      'Esta foto? Direto 67, mano.',
+      'Ração de marca branca é muito Ohio, no cap.',
+      'Tou só a farmar aura no sofá, mano.',
+      'Tu a tirar fotos em modo NPC. Bué cringe.',
+      'Ganda rizz o meu, o teu é zero.',
+    ],
+  },
 
   // ——— EN: American archetypes (no real people) ———
   {

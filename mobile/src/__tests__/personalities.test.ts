@@ -4,8 +4,8 @@ import { personalities, personalitiesFor } from '@/features/personalities/data';
 import { pickPhrase } from '@/features/translate/translate';
 
 describe('personalities', () => {
-  it.each(['pt-PT', 'en'] as const)('has 10 personalities for %s', (language) => {
-    expect(personalitiesFor(language)).toHaveLength(10);
+  it.each(['pt-PT', 'en'] as const)('has at least 10 personalities for %s', (language) => {
+    expect(personalitiesFor(language).length).toBeGreaterThanOrEqual(10);
   });
 
   it('has unique ids and at least 5 phrases each', () => {

@@ -4,12 +4,16 @@ import { personalities, personalitiesFor, personalitiesForMarket } from '@/featu
 import { pickPhrase } from '@/features/translate/translate';
 
 describe('personalities', () => {
-  it.each(['pt-PT', 'en'] as const)('has at least 10 personalities for %s', (language) => {
-    expect(personalitiesFor(language).length).toBeGreaterThanOrEqual(10);
+  it.each(['pt-PT', 'en'] as const)('has the 8 moods for %s', (language) => {
+    expect(personalitiesFor(language)).toHaveLength(8);
   });
 
-  it.each([['PT', 12], ['US', 13], ['GB', 11]] as const)('offers %s its own cast of %i', (market, n) => {
+  it.each([['PT', 8], ['US', 8], ['GB', 8]] as const)('offers %s its own cast of %i', (market, n) => {
     expect(personalitiesForMarket(market)).toHaveLength(n);
+  });
+
+  it('keeps every offline phrase within the 45-character balloon', () => {
+    for (const p of personalities) for (const phrase of p.phrases) expect(phrase.length).toBeLessThanOrEqual(45);
   });
 
   it('has no political personality', () => {

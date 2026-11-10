@@ -31,11 +31,11 @@ const en: Strings = {
     saveBody: 'To save the translation to your camera roll, allow photo access in Settings.',
   },
   personality: {
-    screenTitle: 'Personality',
+    screenTitle: 'Mood',
     title: 'Who is your pet today?',
-    subtitle: 'Pick the voice of the translation.',
+    subtitle: "Pick today's mood.",
     translate: 'Translate · 1 credit',
-    pickFirst: 'Pick a personality',
+    pickFirst: 'Pick a mood',
     selected: 'Selected',
   },
   result: {

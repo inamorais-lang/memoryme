@@ -29,11 +29,11 @@ const ptPT = {
     saveBody: 'Para guardares a tradução no rolo da câmara, permite o acesso às fotos nas Definições.',
   },
   personality: {
-    screenTitle: 'Personalidade',
+    screenTitle: 'Feitio',
     title: 'Quem é o teu bicho hoje?',
-    subtitle: 'Escolhe a voz da tradução.',
+    subtitle: 'Escolhe o feitio de hoje.',
     translate: 'Traduzir · 1 crédito',
-    pickFirst: 'Escolhe uma personalidade',
+    pickFirst: 'Escolhe um feitio',
     selected: 'Selecionada',
   },
   result: {

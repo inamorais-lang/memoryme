@@ -133,6 +133,8 @@ Deno.test('prompts carry the pet-logic, safety and language rules', () => {
   assert.match(phraseSystemPrompt('en'), /AS A PET/);
   assert.match(phraseSystemPrompt('en'), /make sense instantly/);
   assert.match(phraseSystemPrompt('en'), /owners lovingly say/);
+  assert.match(phraseSystemPrompt('en'), /throw it away/);
+  assert.match(imageEditPrompt('x'), /human hands/);
   assert.match(phraseSystemPrompt('en'), /cat or a dog/);
   assert.match(phraseSystemPrompt('en'), /HARD LIMIT: 45/);
   assert.match(phraseSystemPrompt('en'), /politics/);

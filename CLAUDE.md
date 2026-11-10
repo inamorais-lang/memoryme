@@ -32,7 +32,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | App em `mobile/`, site antigo na raiz | Não misturar com o site existente |
 | Design limpo e minimalista, cores vivas da moda (rosa choque, verde-lima, lilás); todos os botões com cor (primary/secondary/tertiary, sem botões só de texto); sem contornos, sombras suaves | Pedido do dono do produto: app jovem, com humor |
 | Fontes: Bricolage Grotesque (títulos e balão) + DM Sans (texto) | Moderna e irreverente, não parecer "feito por IA" |
-| Frase primeiro (Claude, barato), imagem depois (fal) | A frase também verifica se há animal: foto sem animal nunca chega ao modelo caro |
+| Ordem: confirmar que há animal (Claude, barato) → imagem (fal) → frase escrita a olhar para a imagem final | Foto sem animal nunca chega ao modelo caro; a frase bate certo com o que está na imagem |
 | Imagem por fal.ai com modelo configurável | Uma só chave para comparar modelos; trocar sem nova versão |
 | Login com a Apple testável na Expo Go (client ID `host.exp.Exponent`) | Conta Apple Developer só é precisa na Fase 3 |
 
@@ -54,7 +54,7 @@ npm test             # só os testes unitários (Jest)
 ```
 supabase/
   migrations/                 esquema + RLS + funções de créditos; personalidades e prompts
-  functions/generate          gasta 1 crédito (SQL atómico) → 202; em segundo plano: Claude (frase + "há animal?") → fal (imagem) → Storage
+  functions/generate          gasta 1 crédito (SQL atómico) → 202; em segundo plano: Claude ("há animal?") → fal (imagem) → Storage → Claude (frase sobre a imagem final)
   functions/new-phrase        a frase grátis (1 por geração), sem gastar crédito
   functions/delete-account    apaga fotos + utilizador (linhas apagadas em cascata)
   functions/_shared           ai.ts (Claude, fal), pipeline.ts (lógica testável), store.ts, prompts.ts
@@ -97,7 +97,7 @@ mobile/
 ```
 
 - Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos; a IA deixa o terço de cima da imagem livre.
-- Frases da IA: máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
+- Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
 - Frase própria: "Escrever a minha frase", máx. **45** caracteres (`CUSTOM_PHRASE_MAX` e `check` na BD), grátis, sem IA; `custom_phrase` substitui a frase da IA no balão.
 - Balão: rasto de 3 bolinhas a crescer até à bola do texto; cor pastel (`colors.balloonTints`) estável por tradução (`tintFor(id)`), tocar no balão troca a cor.
 - A imagem partilhada é a captura de `TranslationCanvas` (`react-native-view-shot`): foto original + balão desenhado pela app.

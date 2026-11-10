@@ -44,7 +44,8 @@ export function phraseSystemPrompt(language: Language): string {
     '- Cheeky is fine; nothing cruel, sexual or hateful.',
     `- ${LANGUAGE_RULES[language]}`,
     '',
-    `Write 3 different options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,
+    'Your first idea is usually the obvious joke everyone would make. Think of it, then throw it away.',
+    `Write 3 different, less obvious options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,
     'Set is_pet to true when a cat or dog is visible (it normally is).',
   ].join('\n');
 }
@@ -75,6 +76,6 @@ export function imageEditPrompt(style: string): string {
     'Bright, cheerful and colourful: vivid saturated colours and plenty of light, like a playful editorial photo. Never dark, moody or gloomy.',
     'Frame the pet in the lower two thirds of the image and keep the top third as plain, empty background.',
     'Never draw speech bubbles, thought bubbles, clouds of thought, text, letters, numbers, captions, logos or watermarks.',
-    'Do not give the animal human facial features and never make it resemble a real person.',
+    'Do not give the animal human facial features, human hands or fingers (it keeps its own paws), and never make it resemble a real person.',
   ].join(' ');
 }

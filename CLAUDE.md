@@ -4,7 +4,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 
 - Produto: `docs/PRD.md`
 - Fases: `docs/ROADMAP.md`
-- Estado atual: **Fase 1 concluída** (fluxo principal com frases locais, sem servidor). Na Fase 1 a imagem ainda não é transformada: isso chega com a IA na Fase 2.
+- Estado atual: **Fase 2 em curso**. Código do servidor e da app feito e testado localmente; falta ligar ao projeto Supabase real (contas e chaves do dono do produto).
 
 ## Regras não negociáveis
 - Chaves secretas (IA, service role do Supabase) **só** em Supabase Edge Functions. Nunca no código da app nem em variáveis `EXPO_PUBLIC_*`.
@@ -31,6 +31,9 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Só modo claro na v1 | Identidade visual única; menos trabalho de design |
 | App em `mobile/`, site antigo na raiz | Não misturar com o site existente |
 | Fontes: Fraunces (títulos e balão) + DM Sans (texto) | Personalidade própria, não parecer "feito por IA" |
+| Frase primeiro (Claude, barato), imagem depois (fal) | A frase também verifica se há animal: foto sem animal nunca chega ao modelo caro |
+| Imagem por fal.ai com modelo configurável | Uma só chave para comparar modelos; trocar sem nova versão |
+| Login com a Apple testável na Expo Go (client ID `host.exp.Exponent`) | Conta Apple Developer só é precisa na Fase 3 |
 
 ## Comandos
 Tudo dentro de `mobile/`:
@@ -46,18 +49,46 @@ npm test             # só os testes unitários (Jest)
 - **Sem Mac:** não há Xcode nem simulador. Teste automático = versão web com Playwright em tamanho de iPhone. Teste manual = Expo Go no iPhone (Fases 1–2), builds EAS (Fase 3+).
 - Se o servidor web não refletir alterações, reiniciar com `npx expo start --web -c`.
 
-## Arquitetura
+## Servidor (Supabase)
+```
+supabase/
+  migrations/                 esquema + RLS + funções de créditos; personalidades e prompts
+  functions/generate          gasta 1 crédito (SQL atómico) → 202; em segundo plano: Claude (frase + "há animal?") → fal (imagem) → Storage
+  functions/new-phrase        a frase grátis (1 por geração), sem gastar crédito
+  functions/delete-account    apaga fotos + utilizador (linhas apagadas em cascata)
+  functions/_shared           ai.ts (Claude, fal), pipeline.ts (lógica testável), store.ts, prompts.ts
+  tests/                      testes SQL (Postgres simples) — `supabase/tests/run.sh`
+```
+
+- Créditos: só as funções SQL `start_generation`, `fail_generation`, `grant_credits`… mexem em saldos, e só o `service_role` as pode chamar. A app só lê.
+- Falhas devolvem sempre o crédito (`fail_generation` é idempotente). Gerações presas >5 min expiram e são reembolsadas.
+- Limites: 5/min, 100/dia, 2 em curso por utilizador (`private.limits()`).
+- Segredos (Edge Function secrets): `ANTHROPIC_API_KEY`, `FAL_KEY`; opcionais `TEXT_MODEL` (padrão `claude-opus-5-5`), `IMAGE_MODEL` (padrão `google/nano-banana-2.1/edit`).
+- A app fica em **modo local** (Fase 1, sem servidor) se `mobile/.env` não tiver `EXPO_PUBLIC_SUPABASE_URL`/`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+
+### Comandos do servidor
+```bash
+supabase/tests/run.sh                      # migrações + 31 testes SQL (precisa de PGHOST/PGPORT de um Postgres local)
+deno test supabase/functions/_shared       # testes do pipeline (IA falsa)
+deno check supabase/functions/*/index.ts   # tipos das Edge Functions
+npx supabase@2 ...                         # CLI fixada na v2 (a v3 mudou comportamentos)
+```
+- O Deno recusa pacotes npm com menos de 24 h: fixar versões publicadas há pelo menos um dia.
+
+## Arquitetura da app
 ```
 mobile/
   app.json                     nome, permissões (PT), plugins, idiomas iOS
   locales/ios/*.json           textos das permissões por idioma
   src/
-    app/                       ecrãs (Expo Router): index → personality → result, history
+    app/                       ecrãs (Expo Router): index → personality → (sign-in | no-credits) → result; history; settings
     design/                    design system: tokens.ts + AppText, Button, Screen
     i18n/                      i18next; locales/pt-PT.ts é a referência, en.ts igual em chaves
     features/
       personalities/data.ts    12 personalidades (6 PT, 6 EN); no servidor a partir da Fase 2
-      translate/translate.ts   ÚNICO ponto foto → frase (local agora; Edge Function na Fase 2)
+      backend/                 ÚNICA porta para dados: local.ts (Fase 1) ou remote.ts (Supabase); os ecrãs só usam `backend`
+      auth/AuthContext.tsx     sessão, login com a Apple, créditos, terminar sessão, apagar conta
+      translate/translate.ts   frases locais (só modo local)
       history/history.ts       histórico guardado no dispositivo
       draft/DraftContext.tsx   foto + personalidade escolhidas antes de traduzir
     components/                ThoughtBalloon, TranslationCanvas (vista exportada como PNG)

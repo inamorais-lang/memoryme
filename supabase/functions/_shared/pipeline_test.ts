@@ -109,17 +109,14 @@ Deno.test('falInput uses each model\'s field names', () => {
   assert.deepEqual(falInput('openai/gpt-image-2/edit', 'p', 'u').image_urls, ['u']);
 });
 
-Deno.test('prompts carry the safety and language rules', () => {
+Deno.test('prompts carry the pet-logic, safety and language rules', () => {
   assert.match(phraseSystemPrompt('pt-PT'), /never Brazilian Portuguese/);
-  assert.match(phraseSystemPrompt('en'), /American English/);
+  assert.match(phraseSystemPrompt('pt-PT'), /no slang or regional expressions/);
+  assert.match(phraseSystemPrompt('en'), /AS A PET/);
+  assert.match(phraseSystemPrompt('en'), /cat or a dog/);
   assert.match(phraseSystemPrompt('en'), /HARD LIMIT: 45/);
+  assert.match(phraseSystemPrompt('en'), /politics/);
   assert.match(phraseSystemPrompt('pt-PT'), /NEVER list or describe/);
-  assert.match(phraseSystemPrompt('pt-PT'), /One twist/);
-  assert.doesNotMatch(phraseSystemPrompt('en'), /One twist/);
-  assert.match(phraseSystemPrompt('pt-PT'), /never copy/);
-  assert.match(phraseSystemPrompt('pt-PT'), /2026/);
-  assert.match(phraseSystemPrompt('en'), /Never name or imitate real people/);
-  assert.match(phraseSystemPrompt('en'), /No politics/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: ['a', 'b'] }), /- a\n- b/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /Never mention the original background/);
   assert.match(imageEditPrompt('pearls'), /same animal/);

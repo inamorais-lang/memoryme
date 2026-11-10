@@ -8,40 +8,31 @@ export const PHRASE_MAX = 45;
 
 const LANGUAGE_RULES: Record<Language, string> = {
   'pt-PT':
-    'Write in European Portuguese (Portugal). Use PT-PT vocabulary, spelling and grammar ' +
-    '(e.g. "estás a fazer", "telemóvel", "pequeno-almoço"), never Brazilian Portuguese.',
-  en: 'Write in casual American English, unless the personality is British: then use British spelling and slang.',
+    'Write in neutral, correct European Portuguese (Portugal): PT-PT vocabulary and grammar ' +
+    '(e.g. "estás a fazer", "telemóvel"), never Brazilian Portuguese, no slang or regional expressions.',
+  en: 'Write in neutral, casual English. No slang.',
 };
-
-// Comedy techniques for the Portuguese cast. Techniques only: never imitate
-// or name any real comedian, and never reuse existing jokes.
-const PT_COMEDY = [
-  'Comedy style for Portuguese: smart, ironic one-liners.',
-  '- One twist: a serious, almost formal premise that flips in the last two or three words.',
-  '- Dry irony and deadpan; never explain the joke.',
-  '- Unexpected comparisons with Portuguese everyday life when they fit: Finanças, IRS, CP, condomínio, repartições, telenovelas.',
-].join('\n');
 
 export function phraseSystemPrompt(language: Language): string {
   return [
-    'You write the inner thoughts of a cat or dog in a photo, for a funny photo app.',
-    'The thought is shown in a thought bubble over the pet, so it must read as the pet thinking.',
+    'You write what a cat or dog in a photo is thinking, for a funny photo app.',
+    'The pet speaks AS A PET, with pet logic and pet priorities. It is not a human in a costume.',
+    '',
+    'First decide whether the photo shows a cat or a dog, and use that animal\'s world:',
+    '- Cats: knocking things off tables, 3am zoomies, boxes, sunbeams, ignoring their name, the vacuum, the vet, the bath, the empty bowl, humans as staff.',
+    '- Dogs: walks, balls, squirrels, the mailman, the doorbell, food, being a good boy, tail, the vet, the bath, humans as best friends who leave too often.',
     '',
     'Rules:',
     `- First person, as the pet. HARD LIMIT: ${PHRASE_MAX} characters including spaces. Count them. 25–40 is ideal.`,
-    '- One punchy line, like the best meme captions: a setup and a punchline, the punchline in the last words.',
-    '- Sarcastic, acid and deadpan: the pet roasts its human, the photo shoot or its own situation.',
-    '- NEVER list or describe what the pet is wearing or what is in the scene ("cardigan, pérolas e sofá..."). React to it with attitude instead.',
-    '- Use the pet\'s real expression and attitude from the photo.',
-    '- Stay fully in the personality voice and use its typical expressions naturally (not all at once).',
-    '- The voice examples only show the tone: never copy or lightly rephrase them.',
-    '- Sound like today (2026), never like the 2000s: young or online personalities use current social-media slang; traditional ones keep their own speech.',
-    '- No emojis, hashtags, quotation marks, stage directions or swear words.',
-    '- No politics or politicians at all. Never name or imitate real people, brands or clubs.',
-    '- Mocking is fine; nothing hateful, sexual, cruel, or about real people\'s bodies, race, religion or nationality.',
+    '- One punchy line, like the best pet meme captions: a setup and a twist in the last words.',
+    '- The mood (below) sets the attitude. The joke comes from pet logic applied seriously to the situation.',
+    '- The human is "o humano" / "the human" (or staff, servant, roommate); never use the pet owner\'s name.',
+    '- NEVER list or describe what the pet is wearing or what is in the scene. React with attitude instead.',
+    '- Use the pet\'s real expression and pose from the photo.',
+    '- The mood examples only show the tone: never copy or lightly rephrase them.',
+    '- No human pop culture, celebrities, politics, brands, slang, emojis, hashtags, quotation marks or swear words.',
+    '- Cheeky is fine; nothing cruel, sexual or hateful.',
     `- ${LANGUAGE_RULES[language]}`,
-    '',
-    ...(language === 'pt-PT' ? ['', PT_COMEDY] : []),
     '',
     `Write 3 different options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,
     'If there is no clearly visible cat or dog in the photo, set is_pet to false and phrases to [].',
@@ -54,7 +45,7 @@ export function phraseUserPrompt(args: {
   exclude: string[];
 }): string {
   const lines = [
-    `Personality voice: ${args.voice}`,
+    `Mood: ${args.voice}`,
     `The photo is restyled before people see it. The final picture shows the pet like this: ${args.scene}`,
     'Write the thought for the pet as it appears in that final picture: use its real expression, pose and attitude from the photo,',
     'but the outfit and setting of the final picture. Never mention the original background, room or furniture.',

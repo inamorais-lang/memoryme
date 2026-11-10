@@ -30,17 +30,17 @@ select test.check((select count(*) = 2 and sum(credits) = 0 from public.profiles
 set role service_role;
 
 select test.expect_error(
-  $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-avo', 'aaaaaaaa-0000-0000-0000-000000000001/p.jpg')$$,
+  $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/p.jpg')$$,
   'insufficient_credits');
 select test.check(true, 'no credit -> no generation');
 
 select test.check(public.grant_credits('aaaaaaaa-0000-0000-0000-000000000001', 3) = 3, 'grant 3 credits');
 
 select test.expect_error(
-  $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-avo', 'bbbbbbbb-0000-0000-0000-000000000002/p.jpg')$$,
+  $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/p.jpg')$$,
   'invalid_path');
 select test.expect_error(
-  $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-avo', 'aaaaaaaa-0000-0000-0000-000000000001/../x.jpg')$$,
+  $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/../x.jpg')$$,
   'invalid_path');
 select test.expect_error(
   $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'nope', 'aaaaaaaa-0000-0000-0000-000000000001/p.jpg')$$,
@@ -49,13 +49,13 @@ select test.check(true, 'other users'' photos, path tricks and unknown personali
 
 create temp table g (id uuid);
 grant all on g to service_role, authenticated;
-insert into g select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-avo', 'aaaaaaaa-0000-0000-0000-000000000001/1.jpg');
+insert into g select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/1.jpg');
 select test.check((select credits = 2 from public.profiles where id = 'aaaaaaaa-0000-0000-0000-000000000001'), 'starting a generation spends 1 credit');
 select test.check((select delta = -1 from public.credit_ledger where generation_id = (select id from g)), 'spend is recorded in the ledger');
 
-insert into g select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-avo', 'aaaaaaaa-0000-0000-0000-000000000001/2.jpg');
+insert into g select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/2.jpg');
 select test.expect_error(
-  $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-avo', 'aaaaaaaa-0000-0000-0000-000000000001/3.jpg')$$,
+  $$select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/3.jpg')$$,
   'rate_limited');
 select test.check((select credits = 1 from public.profiles where id = 'aaaaaaaa-0000-0000-0000-000000000001'), 'at most 2 generations in progress; the 3rd costs nothing');
 
@@ -85,7 +85,7 @@ select public.set_phrase((select id from ok), 'Frase 2');
 select test.check((select phrase = 'Frase 2' and shown_phrases = array['Frase 1', 'Frase 2'] from public.generations where id = (select id from ok)), 'new phrase saved and remembered');
 
 -- Stuck generations expire and are refunded.
-select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-avo', 'aaaaaaaa-0000-0000-0000-000000000001/4.jpg');
+select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/4.jpg');
 update public.generations set created_at = now() - interval '10 minutes' where status = 'pending';
 select test.check(public.expire_stale_generations('aaaaaaaa-0000-0000-0000-000000000001') = 1, 'stuck generation expires');
 select test.check((select credits = 2 from public.profiles where id = 'aaaaaaaa-0000-0000-0000-000000000001'), 'stuck generation is refunded');
@@ -98,7 +98,7 @@ set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
 
 select test.check((select count(*) = 1 from public.profiles), 'user sees only their own profile');
 select test.check((select count(*) = 0 from public.generations where user_id <> auth.uid()), 'user sees only their own generations');
-select test.check((select count(*) = 28 from public.personalities), 'user sees the 28 active personalities');
+select test.check((select count(*) = 16 from public.personalities), 'user sees the 16 active moods');
 
 select test.expect_error($$select image_prompt from public.personalities limit 1$$, 'permission denied');
 select test.check(true, 'AI prompts are hidden from the app');
@@ -106,9 +106,9 @@ select test.check(true, 'AI prompts are hidden from the app');
 select test.expect_error($$update public.profiles set credits = 999$$, 'permission denied');
 select test.expect_error($$insert into public.credit_ledger (user_id, delta, reason) values (auth.uid(), 100, 'grant')$$, 'permission denied');
 select test.expect_error($$select public.grant_credits(auth.uid(), 100)$$, 'permission denied');
-select test.expect_error($$select public.start_generation(auth.uid(), 'pt-avo', auth.uid() || '/x.jpg')$$, 'permission denied');
+select test.expect_error($$select public.start_generation(auth.uid(), 'pt-diva', auth.uid() || '/x.jpg')$$, 'permission denied');
 select test.expect_error($$update public.generations set status = 'succeeded'$$, 'permission denied');
-select test.expect_error($$insert into public.generations (user_id, personality_id, original_path) values (auth.uid(), 'pt-avo', 'x')$$, 'permission denied');
+select test.expect_error($$insert into public.generations (user_id, personality_id, original_path) values (auth.uid(), 'pt-diva', 'x')$$, 'permission denied');
 select test.check(true, 'the app cannot add credits, start generations or change results');
 
 select test.expect_error($$update public.generations set free_phrase_used = false$$, 'permission denied');
@@ -144,11 +144,12 @@ select test.check((select custom_phrase = 'A minha frase' from public.generation
 
 -- ───────── Anonymous ─────────
 set role anon;
-select test.check((select count(*) = 28 from public.personalities), 'personality list is public');
-select test.check((select count(*) = 12 from public.personalities where markets @> array['PT']), 'PT market: 12 personalities');
-select test.check((select count(*) = 13 from public.personalities where markets @> array['US']), 'US market: 13 personalities');
-select test.check((select count(*) = 11 from public.personalities where markets @> array['GB']), 'UK market: 11 personalities');
+select test.check((select count(*) = 16 from public.personalities), 'personality list is public');
+select test.check((select count(*) = 8 from public.personalities where markets @> array['PT']), 'PT market: 8 moods');
+select test.check((select count(*) = 8 from public.personalities where markets @> array['US']), 'US market: 8 moods');
+select test.check((select count(*) = 8 from public.personalities where markets @> array['GB']), 'UK market: 8 moods');
 select test.check((select count(*) = 0 from public.personalities where id = 'en-campaign-rally'), 'no political personality is offered');
+select test.check((select count(*) = 0 from public.personalities where id in ('pt-tia-cascais', 'en-karen')), 'human archetypes are retired');
 select test.expect_error($$select voice_prompt from public.personalities limit 1$$, 'permission denied');
 select test.check(true, 'anonymous users cannot read the AI prompts');
 select test.expect_error($$select * from public.profiles$$, 'permission denied');

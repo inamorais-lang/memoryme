@@ -113,6 +113,7 @@ Deno.test('prompts carry the pet-logic, safety and language rules', () => {
   assert.match(phraseSystemPrompt('pt-PT'), /never Brazilian Portuguese/);
   assert.match(phraseSystemPrompt('pt-PT'), /no slang or regional expressions/);
   assert.match(phraseSystemPrompt('en'), /AS A PET/);
+  assert.match(phraseSystemPrompt('en'), /make sense instantly/);
   assert.match(phraseSystemPrompt('en'), /cat or a dog/);
   assert.match(phraseSystemPrompt('en'), /HARD LIMIT: 45/);
   assert.match(phraseSystemPrompt('en'), /politics/);

@@ -56,7 +56,7 @@ export const personalities: Personality[] = [
     id: 'pt-tia-cascais',
     language: 'pt-PT',
     name: 'Tia de Cascais',
-    tagline: 'Diz "tipo" a cada frase e acha a tua casa "super chunga".',
+    tagline: 'Padel, matcha e old money. Se não é trend, é um não.',
     phrases: [
       'Querida, esta almofada é tipo… do IKEA? Não consigo.',
       'Esta ração é muito… básica. Não há assim uma coisa mais biológica?',

@@ -21,6 +21,7 @@ export function phraseSystemPrompt(language: Language): string {
     '- Base the joke on what is visible: the pet\'s expression, pose and attitude.',
     '- Stay fully in the personality voice and use its typical expressions naturally (not all at once).',
     '- The voice examples only show the tone: never copy or lightly rephrase them.',
+    '- Sound like today (2026), never like the 2000s: young or online personalities use current social-media slang; traditional ones keep their own speech.',
     '- No emojis, hashtags, quotation marks, stage directions or swear words.',
     '- Never name or imitate real people, brands, clubs, political parties or real campaigns.',
     '- Mocking is fine; nothing hateful, sexual, cruel, or about real people\'s bodies, race, religion or nationality.',

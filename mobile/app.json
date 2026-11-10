@@ -13,7 +13,8 @@
       "infoPlist": {
         "CFBundleDevelopmentRegion": "pt-PT",
         "CFBundleAllowMixedLocalizations": true
-      }
+      },
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -57,7 +58,9 @@
       "expo-sharing",
       "expo-localization",
       "expo-sqlite",
-      "expo-font"
+      "expo-font",
+      "expo-secure-store",
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true,

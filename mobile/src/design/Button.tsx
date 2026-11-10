@@ -14,6 +14,8 @@ const palette: Record<Variant, { bg: string; pressed: string; text: string }> = 
 
 type Props = {
   label: string;
+  /** Small second line under the label, e.g. "grátis". */
+  note?: string;
   onPress: () => void;
   variant?: Variant;
   disabled?: boolean;
@@ -22,7 +24,7 @@ type Props = {
   testID?: string;
 };
 
-export function Button({ label, onPress, variant = 'primary', disabled, loading, hint, testID }: Props) {
+export function Button({ label, note, onPress, variant = 'primary', disabled, loading, hint, testID }: Props) {
   const inactive = disabled || loading;
   const small = variant === 'tertiary';
   const c = palette[variant];
@@ -31,7 +33,7 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
     <Pressable
       testID={testID}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={note ? `${label}, ${note}` : label}
       accessibilityHint={hint}
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}
@@ -45,9 +47,16 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
       ]}>
       <View style={styles.content}>
         {loading ? <ActivityIndicator color={c.text} /> : null}
-        <AppText variant={small ? 'buttonSmall' : 'button'} color={c.text}>
-          {label}
-        </AppText>
+        <View style={styles.labels}>
+          <AppText variant={small ? 'buttonSmall' : 'button'} color={c.text} align="center" numberOfLines={1}>
+            {label}
+          </AppText>
+          {note ? (
+            <AppText variant="smallStrong" color={c.text} align="center" style={styles.note}>
+              {note}
+            </AppText>
+          ) : null}
+        </View>
       </View>
     </Pressable>
   );
@@ -71,6 +80,8 @@ const styles = StyleSheet.create({
   inactive: {
     opacity: 0.4,
   },
+  labels: { alignItems: 'center' },
+  note: { opacity: 0.75, marginTop: -2 },
   content: {
     flexDirection: 'row',
     alignItems: 'center',

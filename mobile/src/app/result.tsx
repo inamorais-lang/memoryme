@@ -241,13 +241,14 @@ export default function ResultScreen() {
     <>
       <View style={styles.row}>
         <View style={styles.flex}>
-          <Button testID="share" label={t('result.share')} onPress={share} loading={busy === 'share'} />
+          <Button testID="share" label={t('result.share')} note={t('result.free')} onPress={share} loading={busy === 'share'} />
         </View>
         <View style={styles.flex}>
           <Button
             testID="save"
             variant="secondary"
             label={saved ? t('result.saved') : t('result.save')}
+            note={t('result.free')}
             onPress={save}
             loading={busy === 'save'}
             disabled={saved}

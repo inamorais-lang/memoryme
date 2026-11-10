@@ -44,16 +44,22 @@ O utilizador tira ou carrega uma foto do seu gato ou cão, escolhe uma personali
 6. A geração demora 10–30 segundos: ecrã de espera com frases divertidas e a foto original em fundo.
 7. Se a IA não detetar nenhum animal na foto, ou a geração falhar, o crédito **é devolvido** e o utilizador vê uma mensagem clara.
 
-### 5.2 Personalidades
+### 5.2 Feitios (os animais falam como animais)
 
-| PT-PT | Estilo visual | EN | Estilo visual |
-|---|---|---|---|
-| Nortenho | Cachecol, tasca, francesinha | The Tech Billionaire | Gola alta preta, palco de apresentação |
-| Alentejano | Chapéu de palha, sobreiro, sol | The Campaign Rally | Fato, gravata, palanque com bandeirinhas |
-| Tia de Cascais | Pérolas, óculos de sol, iate | The Influencer | Ring light, telemóvel, estilo "aesthetic" |
-| Dramático de novela | Luz dramática, lágrima, cortinas | The Wall Street Bro | Colete, ecrãs de bolsa |
-| Preguiçoso | Pijama, manta, sofá | The Southern Grandma | Alpendre, cadeira de baloiço, chá gelado |
-| Avó portuguesa | Lenço na cabeça, xaile, panela de sopa | The Drama Queen | Coroa, capa de veludo, palco |
+O animal fala **como animal**, com lógica de gato ou de cão (tigela vazia, aspirador, carteiro, copos na mesa, corridas às 3 da manhã), e nunca como uma pessoa mascarada. Em vez de personagens humanas, há **8 feitios universais**, iguais em todas as línguas. A IA vê se a foto é de um gato ou de um cão e adapta a piada. Português neutro, sem calão regional.
+
+| Feitio (PT / EN) | Atitude | Estilo visual |
+|---|---|---|
+| Diva / Diva | Exige ser admirado | Coroa, almofada de veludo, holofote |
+| Esfomeado / Always Hungry | Comeu há 5 minutos, está a definhar | Guardanapo ao pescoço, rodeado de comida |
+| Dramático / Dramatic | Cada banho é uma tragédia | Luz de cinema, lágrima, chuva na janela |
+| Vilão / Villain | Planeia dominar a casa | Capa, covil escuro, luz vermelha |
+| Preguiçoso / Lazy | Dormir é uma carreira | Pijama, manta, sofá |
+| Ciumento / Jealous | O telemóvel e o outro animal são inimigos | Deitado no portátil, olhar desconfiado |
+| Caótico / Chaos Gremlin | Corridas às 3 da manhã | Papel higiénico por todo o lado |
+| Crítico / The Critic | Avalia comida e serviço | Boina, mesa de restaurante fino |
+
+Frases: até **45 caracteres**, com um golpe seco no fim.
 
 O animal tem de continuar reconhecível como **o mesmo animal** (raça, cor, padrões). A IA nunca pode dar ao animal a cara de uma pessoa real.
 

@@ -26,7 +26,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Login com a Apple só na primeira compra | Menos fricção no início |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
-| Arquétipos em EN em vez de pessoas reais | Regra 5.2 da App Store e direito de imagem |
+| Os animais falam como animais: 8 feitios universais (PT/EN), lógica de gato/cão, português neutro; personagens humanas inativas | Decisão do dono do produto: as piadas humanizadas não tinham graça |
 | Sem Mac: EAS Build na cloud + Expo Go/builds de teste no iPhone; testes automáticos na web | O dono do produto só tem iPhone |
 | Só modo claro na v1 | Identidade visual única; menos trabalho de design |
 | App em `mobile/`, site antigo na raiz | Não misturar com o site existente |
@@ -86,7 +86,7 @@ mobile/
     design/                    design system: tokens.ts + AppText, Button, Screen
     i18n/                      i18next; locales/pt-PT.ts é a referência, en.ts igual em chaves
     features/
-      personalities/data.ts    12 personalidades (6 PT, 6 EN); no servidor a partir da Fase 2
+      personalities/data.ts    8 feitios por língua (espelho do servidor; frases só para modo local)
       backend/                 ÚNICA porta para dados: local.ts (Fase 1) ou remote.ts (Supabase); os ecrãs só usam `backend`
       auth/AuthContext.tsx     sessão, login com a Apple, créditos, terminar sessão, apagar conta
       translate/translate.ts   frases locais (só modo local)

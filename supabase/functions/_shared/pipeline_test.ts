@@ -108,6 +108,8 @@ Deno.test('falInput uses each model\'s field names', () => {
 Deno.test('prompts carry the safety and language rules', () => {
   assert.match(phraseSystemPrompt('pt-PT'), /never Brazilian Portuguese/);
   assert.match(phraseSystemPrompt('en'), /American English/);
+  assert.match(phraseSystemPrompt('en'), /at most 70 characters/);
+  assert.match(phraseSystemPrompt('pt-PT'), /never copy/);
   assert.match(phraseSystemPrompt('en'), /Never name or imitate real people/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: ['a', 'b'] }), /- a\n- b/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /Never mention the original background/);

@@ -209,7 +209,8 @@ Não enviamos fotos nem dados pessoais para o PostHog.
 | Analytics | PostHog |
 | Erros | Sentry |
 | Emails | Resend, a partir de Edge Functions (ex.: confirmação de conta apagada) |
-| Publicação | Xcode → TestFlight → App Store, correções com EAS Update |
+| Publicação | EAS Build (compila na cloud, sem Mac) → EAS Submit → TestFlight → App Store, correções com EAS Update |
+| Testes | Testes automáticos na versão web (Playwright) + testes manuais no iPhone (Expo Go na Fase 1, builds de teste do EAS a partir da Fase 3) |
 
 **Nota sobre os consumíveis:** o Superwall trata bem do paywall e da compra, mas **não guarda saldos de créditos**. Por isso o saldo e a validação ficam no nosso servidor: a app envia a transação assinada da Apple para uma Edge Function, que a verifica e adiciona os créditos. A alternativa seria o RevenueCat, que também valida consumíveis, mas acrescentaria mais uma ferramenta sem resolver o saldo. Mantemos o Superwall.
 

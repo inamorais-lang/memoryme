@@ -1,9 +1,11 @@
 # Roadmap
 
+> **Sem Mac:** não usamos Xcode nem simulador. As builds são feitas na cloud com o EAS e os testes são feitos na versão web (automáticos) e no iPhone (manuais).
+
 Cada fase começa com um plano curto, que tem de ser aprovado antes de executar. Cada fase termina com algo a funcionar e testado.
 
 ## Fase 1 — A ação principal a funcionar (dados locais)
-**Objetivo:** foto → personalidade → frase → balão → partilhar, a correr no simulador.
+**Objetivo:** foto → personalidade → frase → balão → partilhar, a correr no iPhone (Expo Go) e na versão web.
 
 - Projeto Expo + Expo Router + TypeScript
 - Design system: cores, tipografia e espaçamentos num só ficheiro
@@ -43,7 +45,8 @@ Cada fase começa com um plano curto, que tem de ser aprovado antes de executar.
 - PostHog com todos os eventos do funil
 - Sentry na app e nas Edge Functions
 - Política de privacidade e termos
-- Build no Xcode → TestFlight
+- EAS Build (cloud) → EAS Submit → TestFlight
+- Builds de teste (development build) instaladas no iPhone, para testar login e compras
 
 ## Fase 4 — Polimento e submissão na App Store
 **Objetivo:** aprovação à primeira.

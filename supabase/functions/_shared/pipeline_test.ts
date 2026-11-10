@@ -122,7 +122,7 @@ Deno.test('prompts carry the pet-logic, safety and language rules', () => {
   assert.match(imageEditPrompt('pearls'), /same animal/);
   assert.match(imageEditPrompt('pearls'), /top third/);
   assert.match(imageEditPrompt('pearls'), /never make it resemble a real person/);
-  assert.match(imageEditPrompt('pearls'), /Do not add any text/);
+  assert.match(imageEditPrompt('pearls'), /Never draw speech bubbles/);
 });
 
 Deno.test('failure reasons never leak provider messages or keys', () => {

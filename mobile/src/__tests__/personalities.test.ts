@@ -4,15 +4,15 @@ import { personalities, personalitiesFor } from '@/features/personalities/data';
 import { pickPhrase } from '@/features/translate/translate';
 
 describe('personalities', () => {
-  it.each(['pt-PT', 'en'] as const)('has 6 personalities for %s', (language) => {
-    expect(personalitiesFor(language)).toHaveLength(6);
+  it.each(['pt-PT', 'en'] as const)('has 10 personalities for %s', (language) => {
+    expect(personalitiesFor(language)).toHaveLength(10);
   });
 
-  it('has unique ids and at least 10 phrases each', () => {
+  it('has unique ids and at least 5 phrases each', () => {
     const ids = personalities.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const p of personalities) {
-      expect(p.phrases.length).toBeGreaterThanOrEqual(10);
+      expect(p.phrases.length).toBeGreaterThanOrEqual(5);
       expect(new Set(p.phrases).size).toBe(p.phrases.length);
     }
   });

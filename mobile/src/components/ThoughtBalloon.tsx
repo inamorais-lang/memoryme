@@ -11,7 +11,8 @@ type Props = {
 };
 
 export function ThoughtBalloon({ text, tail = 'down', scale = 1 }: Props) {
-  const base = text.length > 90 ? 18 : text.length > 60 ? 20 : type.balloon.fontSize;
+  // Meme-length lines get bigger type; long ones shrink to fit.
+  const base = text.length > 90 ? 18 : text.length > 70 ? 20 : text.length > 45 ? type.balloon.fontSize : 25;
   const fontSize = Math.round(base * scale);
   const big = <View style={[styles.dot, dotSize(18 * scale)]} />;
   const small = <View style={[styles.dot, dotSize(10 * scale), styles.smallOffset]} />;

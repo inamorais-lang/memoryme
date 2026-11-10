@@ -8,7 +8,7 @@ describe('personalities', () => {
     expect(personalitiesFor(language).length).toBeGreaterThanOrEqual(10);
   });
 
-  it.each([['PT', 11], ['US', 13], ['GB', 11]] as const)('offers %s its own cast of %i', (market, n) => {
+  it.each([['PT', 12], ['US', 13], ['GB', 11]] as const)('offers %s its own cast of %i', (market, n) => {
     expect(personalitiesForMarket(market)).toHaveLength(n);
   });
 

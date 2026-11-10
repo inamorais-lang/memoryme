@@ -98,7 +98,7 @@ set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
 
 select test.check((select count(*) = 1 from public.profiles), 'user sees only their own profile');
 select test.check((select count(*) = 0 from public.generations where user_id <> auth.uid()), 'user sees only their own generations');
-select test.check((select count(*) = 27 from public.personalities), 'user sees the 27 active personalities');
+select test.check((select count(*) = 28 from public.personalities), 'user sees the 28 active personalities');
 
 select test.expect_error($$select image_prompt from public.personalities limit 1$$, 'permission denied');
 select test.check(true, 'AI prompts are hidden from the app');
@@ -134,8 +134,8 @@ select test.check((select balloon_position = 'bottom' from public.generations wh
 
 -- ───────── Anonymous ─────────
 set role anon;
-select test.check((select count(*) = 27 from public.personalities), 'personality list is public');
-select test.check((select count(*) = 11 from public.personalities where markets @> array['PT']), 'PT market: 11 personalities');
+select test.check((select count(*) = 28 from public.personalities), 'personality list is public');
+select test.check((select count(*) = 12 from public.personalities where markets @> array['PT']), 'PT market: 12 personalities');
 select test.check((select count(*) = 13 from public.personalities where markets @> array['US']), 'US market: 13 personalities');
 select test.check((select count(*) = 11 from public.personalities where markets @> array['GB']), 'UK market: 11 personalities');
 select test.check((select count(*) = 0 from public.personalities where id = 'en-campaign-rally'), 'no political personality is offered');

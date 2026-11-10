@@ -126,6 +126,19 @@ export const personalities: Personality[] = [
   },
 
   {
+    id: 'pt-mae',
+    language: 'pt-PT',
+    name: 'A Mãe Portuguesa',
+    tagline: 'Exausta, dramática e com razão. Sobra sempre para ela.',
+    phrases: [
+      'Isto não é um hotel. Mas o jantar aparece sozinho, não é?',
+      'Fotos? A mim ninguém me fotografa a estender a roupa.',
+      'Pergunta ao teu pai. Ah, pois, ele também não sabe.',
+      'Quando eu morrer é que vais ver quem enchia a tigela.',
+      'Vais sair assim? Estou a contar até três.',
+    ],
+  },
+  {
     id: 'pt-emigrante',
     language: 'pt-PT',
     name: 'Emigrante em França',

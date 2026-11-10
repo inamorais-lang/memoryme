@@ -13,7 +13,7 @@ export function phraseWriter() {
 }
 
 export function imageEditor() {
-  return new FalImageEditor(required('FAL_KEY'), Deno.env.get('IMAGE_MODEL') ?? 'google/nano-banana-2.1/edit');
+  return new FalImageEditor(required('FAL_KEY'), Deno.env.get('IMAGE_MODEL') ?? 'fal-ai/flux-pro/kontext');
 }
 
 export function json(body: unknown, status = 200) {

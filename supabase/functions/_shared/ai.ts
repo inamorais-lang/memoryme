@@ -7,6 +7,9 @@ import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type
 export type PhraseResult = { isPet: boolean; phrase: string };
 
 export interface PhraseWriter {
+  /** Cheap gate on the original photo, before any expensive image call. */
+  isPet(imageUrl: string): Promise<boolean>;
+  /** Writes the line for the FINAL picture (imageUrl is the restyled image). */
   write(args: {
     imageUrl: string;
     language: Language;
@@ -41,6 +44,40 @@ export class ClaudePhraseWriter implements PhraseWriter {
     private model: string,
   ) {
     this.client = new Anthropic({ apiKey, timeout: 60_000, maxRetries: 1 });
+  }
+
+  async isPet(imageUrl: string): Promise<boolean> {
+    const response = await this.client.beta.messages.create({
+      model: this.model,
+      max_tokens: 1000,
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+      output_config: {
+        effort: 'low',
+        format: {
+          type: 'json_schema',
+          schema: {
+            type: 'object',
+            properties: { is_pet: { type: 'boolean' } },
+            required: ['is_pet'],
+            additionalProperties: false,
+          },
+        },
+      },
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'url', url: imageUrl } },
+            { type: 'text', text: 'Does this photo clearly show a real cat or dog? Answer in is_pet.' },
+          ],
+        },
+      ],
+    });
+    if (response.stop_reason === 'refusal') throw new Error('phrase_refused');
+    const text = response.content.find((block) => block.type === 'text');
+    if (!text || text.type !== 'text') throw new Error('phrase_empty');
+    return JSON.parse(text.text).is_pet === true;
   }
 
   async write(args: Parameters<PhraseWriter['write']>[0]): Promise<PhraseResult> {

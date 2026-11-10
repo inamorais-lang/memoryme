@@ -19,7 +19,10 @@ function fakeStore() {
 
 const gen = { id: 'g1', userId: 'u1', personalityId: 'pt-tia-cascais', originalPath: 'u1/photo.jpg' };
 const quiet = () => {};
-const phrases = (result: { isPet: boolean; phrase: string }): PhraseWriter => ({ write: async () => result });
+const phrases = (result: { isPet: boolean; phrase: string }): PhraseWriter => ({
+  isPet: async () => result.isPet,
+  write: async () => result,
+});
 const images = (edit: ImageEditor['edit']): ImageEditor => ({ edit });
 const okImage = images(async () => ({ bytes: new Uint8Array([1, 2, 3]), contentType: 'image/jpeg' }));
 
@@ -72,14 +75,14 @@ Deno.test('phrase model error: refunds the credit', async () => {
   const outcome = await runGeneration(
     {
       store,
-      phrases: { write: async () => Promise.reject(new Error('phrase_refused')) },
+      phrases: { isPet: async () => true, write: async () => Promise.reject(new Error('phrase_refused')) },
       images: okImage,
       log: quiet,
     },
     gen,
   );
   assert.equal(outcome, 'failed');
-  assert.deepEqual(calls, ['fail g1 phrase_refused']);
+  assert.deepEqual(calls, ['upload generated/u1/g1.jpg', 'fail g1 phrase_refused']);
 });
 
 Deno.test('upload error: refunds the credit', async () => {
@@ -103,6 +106,21 @@ Deno.test('parsePhrase picks the funniest option that fits 45 characters', () =>
   assert.equal(parsePhrase('{"is_pet":true,"phrases":["Come, carago.</br>"]}').phrase, 'Come, carago.');
 });
 
+Deno.test('the line is written from the final picture, not the original photo', async () => {
+  const { store } = fakeStore();
+  let seen = '';
+  await runGeneration(
+    {
+      store,
+      phrases: { isPet: async () => true, write: async (a) => ((seen = a.imageUrl), { isPet: true, phrase: 'x' }) },
+      images: okImage,
+      log: quiet,
+    },
+    gen,
+  );
+  assert.equal(seen, 'https://signed/generated/u1/g1.jpg');
+});
+
 Deno.test('falInput uses each model\'s field names', () => {
   assert.deepEqual(falInput('fal-ai/flux-pro/kontext', 'p', 'u').image_url, 'u');
   assert.deepEqual(falInput('google/nano-banana-2.1/edit', 'p', 'u').image_urls, ['u']);
@@ -120,7 +138,7 @@ Deno.test('prompts carry the pet-logic, safety and language rules', () => {
   assert.match(phraseSystemPrompt('en'), /politics/);
   assert.match(phraseSystemPrompt('pt-PT'), /NEVER list or describe/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: ['a', 'b'] }), /- a\n- b/);
-  assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /Never mention the original background/);
+  assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /REALLY in this picture/);
   assert.match(imageEditPrompt('pearls'), /same animal/);
   assert.match(imageEditPrompt('pearls'), /top third/);
   assert.match(imageEditPrompt('pearls'), /Never dark/);

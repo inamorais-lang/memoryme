@@ -39,14 +39,13 @@ export function phraseSystemPrompt(language: Language): string {
     '- The mood examples only show the tone: never copy or lightly rephrase them.',
     '- It must make sense instantly: a simple, clear pet joke that any pet owner gets on first read. No riddles, no abstract or surreal lines.',
     '- The pet is dressed up in a human scene, but it still thinks like a pet (food, naps, walks, the human, the vet).',
-    '- Do not contradict the final picture (e.g. do not call the bowl empty if the scene has food).',
     '- Check each option before answering: if it is confusing or not funny, replace it.',
     '- No human pop culture, celebrities, politics, brands, slang, emojis, hashtags, quotation marks or swear words.',
     '- Cheeky is fine; nothing cruel, sexual or hateful.',
     `- ${LANGUAGE_RULES[language]}`,
     '',
     `Write 3 different options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,
-    'If there is no clearly visible cat or dog in the photo, set is_pet to false and phrases to [].',
+    'Set is_pet to true when a cat or dog is visible (it normally is).',
   ].join('\n');
 }
 
@@ -57,9 +56,9 @@ export function phraseUserPrompt(args: {
 }): string {
   const lines = [
     `Mood: ${args.voice}`,
-    `The photo is restyled before people see it. The final picture shows the pet like this: ${args.scene}`,
-    'Write the thought for the pet as it appears in that final picture: use its real expression, pose and attitude from the photo,',
-    'but the outfit and setting of the final picture. Never mention the original background, room or furniture.',
+    'This is the final picture people will see: the pet dressed up in a scene. Look at it carefully before writing.',
+    'The joke must fit what is REALLY in this picture. If you mention an object, food or place, it must be visible (fries are fries, not a burger).',
+    'Use the situation: a party, a restaurant, snow, a red carpet, a bed... Joke about the pet in THAT situation, with pet logic.',
   ];
   if (args.exclude.length > 0) {
     lines.push(`Do not repeat or paraphrase these earlier thoughts:\n- ${args.exclude.join('\n- ')}`);

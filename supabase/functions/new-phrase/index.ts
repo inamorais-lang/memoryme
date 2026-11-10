@@ -30,14 +30,16 @@ export default {
     try {
       const store = supabaseStore(admin);
       const prompts = await store.personality(row.personality_id);
-      const { phrase, isPet } = await phraseWriter().write({
-        imageUrl: await store.signedUrl('originals', row.original_path),
+      const { data: gen } = await admin.from('generations').select('image_path').eq('id', generationId).single();
+      if (!gen?.image_path) throw new Error('image_missing');
+      const { phrase } = await phraseWriter().write({
+        imageUrl: await store.signedUrl('generated', gen.image_path),
         language: prompts.language,
         voice: prompts.voice,
         scene: prompts.style,
         exclude: row.shown_phrases ?? [],
       });
-      if (!isPet || !phrase) throw new Error('phrase_empty');
+      if (!phrase) throw new Error('phrase_empty');
 
       const { error: saveError } = await admin.rpc('set_phrase', { p_generation_id: generationId, p_phrase: phrase });
       if (saveError) throw new Error(saveError.message);

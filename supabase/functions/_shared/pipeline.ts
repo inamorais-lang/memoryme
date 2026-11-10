@@ -24,8 +24,8 @@ export type Outcome = 'succeeded' | 'not_a_pet' | 'failed';
 
 /**
  * Runs after the credit was spent. Any failure refunds it (store.fail).
- * The cheap phrase call runs first and doubles as the "is there a pet?" check,
- * so a photo without a pet never reaches the expensive image model.
+ * A cheap check for a pet runs first, so a photo without one never reaches the
+ * expensive image model. The line is written last, from the final picture.
  */
 export async function runGeneration(
   deps: { store: Store; phrases: PhraseWriter; images: ImageEditor; log?: (msg: string) => void },
@@ -36,14 +36,7 @@ export async function runGeneration(
     const prompts = await store.personality(gen.personalityId);
     const originalUrl = await store.signedUrl('originals', gen.originalPath);
 
-    const phrase = await phrases.write({
-      imageUrl: originalUrl,
-      language: prompts.language,
-      voice: prompts.voice,
-      scene: prompts.style,
-      exclude: [],
-    });
-    if (!phrase.isPet) {
+    if (!(await phrases.isPet(originalUrl))) {
       await store.fail(gen.id, 'not_a_pet');
       return 'not_a_pet';
     }
@@ -52,6 +45,16 @@ export async function runGeneration(
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
     await store.upload('generated', imagePath, image.bytes, image.contentType);
+
+    // The line is written last, looking at the final picture, so it matches what is really there.
+    const phrase = await phrases.write({
+      imageUrl: await store.signedUrl('generated', imagePath),
+      language: prompts.language,
+      voice: prompts.voice,
+      scene: prompts.style,
+      exclude: [],
+    });
+    if (!phrase.phrase) throw new Error('phrase_empty');
 
     const finished = await store.finish(gen.id, imagePath, phrase.phrase);
     if (!finished) throw new Error('finish_rejected');

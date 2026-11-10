@@ -1,9 +1,16 @@
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import { AppText } from './AppText';
-import { border, colors, layout, motion, radius, shadow, space } from './tokens';
+import { colors, layout, motion, radius, space } from './tokens';
 
-type Variant = 'primary' | 'secondary' | 'ghost';
+/** Every button is filled with colour: primary (pink), secondary (lime), tertiary (lilac, small). */
+type Variant = 'primary' | 'secondary' | 'tertiary';
+
+const palette: Record<Variant, { bg: string; pressed: string; text: string }> = {
+  primary: { bg: colors.primary, pressed: colors.primaryPressed, text: colors.onPrimary },
+  secondary: { bg: colors.secondary, pressed: colors.secondaryPressed, text: colors.onSecondary },
+  tertiary: { bg: colors.tertiary, pressed: colors.tertiaryPressed, text: colors.onTertiary },
+};
 
 type Props = {
   label: string;
@@ -17,8 +24,8 @@ type Props = {
 
 export function Button({ label, onPress, variant = 'primary', disabled, loading, hint, testID }: Props) {
   const inactive = disabled || loading;
-  const isGhost = variant === 'ghost';
-  const textColor = variant === 'primary' ? colors.onPrimary : colors.ink;
+  const small = variant === 'tertiary';
+  const c = palette[variant];
 
   return (
     <Pressable
@@ -31,17 +38,14 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
       onPress={onPress}
       style={({ pressed }) => [
         styles.base,
-        !isGhost && styles.boxed,
-        isGhost && styles.ghost,
-        variant === 'primary' && { backgroundColor: pressed ? colors.primaryPressed : colors.primary },
-        variant === 'secondary' && { backgroundColor: colors.surface },
-        !isGhost && { boxShadow: pressed ? 'none' : shadow.md },
-        pressed && !isGhost && styles.pressed,
+        small && styles.small,
+        { backgroundColor: pressed ? c.pressed : c.bg },
+        pressed && styles.pressed,
         inactive && styles.inactive,
       ]}>
       <View style={styles.content}>
-        {loading ? <ActivityIndicator color={textColor} /> : null}
-        <AppText variant="button" color={textColor} style={isGhost && styles.ghostText}>
+        {loading ? <ActivityIndicator color={c.text} /> : null}
+        <AppText variant={small ? 'buttonSmall' : 'button'} color={c.text}>
           {label}
         </AppText>
       </View>
@@ -52,31 +56,24 @@ export function Button({ label, onPress, variant = 'primary', disabled, loading,
 const styles = StyleSheet.create({
   base: {
     minHeight: layout.buttonHeight,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     paddingHorizontal: space.xl,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  boxed: {
-    borderWidth: border.width,
-    borderColor: border.color,
+  small: {
+    minHeight: layout.buttonHeightSmall,
+    paddingHorizontal: space.lg,
   },
   pressed: {
-    transform: [{ translateX: 2 }, { translateY: 2 }, { scale: motion.pressScale }],
+    transform: [{ scale: motion.pressScale }],
   },
   inactive: {
-    opacity: 0.45,
+    opacity: 0.4,
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
-  },
-  ghost: {
-    minHeight: layout.minTap,
-    paddingHorizontal: space.md,
-  },
-  ghostText: {
-    textDecorationLine: 'underline',
   },
 });

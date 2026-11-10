@@ -2,44 +2,56 @@
  * Design system — the only place where colors, type, spacing, radii and
  * shadows are defined. Screens and components must import from here.
  *
- * Direction: warm cream paper, ink outlines and hard offset shadows,
- * like a comic strip. One loud accent (tomato) for the main action.
+ * Direction: clean and minimal (lots of white, no outlines), with loud,
+ * trendy colours that carry the humour. Every button is filled with colour.
  */
 
 export const colors = {
-  paper: '#FFF4E6',
+  paper: '#F7F6F2',
   surface: '#FFFFFF',
-  ink: '#1E1B18',
-  inkMuted: '#6B625A',
-  inkFaint: '#B9AEA3',
-  primary: '#FF5B3A',
-  primaryPressed: '#E8482A',
+  ink: '#141414',
+  inkMuted: '#6E6D72',
+  inkFaint: '#E4E3DF',
+
+  // Main action: hot pink.
+  primary: '#FF3D81',
+  primaryPressed: '#E52A6C',
   onPrimary: '#FFFFFF',
-  danger: '#C62828',
-  overlay: 'rgba(30, 27, 24, 0.55)',
-  // Accents used to tell personalities apart.
-  accents: ['#FFC94A', '#9ED9C3', '#C9B8FF', '#FFB4A2', '#A8D8FF', '#D7E8A0'],
+  // Second action: acid lime.
+  secondary: '#C8F53A',
+  secondaryPressed: '#B4E021',
+  onSecondary: '#141414',
+  // Small actions: soft lilac with electric violet text.
+  tertiary: '#ECE6FF',
+  tertiaryPressed: '#DDD3FF',
+  onTertiary: '#5B35F5',
+
+  danger: '#E5484D',
+  overlay: 'rgba(20, 20, 20, 0.55)',
+  // Personality cards.
+  accents: ['#E6FF94', '#FFD1E3', '#E0D6FF', '#FFDDBF', '#C9E9FF', '#FFF3A3'],
 } as const;
 
 export const fonts = {
-  displayBlack: 'Fraunces_900Black',
-  displayBold: 'Fraunces_700Bold',
-  displaySemi: 'Fraunces_600SemiBold',
+  display: 'BricolageGrotesque_800ExtraBold',
+  displayBold: 'BricolageGrotesque_700Bold',
+  displaySemi: 'BricolageGrotesque_600SemiBold',
   body: 'DMSans_400Regular',
   bodyMedium: 'DMSans_500Medium',
   bodyBold: 'DMSans_700Bold',
 } as const;
 
 export const type = {
-  hero: { fontFamily: fonts.displayBlack, fontSize: 38, lineHeight: 42, letterSpacing: -0.8 },
-  title: { fontFamily: fonts.displayBold, fontSize: 28, lineHeight: 32, letterSpacing: -0.4 },
-  heading: { fontFamily: fonts.displayBold, fontSize: 20, lineHeight: 24 },
+  hero: { fontFamily: fonts.display, fontSize: 40, lineHeight: 42, letterSpacing: -1.2 },
+  title: { fontFamily: fonts.display, fontSize: 28, lineHeight: 31, letterSpacing: -0.7 },
+  heading: { fontFamily: fonts.displayBold, fontSize: 19, lineHeight: 23, letterSpacing: -0.3 },
   body: { fontFamily: fonts.body, fontSize: 16, lineHeight: 23 },
   bodyStrong: { fontFamily: fonts.bodyBold, fontSize: 16, lineHeight: 23 },
   small: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18 },
-  smallStrong: { fontFamily: fonts.bodyMedium, fontSize: 13, lineHeight: 18 },
+  smallStrong: { fontFamily: fonts.bodyBold, fontSize: 13, lineHeight: 18 },
   button: { fontFamily: fonts.bodyBold, fontSize: 17, lineHeight: 22 },
-  balloon: { fontFamily: fonts.displaySemi, fontSize: 22, lineHeight: 27 },
+  buttonSmall: { fontFamily: fonts.bodyBold, fontSize: 15, lineHeight: 20 },
+  balloon: { fontFamily: fonts.displayBold, fontSize: 21, lineHeight: 25, letterSpacing: -0.3 },
 } as const;
 
 export type TypeVariant = keyof typeof type;
@@ -57,33 +69,36 @@ export const space = {
 
 export const radius = {
   sm: 10,
-  md: 16,
-  lg: 24,
-  balloon: 28,
+  md: 18,
+  lg: 26,
+  balloon: 26,
   pill: 999,
 } as const;
 
+/** Only used to mark a selected item; the rest of the UI has no outlines. */
 export const border = {
   width: 2,
-  widthBold: 3,
+  widthBold: 2.5,
   color: colors.ink,
 } as const;
 
-/** Hard offset shadows (no blur) — part of the comic look. */
+/** Soft, low shadows: depth without clutter. */
 export const shadow = {
-  sm: `2px 2px 0px ${colors.ink}`,
-  md: `4px 4px 0px ${colors.ink}`,
+  sm: '0px 2px 8px rgba(20, 20, 20, 0.06)',
+  md: '0px 8px 24px rgba(20, 20, 20, 0.10)',
+  balloon: '0px 10px 30px rgba(0, 0, 0, 0.22)',
 } as const;
 
 export const layout = {
   gutter: space.lg,
   buttonHeight: 56,
+  buttonHeightSmall: 44,
   minTap: 44,
   maxContentWidth: 520,
 } as const;
 
 export const motion = {
-  pressScale: 0.97,
+  pressScale: 0.96,
   fast: 120,
   normal: 220,
 } as const;

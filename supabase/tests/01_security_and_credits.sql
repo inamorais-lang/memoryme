@@ -111,6 +111,11 @@ select test.expect_error($$update public.generations set status = 'succeeded'$$,
 select test.expect_error($$insert into public.generations (user_id, personality_id, original_path) values (auth.uid(), 'pt-avo', 'x')$$, 'permission denied');
 select test.check(true, 'the app cannot add credits, start generations or change results');
 
+select test.expect_error($$update public.generations set free_phrase_used = false$$, 'permission denied');
+select test.expect_error($$update public.generations set phrase = 'hacked', status = 'pending'$$, 'permission denied');
+select test.expect_error($$delete from public.generations$$, 'permission denied');
+select test.expect_error($$update public.personalities set active = false$$, 'permission denied');
+select test.check(true, 'user cannot reset the free phrase, edit results, delete rows or edit personalities');
 update public.generations set balloon_position = 'bottom' where id = (select id from ok);
 select test.check((select balloon_position = 'bottom' from public.generations where id = (select id from ok)), 'user can move the balloon');
 
@@ -130,6 +135,8 @@ select test.check((select balloon_position = 'bottom' from public.generations wh
 -- ───────── Anonymous ─────────
 set role anon;
 select test.check((select count(*) = 12 from public.personalities), 'personality list is public');
+select test.expect_error($$select voice_prompt from public.personalities limit 1$$, 'permission denied');
+select test.check(true, 'anonymous users cannot read the AI prompts');
 select test.expect_error($$select * from public.profiles$$, 'permission denied');
 select test.check(true, 'anonymous users see no profiles');
 reset role;

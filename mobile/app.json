@@ -1,14 +1,19 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "Pensamentos do Bicho",
+    "slug": "pet-thoughts",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
-    "userInterfaceStyle": "automatic",
+    "scheme": "petthoughts",
+    "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "supportsTablet": false,
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "pt-PT",
+        "CFBundleAllowMixedLocalizations": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +25,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "server",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -28,18 +33,39 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#FFF4E6",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "A câmara é usada para tirares uma foto ao teu animal e criares a tradução do que ele está a pensar.",
+          "photosPermission": "O acesso às fotos é usado para escolheres uma foto do teu animal e criares a tradução.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "O acesso às fotos é usado para escolheres uma foto do teu animal e criares a tradução.",
+          "savePhotosPermission": "O acesso às fotos é usado para guardares as tuas traduções no rolo da câmara.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ],
       "expo-sharing",
       "expo-localization",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "locales": {
+      "pt-PT": "./locales/ios/pt-PT.json",
+      "en": "./locales/ios/en.json"
     }
   }
 }

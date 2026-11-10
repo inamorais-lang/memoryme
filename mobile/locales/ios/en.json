@@ -1,0 +1,5 @@
+{
+  "NSCameraUsageDescription": "The camera is used to take a photo of your pet and create the translation of what they are thinking.",
+  "NSPhotoLibraryUsageDescription": "Photo access is used to choose a photo of your pet and create the translation.",
+  "NSPhotoLibraryAddUsageDescription": "Photo access is used to save your translations to your camera roll."
+}

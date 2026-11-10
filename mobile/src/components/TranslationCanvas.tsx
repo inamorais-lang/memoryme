@@ -19,10 +19,13 @@ type Props = {
   balloonPosition: BalloonPosition;
   /** Keeps the whole image on screen; the width shrinks to respect it. */
   maxHeight?: number;
+  /** Balloon colour (index into colors.balloonTints) and what tapping it does. */
+  balloonTint?: number;
+  onBalloonPress?: () => void;
 };
 
 /** Photo + balloon. This exact view is captured as the image people share. */
-export function TranslationCanvas({ ref, photoUri, photoWidth, photoHeight, phrase, balloonPosition, maxHeight }: Props) {
+export function TranslationCanvas({ ref, photoUri, photoWidth, photoHeight, phrase, balloonPosition, maxHeight, balloonTint, onBalloonPress }: Props) {
   const [loaded, setLoaded] = useState<{ width: number; height: number } | null>(null);
   const width0 = photoWidth ?? loaded?.width ?? 4;
   const height0 = photoHeight ?? loaded?.height ?? 5;
@@ -45,6 +48,8 @@ export function TranslationCanvas({ ref, photoUri, photoWidth, photoHeight, phra
         <View style={[styles.balloon, balloonPosition === 'top' ? styles.top : styles.bottom]}>
           <ThoughtBalloon text={phrase} tail={balloonPosition === 'top' ? 'down' : 'up'}
             scale={balloonScale}
+            tint={balloonTint}
+            onPress={onBalloonPress}
           />
         </View>
       ) : null}

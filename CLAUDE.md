@@ -96,6 +96,7 @@ mobile/
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)
 ```
 
+- Balão: rasto de 3 bolinhas a crescer até à bola do texto; cor pastel (`colors.balloonTints`) estável por tradução (`tintFor(id)`), tocar no balão troca a cor.
 - A imagem partilhada é a captura de `TranslationCanvas` (`react-native-view-shot`): foto original + balão desenhado pela app.
 - Ficheiros `*.web.ts` substituem os nativos na web (ex.: `kv.web.ts`).
 - Língua: `pt*` no dispositivo → PT-PT; tudo o resto → EN.

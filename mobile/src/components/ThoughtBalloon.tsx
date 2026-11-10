@@ -1,74 +1,82 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppText, colors, radius, shadow, space, type } from '@/design';
+import { AppText, colors, shadow, space, type } from '@/design';
 
 type Props = {
   text: string;
-  /** Where the tail points: down (balloon on top) or up (balloon at the bottom). */
+  /** Where the trail points: down (balloon on top) or up (balloon at the bottom). */
   tail?: 'down' | 'up';
   /** 1 = full size; smaller for previews. */
   scale?: number;
+  /** Index into colors.balloonTints. */
+  tint?: number;
+  /** Tapping the balloon (e.g. to change its colour). */
+  onPress?: () => void;
 };
 
-export function ThoughtBalloon({ text, tail = 'down', scale = 1 }: Props) {
-  // Meme-length lines get bigger type; long ones shrink to fit.
+/** Pick a stable tint for an id, so a translation keeps its colour. */
+export function tintFor(id: string): number {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  return Math.abs(hash) % colors.balloonTints.length;
+}
+
+/**
+ * A classic thought bubble: a trail of three dots that grow from the pet
+ * up to the big rounded bubble holding the text. Soft pastel, never white.
+ */
+export function ThoughtBalloon({ text, tail = 'down', scale = 1, tint = 0, onPress }: Props) {
   const base = text.length > 90 ? 18 : text.length > 70 ? 20 : text.length > 45 ? type.balloon.fontSize : 25;
   const fontSize = Math.round(base * scale);
-  const big = <View style={[styles.dot, dotSize(18 * scale)]} />;
-  const small = <View style={[styles.dot, dotSize(10 * scale), styles.smallOffset]} />;
-  // The small dot is always the one closest to the animal.
-  const dots = (
-    <View style={styles.dots}>
-      {tail === 'down' ? (
-        <>
-          {big}
-          {small}
-        </>
-      ) : (
-        <>
-          {small}
-          {big}
-        </>
-      )}
+  const fill = { backgroundColor: colors.balloonTints[tint % colors.balloonTints.length] };
+
+  // Biggest dot next to the bubble, smallest next to the pet.
+  const sizes = [20, 13, 8].map((s) => s * scale);
+  const dots = sizes.map((size, i) => (
+    <View
+      key={size}
+      style={[styles.dot, fill, { width: size, height: size, borderRadius: size / 2, marginRight: `${18 + i * 5}%` }]}
+    />
+  ));
+
+  const bubble = (
+    <View
+      style={[
+        styles.bubble,
+        fill,
+        { paddingVertical: space.xl * scale, paddingHorizontal: space.xl * 1.25 * scale, borderRadius: 999 },
+      ]}>
+      <AppText variant="balloon" align="center" style={{ fontSize, lineHeight: Math.round(fontSize * 1.22) }}>
+        {text}
+      </AppText>
     </View>
   );
 
   return (
-    <View accessible accessibilityRole="text" accessibilityLabel={text}>
-      {tail === 'up' ? dots : null}
-      <View style={[styles.bubble, { paddingVertical: space.lg * scale, paddingHorizontal: space.xl * scale }]}>
-        <AppText
-          variant="balloon"
-          align="center"
-          style={{ fontSize, lineHeight: Math.round(fontSize * 1.22) }}>
-          {text}
-        </AppText>
-      </View>
-      {tail === 'down' ? dots : null}
-    </View>
+    <Pressable
+      disabled={!onPress}
+      onPress={onPress}
+      accessible
+      accessibilityRole="text"
+      accessibilityLabel={text}
+      testID="thought-balloon">
+      {tail === 'up' ? <View style={styles.trail}>{[...dots].reverse()}</View> : null}
+      {bubble}
+      {tail === 'down' ? <View style={styles.trail}>{dots}</View> : null}
+    </Pressable>
   );
-}
-
-function dotSize(size: number) {
-  return { width: size, height: size, borderRadius: size / 2 };
 }
 
 const styles = StyleSheet.create({
   bubble: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.balloon,
     boxShadow: shadow.balloon,
   },
-  dots: {
-    alignSelf: 'flex-end',
-    marginRight: '22%',
+  trail: {
     alignItems: 'flex-end',
     gap: space.xs,
     paddingVertical: space.xs,
   },
   dot: {
-    backgroundColor: colors.surface,
     boxShadow: shadow.balloon,
   },
-  smallOffset: { marginRight: -space.md },
 });

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Linking, Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 
+import { tintFor } from '@/components/ThoughtBalloon';
 import { TranslationCanvas, type CanvasRef } from '@/components/TranslationCanvas';
 import { AppText, Button, colors, Screen, space } from '@/design';
 import { useAuth } from '@/features/auth/AuthContext';
@@ -30,6 +31,8 @@ export default function ResultScreen() {
   const [status, setStatus] = useState<Status>('loading');
   const [busy, setBusy] = useState<'retry' | 'share' | 'save' | null>(null);
   const [saved, setSaved] = useState(false);
+  // Each translation gets its own pastel; tapping the balloon cycles it.
+  const [tintShift, setTintShift] = useState(0);
   const [loadingText] = useState(() => pickOne(t('result.loading', { returnObjects: true }) as string[]));
 
   // Load the translation; while the server is still working on it, poll.
@@ -219,6 +222,8 @@ export default function ResultScreen() {
         phrase={item.phrase}
         balloonPosition={item.balloonPosition}
         maxHeight={canvasMaxHeight}
+        balloonTint={tintFor(item.id) + tintShift}
+        onBalloonPress={() => setTintShift((n) => n + 1)}
       />
       {personality ? (
         <AppText variant="smallStrong" color={colors.inkMuted} align="center">

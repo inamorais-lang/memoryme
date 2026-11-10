@@ -68,7 +68,7 @@ export function imageEditPrompt(style: string): string {
     `Style: ${style}`,
     'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape.',
     'The pet stays the main subject, centred, photorealistic, with natural lighting.',
-    'Leave some calm, uncluttered space in the upper part of the image.',
+    'Frame the pet in the lower two thirds of the image and keep the top third as calm, uncluttered background (a caption bubble goes there).',
     'Do not add any text, letters, numbers, captions, logos, watermarks or speech bubbles.',
     'Do not give the animal human facial features and never make it resemble a real person.',
   ].join(' ');

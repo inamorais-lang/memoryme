@@ -117,6 +117,14 @@ select test.expect_error($$delete from public.generations$$, 'permission denied'
 select test.expect_error($$update public.personalities set active = false$$, 'permission denied');
 select test.check(true, 'user cannot reset the free phrase, edit results, delete rows or edit personalities');
 update public.generations set balloon_position = 'bottom' where id = (select id from ok);
+update public.generations set custom_phrase = 'A minha frase' where id = (select id from ok);
+select test.check((select custom_phrase = 'A minha frase' from public.generations where id = (select id from ok)), 'user can write their own line');
+select test.expect_error(format($$update public.generations set custom_phrase = %L where id = %L$$, repeat('x', 46), (select id from ok)), 'check constraint');
+select test.check(true, 'own line is limited to 45 characters');
+update public.generations set balloon_x = 0.3, balloon_y = 0.6 where id = (select id from ok);
+select test.check((select abs(balloon_x - 0.3) < 0.001 from public.generations where id = (select id from ok)), 'user can drag the balloon');
+select test.expect_error(format($$update public.generations set balloon_x = 2 where id = %L$$, (select id from ok)), 'check constraint');
+select test.check(true, 'balloon stays inside the image');
 select test.check((select balloon_position = 'bottom' from public.generations where id = (select id from ok)), 'user can move the balloon');
 
 insert into storage.objects (bucket_id, name) values ('originals', 'aaaaaaaa-0000-0000-0000-000000000001/new.jpg');
@@ -129,8 +137,10 @@ select test.check(true, 'user cannot upload into other folders or fake AI result
 set request.jwt.claim.sub = 'bbbbbbbb-0000-0000-0000-000000000002';
 select test.check((select count(*) = 0 from public.generations), 'user B cannot see user A''s generations');
 update public.generations set balloon_position = 'top';
+update public.generations set custom_phrase = 'hacked';
 reset role;
 select test.check((select balloon_position = 'bottom' from public.generations where id = (select id from ok)), 'user B cannot change user A''s generation');
+select test.check((select custom_phrase = 'A minha frase' from public.generations where id = (select id from ok)), 'user B cannot change user A''s own line');
 
 -- ───────── Anonymous ─────────
 set role anon;

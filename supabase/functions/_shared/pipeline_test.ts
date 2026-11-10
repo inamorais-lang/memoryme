@@ -120,6 +120,7 @@ Deno.test('prompts carry the safety and language rules', () => {
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: ['a', 'b'] }), /- a\n- b/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /Never mention the original background/);
   assert.match(imageEditPrompt('pearls'), /same animal/);
+  assert.match(imageEditPrompt('pearls'), /top third/);
   assert.match(imageEditPrompt('pearls'), /never make it resemble a real person/);
   assert.match(imageEditPrompt('pearls'), /Do not add any text/);
 });

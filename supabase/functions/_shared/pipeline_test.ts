@@ -112,6 +112,7 @@ Deno.test('prompts carry the safety and language rules', () => {
   assert.match(phraseSystemPrompt('pt-PT'), /never copy/);
   assert.match(phraseSystemPrompt('pt-PT'), /2026/);
   assert.match(phraseSystemPrompt('en'), /Never name or imitate real people/);
+  assert.match(phraseSystemPrompt('en'), /No politics/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: ['a', 'b'] }), /- a\n- b/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /Never mention the original background/);
   assert.match(imageEditPrompt('pearls'), /same animal/);

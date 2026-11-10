@@ -1,4 +1,5 @@
 import type { BalloonPosition } from '@/features/history/history';
+import type { Market } from '@/i18n';
 import type { PickedPhoto } from '@/lib/photos';
 
 export type PersonalityInfo = { id: string; name: string; tagline: string };
@@ -38,7 +39,7 @@ export class BackendError extends Error {
 
 export interface Backend {
   mode: 'local' | 'remote';
-  listPersonalities(language: string): Promise<PersonalityInfo[]>;
+  listPersonalities(market: Market): Promise<PersonalityInfo[]>;
   /** Spends a credit (remote) and starts the translation. Returns its id. */
   createTranslation(photo: PickedPhoto, personalityId: string): Promise<string>;
   getTranslation(id: string): Promise<TranslationView | null>;

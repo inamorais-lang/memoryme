@@ -9,7 +9,7 @@ import { AppText, border, Button, colors, radius, Screen, shadow, space } from '
 import { useAuth } from '@/features/auth/AuthContext';
 import { backend, BackendError, type PersonalityInfo } from '@/features/backend';
 import { useDraft } from '@/features/draft/DraftContext';
-import { currentLanguage } from '@/i18n';
+import { currentMarket } from '@/i18n';
 
 export default function PersonalityScreen() {
   const { t } = useTranslation();
@@ -21,7 +21,7 @@ export default function PersonalityScreen() {
 
   useEffect(() => {
     backend
-      .listPersonalities(currentLanguage())
+      .listPersonalities(currentMarket())
       .then(setList)
       .catch(() => setList([]));
   }, []);

@@ -7,7 +7,7 @@ const LANGUAGE_RULES: Record<Language, string> = {
   'pt-PT':
     'Write in European Portuguese (Portugal). Use PT-PT vocabulary, spelling and grammar ' +
     '(e.g. "estás a fazer", "telemóvel", "pequeno-almoço"), never Brazilian Portuguese.',
-  en: 'Write in casual American English.',
+  en: 'Write in casual American English, unless the personality is British: then use British spelling and slang.',
 };
 
 export function phraseSystemPrompt(language: Language): string {
@@ -23,7 +23,7 @@ export function phraseSystemPrompt(language: Language): string {
     '- The voice examples only show the tone: never copy or lightly rephrase them.',
     '- Sound like today (2026), never like the 2000s: young or online personalities use current social-media slang; traditional ones keep their own speech.',
     '- No emojis, hashtags, quotation marks, stage directions or swear words.',
-    '- Never name or imitate real people, brands, clubs, political parties or real campaigns.',
+    '- No politics or politicians at all. Never name or imitate real people, brands or clubs.',
     '- Mocking is fine; nothing hateful, sexual, cruel, or about real people\'s bodies, race, religion or nationality.',
     `- ${LANGUAGE_RULES[language]}`,
     '',

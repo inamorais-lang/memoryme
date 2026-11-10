@@ -1,7 +1,6 @@
 import { addTranslation, getTranslation, loadHistory, newId, updateTranslation, type Translation } from '@/features/history/history';
-import { findPersonality, personalitiesFor } from '@/features/personalities/data';
+import { findPersonality, personalitiesForMarket } from '@/features/personalities/data';
 import { translatePhoto } from '@/features/translate/translate';
-import type { AppLanguage } from '@/i18n';
 import { persistPhoto } from '@/lib/photos';
 
 import type { Backend, TranslationView } from './types';
@@ -24,8 +23,8 @@ function toView(t: Translation): TranslationView {
 
 export const localBackend: Backend = {
   mode: 'local',
-  async listPersonalities(language) {
-    return personalitiesFor(language as AppLanguage).map(({ id, name, tagline }) => ({ id, name, tagline }));
+  async listPersonalities(market) {
+    return personalitiesForMarket(market).map(({ id, name, tagline }) => ({ id, name, tagline }));
   },
   async createTranslation(photo, personalityId) {
     const id = newId();

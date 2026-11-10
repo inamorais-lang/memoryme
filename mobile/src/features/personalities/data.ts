@@ -1,4 +1,4 @@
-import type { AppLanguage } from '@/i18n';
+import type { AppLanguage, Market } from '@/i18n';
 
 export type Personality = {
   id: string;
@@ -211,24 +211,6 @@ export const personalities: Personality[] = [
     ],
   },
   {
-    id: 'en-campaign-rally',
-    language: 'en',
-    name: 'The Campaign Rally',
-    tagline: "Everything is tremendous. Nobody's ever seen a snack like this.",
-    phrases: [
-      'This is the best nap. Tremendous nap. Many people are saying it.',
-      "We're going to build a fence. And the dog next door is going to pay for it.",
-      'Nobody knows more about treats than me. Nobody.',
-      "My food bowl? Huge. The biggest. Everybody's jealous.",
-      'Fake news. I did not knock that glass off the table.',
-      "We're going to make dinnertime great again. And earlier.",
-      'The vacuum cleaner is a total disaster. Sad!',
-      "I have the best fur. People come up to me, crying, saying 'sir, your fur…'",
-      'The couch is mine. We won the couch. Bigly.',
-      'Believe me, this belly rub will be the greatest in history.',
-    ],
-  },
-  {
     id: 'en-influencer',
     language: 'en',
     name: 'The Influencer',
@@ -352,7 +334,113 @@ export const personalities: Personality[] = [
       'Somebody moved my bed. And I intend to find out who.',
     ],
   },
+  {
+    id: 'en-roadman',
+    language: 'en',
+    name: 'The Roadman',
+    tagline: 'London street slang. Everything is peak, nothing is safe.',
+    phrases: [
+      'Wagwan bruv, bare photos and zero treats. Peak.',
+      'Allow the bath, innit.',
+      'On my mum, that angle is long.',
+      "Mandem don't do fancy dress, bruv.",
+      "Safe. Now where's my dinner, innit?",
+    ],
+  },
+  {
+    id: 'en-posh-brit',
+    language: 'en',
+    name: 'The Posh Brit',
+    tagline: 'Frightfully posh. Finds everything terribly common.',
+    phrases: [
+      'Supermarket kibble? How frightfully common, darling.',
+      "One simply doesn't pose on a sofa.",
+      'Absolutely ghastly lighting, darling.',
+      'Rather dreadful outfit. Do take it off.',
+      'Tea at four. Treats at five. Peasants at never.',
+    ],
+  },
+  {
+    id: 'en-british-nan',
+    language: 'en',
+    name: 'The British Nan',
+    tagline: 'Puts the kettle on and judges you over a biscuit.',
+    phrases: [
+      "Put the kettle on, love. This photo's a disgrace.",
+      "In my day we didn't pose. We sat.",
+      "You'll catch your death in that outfit, pet.",
+      "Cheeky. Now where's my biscuit?",
+      'What a palaver over one photo, love.',
+    ],
+  },
+  {
+    id: 'en-wellness-girlie',
+    language: 'en',
+    name: 'The Wellness Girlie',
+    tagline: 'Cold plunge at 5am. Judges your carbs.',
+    phrases: [
+      'Cold plunge at 5am. You? Still a carb.',
+      'Protecting my peace. Not sharing the bed.',
+      "It's not a nap. It's a healing era.",
+      'Girl dinner is just treats. Respect it.',
+      'Romanticize this: you, feeding me. Now.',
+    ],
+  },
+  {
+    id: 'en-office-siren',
+    language: 'en',
+    name: 'The Office Siren',
+    tagline: 'Corporate baddie. Per my last email, where is dinner?',
+    phrases: [
+      'Per my last meow, where is dinner?',
+      'Gentle reminder: the couch is mine.',
+      "Let's take this photo shoot offline.",
+      'Circling back on those treats you promised.',
+      'Out of office until you open a can.',
+    ],
+  },
+  {
+    id: 'en-coastal-cowgirl',
+    language: 'en',
+    name: 'The Coastal Cowgirl',
+    tagline: 'Cowboy boots on the beach. Yeehaw, but make it sunset.',
+    phrases: [
+      "Yeehaw, but make it beach. You wouldn't get it.",
+      "Howdy, darlin'. That angle's a crime.",
+      "Giddy up and grab my treats, y'all.",
+      'Boots on the sand. Judging you on the side.',
+      "It's a vibe. You're not, though.",
+    ],
+  },
+  {
+    id: 'en-sigma-grindset',
+    language: 'en',
+    name: 'The Sigma Grindset',
+    tagline: 'Up at 5am. Napping like a CEO.',
+    phrases: [
+      'While you slept, I napped. Twice. Sigma.',
+      'No days off. Except all of them.',
+      'Locked in. On the couch. Mindset.',
+      'Alpha move: ignoring you since 5am.',
+      'My grindset? Eat, sleep, repeat, profit.',
+    ],
+  },
 ];
+
+const US_ONLY = ['en-tech-billionaire', 'en-wall-street', 'en-southern-grandma', 'en-coastal-cowgirl', 'en-wellness-girlie'];
+const UK_ONLY = ['en-roadman', 'en-posh-brit', 'en-british-nan'];
+
+/** Mirrors the `markets` column on the server. */
+export function marketsOf(p: Personality): Market[] {
+  if (p.language === 'pt-PT') return ['PT'];
+  if (US_ONLY.includes(p.id)) return ['US'];
+  if (UK_ONLY.includes(p.id)) return ['GB'];
+  return ['US', 'GB'];
+}
+
+export function personalitiesForMarket(market: Market): Personality[] {
+  return personalities.filter((p) => marketsOf(p).includes(market));
+}
 
 export function personalitiesFor(language: AppLanguage): Personality[] {
   return personalities.filter((p) => p.language === language);

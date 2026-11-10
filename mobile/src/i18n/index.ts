@@ -25,6 +25,14 @@ i18n.use(initReactI18next).init({
   returnObjects: true,
 });
 
+/** Which cast of personalities to offer: Portugal, the US or the UK. */
+export type Market = 'PT' | 'US' | 'GB';
+
+export function currentMarket(): Market {
+  if (currentLanguage() === 'pt-PT') return 'PT';
+  return getLocales()[0]?.regionCode === 'GB' ? 'GB' : 'US';
+}
+
 export function currentLanguage(): AppLanguage {
   return i18n.language === 'pt-PT' ? 'pt-PT' : 'en';
 }

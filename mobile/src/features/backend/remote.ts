@@ -81,11 +81,11 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
 
   return {
     mode: 'remote',
-    async listPersonalities(language) {
+    async listPersonalities(market) {
       const { data, error } = await supabase
         .from('personalities')
         .select('id, name, tagline')
-        .eq('language', language)
+        .contains('markets', [market])
         .order('sort_order');
       if (error) throw new BackendError('network');
       return data ?? [];

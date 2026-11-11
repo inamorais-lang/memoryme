@@ -66,6 +66,7 @@ const en: Strings = {
     sceneRejected: "That scene isn't allowed (real people, brands or inappropriate content). Your 2 credits were refunded.",
     slow: 'This is taking longer than usual. The picture will show up in your history when it is ready.',
     share: 'Share',
+    shareMessage: 'Find out what your pet is thinking with PetBubble: {{url}}',
     free: 'free',
     save: 'Save',
     saved: 'Saved',

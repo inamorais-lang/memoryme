@@ -64,6 +64,7 @@ const ptPT = {
     sceneRejected: 'Esse cenário não é permitido (pessoas reais, marcas ou conteúdo impróprio). Os 2 créditos foram devolvidos.',
     slow: 'Está a demorar mais do que o normal. A imagem aparece no teu histórico quando ficar pronta.',
     share: 'Partilhar',
+    shareMessage: 'Descobre o que o teu bicho está a pensar com a PetBubble: {{url}}',
     free: 'grátis',
     save: 'Guardar',
     saved: 'Guardada',

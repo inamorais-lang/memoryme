@@ -44,6 +44,7 @@ Cada fase começa com um plano curto, que tem de ser aprovado antes de executar.
 - Edge Function `verify-purchase` (App Store Server API, uma transação = créditos só uma vez)
 - Notificações da App Store para reembolsos
 - Restaurar compras
+- Link da App Store em `mobile/src/config.ts` (`APP_STORE_URL`): passa a ir no texto ao partilhar; testar com WhatsApp e Mensagens
 - PostHog com todos os eventos do funil
 - Sentry na app e nas Edge Functions
 - Política de privacidade e termos

@@ -16,6 +16,7 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { backend, CUSTOM_PHRASE_MAX, type TranslationView } from '@/features/backend';
 import { useDraft } from '@/features/draft/DraftContext';
 import { findPersonality } from '@/features/personalities/data';
+import { APP_STORE_URL } from '@/config';
 import { renderToImage, saveImageToLibrary, shareImage } from '@/lib/exportImage';
 
 const POLL_MS = 2000;
@@ -130,7 +131,8 @@ export default function ResultScreen() {
     setBusy('share');
     try {
       const uri = await renderToImage(canvasRef);
-      const outcome = await shareImage(uri, `petbubble-${item?.id}.png`);
+      const message = APP_STORE_URL ? t('result.shareMessage', { url: APP_STORE_URL }) : undefined;
+      const outcome = await shareImage(uri, `petbubble-${item?.id}.png`, message);
       if (outcome === 'unavailable') Alert.alert(t('result.shareUnavailable'));
     } catch {
       // Closing the share sheet also lands here on some platforms; nothing to report.

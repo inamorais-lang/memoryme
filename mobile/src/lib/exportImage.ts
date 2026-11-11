@@ -1,7 +1,7 @@
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import type { RefObject } from 'react';
-import { Platform } from 'react-native';
+import { Platform, Share } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 
 import type { CanvasRef } from '@/components/TranslationCanvas';
@@ -18,8 +18,13 @@ export async function renderToImage(ref: RefObject<CanvasRef | null>): Promise<s
 
 export type ShareOutcome = 'shared' | 'unavailable';
 
-export async function shareImage(uri: string, fileName: string): Promise<ShareOutcome> {
+/** `message` (e.g. the App Store link) goes with the picture where the target app accepts text. */
+export async function shareImage(uri: string, fileName: string, message?: string): Promise<ShareOutcome> {
   if (Platform.OS === 'web') return shareOnWeb(uri, fileName);
+  if (message && Platform.OS === 'ios') {
+    await Share.share({ url: uri, message });
+    return 'shared';
+  }
   if (!(await Sharing.isAvailableAsync())) return 'unavailable';
   await Sharing.shareAsync(uri, { mimeType: 'image/png', UTI: 'public.png' });
   return 'shared';

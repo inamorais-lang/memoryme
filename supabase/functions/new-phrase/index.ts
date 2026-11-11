@@ -30,11 +30,12 @@ export default {
     try {
       const store = supabaseStore(admin);
       const prompts = await store.personality(row.personality_id);
-      const { data: gen } = await admin.from('generations').select('image_path').eq('id', generationId).single();
+      const { data: gen } = await admin.from('generations').select('image_path, spelling').eq('id', generationId).single();
       if (!gen?.image_path) throw new Error('image_missing');
       const { phrase } = await phraseWriter().write({
         imageUrl: await store.signedUrl('generated', gen.image_path),
         language: prompts.language,
+        spelling: gen.spelling ?? undefined,
         voice: prompts.voice,
         scene: prompts.style,
         exclude: row.shown_phrases ?? [],

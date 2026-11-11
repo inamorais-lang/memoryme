@@ -29,6 +29,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
 | Cenários além do modo: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia e Snowboard a 1 crédito, expressão natural; 7 de Natal (`category = 'natal'`, grupo próprio no topo; esconder em janeiro com `active = false`); "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
 | Sem modo "Exagerado" (testado e retirado: pilhas de objetos confusas). Em vez disso, todas as imagens têm cara mais cómica, 2–3 dos objetos da própria cena e cores vivas | Decisão do dono do produto |
+| 5 línguas: PT-PT, ES, FR, EN-GB, EN-US (os dois ingleses só diferem na ortografia); Termos e Privacidade nas 4 línguas | Pedido do dono do produto |
 | Na app, "Feitio" chama-se **Modo** (pedido do dono do produto) | "Feitio" não soava bem; "Cenário" já é a 2.ª escolha |
 | Os animais falam como animais: 11 modos universais (PT/EN; no código e na BD chamam-se `personalities`), lógica de gato/cão, português neutro; personagens humanas inativas | Decisão do dono do produto: as piadas humanizadas não tinham graça |
 | Sem Mac: EAS Build na cloud + Expo Go/builds de teste no iPhone; testes automáticos na web | O dono do produto só tem iPhone |
@@ -113,7 +114,7 @@ mobile/
 - Mudar a pose do animal (ex.: de barriga para cima) só resulta com a pose **no início** do prompt do cenário ("Change the pose: …").
 - Sem mãos humanas: se o animal segura ou toca em algo, usa as próprias patas (regra global em `imageEditPrompt`).
 - Autorização da IA (Apple 5.1.2(i) + RGPD): ecrã `ai-consent` antes da 1.ª imagem (guardado no dispositivo, `features/consent`); `generate` exige `aiConsent: true` e grava `profiles.ai_consent_at`; retirar nas Definições.
-- Termos e Privacidade: `docs/legal` (PT/EN, Ana Abreu), publicados no GitHub Pages; a app abre-os (`LegalLinks`, `legalUrl` em `src/config.ts`) nas Definições, no login e no ecrã da autorização. Lista da Apple: `docs/APPLE_CHECKLIST.md`.
+- Termos e Privacidade: `docs/legal` (PT/EN/ES/FR, Ana Abreu, petbubble.ai@icloud.com), publicados no GitHub Pages; a app abre-os (`LegalLinks`, `legalUrl` em `src/config.ts`) nas Definições, no login e no ecrã da autorização. Lista da Apple: `docs/APPLE_CHECKLIST.md`.
 - Fotos originais: apagadas pelo pipeline assim que a imagem fica pronta (ou falha) e, por segurança, pela limpeza de hora a hora (máx. 24 h). As imagens criadas ficam até a pessoa apagar a conta.
 - Recorte: o "há animal?" devolve também onde está a fotografia dentro da imagem; se houver barras ou margens (capturas de ecrã), o servidor corta só isso — o conteúdo da foto nunca é cortado (pedido do dono do produto). Se o recorte falhar, usa a original.
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
@@ -124,4 +125,4 @@ mobile/
 - Ao partilhar, vai também um texto com o link da App Store (`APP_STORE_URL` em `src/config.ts`, vazio até à Fase 3; enquanto vazio, só a imagem). A marca de água fica "Feito com IA · PetBubble" (pedido do dono do produto: link da App Store, não domínio).
 - A imagem partilhada é a captura de `TranslationCanvas` (`react-native-view-shot`): foto original + balão desenhado pela app.
 - Ficheiros `*.web.ts` substituem os nativos na web (ex.: `kv.web.ts`).
-- Língua: `pt*` no dispositivo → PT-PT; tudo o resto → EN.
+- Línguas: `pt*` → PT-PT, `es*` → espanhol (Espanha), `fr*` → francês (França), `en` com país ≠ EUA → inglês britânico, tudo o resto → inglês dos EUA (`locales/en-US.ts` só muda a ortografia, ex.: color). Conteúdo (modos/cenários/frases) por língua: `pt-PT`, `en` (partilhado GB/US; a frase segue `generations.spelling`), `es`, `fr`; mercados PT, ES, FR, GB, US. Natal adaptado: Nochebuena e Mañana de Reyes (ES), Réveillon com bûche (FR).

@@ -1,7 +1,7 @@
 // Generation pipeline. Pure logic over small interfaces, so it can be tested
 // without Supabase, Claude or fal.
 import type { HeadBox, ImageEditor, PhraseWriter } from './ai.ts';
-import { customSceneStyle, type Language } from './prompts.ts';
+import { customSceneStyle, type Language, type Spelling } from './prompts.ts';
 
 export type PersonalityPrompts = { language: Language; voice: string; style: string };
 
@@ -27,6 +27,8 @@ export type Generation = {
   sceneId?: string;
   /** Scene typed by the user ("Cenário à medida"); replaces the mood's scene. */
   customScene?: string;
+  /** English lines: British or American spelling. */
+  spelling?: Spelling;
 };
 
 export type Outcome = 'succeeded' | 'not_a_pet' | 'scene_rejected' | 'failed';
@@ -92,6 +94,7 @@ export async function runGeneration(
     const phrase = await phrases.write({
       imageUrl: await store.signedUrl('generated', imagePath),
       language: prompts.language,
+      spelling: gen.spelling,
       voice: prompts.voice,
       scene: style,
       exclude: [],

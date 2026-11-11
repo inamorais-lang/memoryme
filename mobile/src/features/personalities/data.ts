@@ -15,7 +15,7 @@ export type Personality = {
  * From Phase 2 this list comes from the server.
  */
 /**
- * The pets speak as pets: 8 universal moods, the same in every language.
+ * The pets speak as pets: 11 universal modes, the same in every language (PT, EN, ES, FR).
  * Names and taglines mirror the server; phrases are only used offline.
  */
 export const personalities: Personality[] = [
@@ -41,11 +41,36 @@ export const personalities: Personality[] = [
   { id: "en-ferias", language: 'en', name: "Vacation Mode", tagline: "Pool float, cocktail, zero responsibilities.", phrases: ["Not barking today. I'm on vacation.", "More ice, human. Fewer questions.", "Sun, pool, nobody calling my name.", "Back to work? What work?", "Sunscreen? I have fur, human."] },
   { id: "en-domingo", language: 'en', name: "Sunday Mode", tagline: "Couch, remote in paw, no plans at all.", phrases: ["Sunday. I own the remote. And the couch.", "A walk? My show is on.", "Changed channels 40 times. Exhausted.", "Only getting up to eat today.", "The couch and I are in a relationship."] },
   { id: "en-vinho", language: 'en', name: "Wine Time", tagline: "A glass, a view and a lot of class.", phrases: ["Notes of tuna. Excellent vintage.", "One glass after bath time. I earned it.", "A toast to the human who serves me.", "Lovely view. Tiny snacks.", "I appreciate the wine. The cheese, more."] },
+  { id: "es-diva", language: 'es', name: "Diva", tagline: "Exige admiración. Tú eres su fotógrafo personal.", phrases: ["Esta es mi mejor luz. De nada.", "¿Mi lado bueno? Los dos.", "¿Fotos sin permiso? Habla con mi agente.", "Ilumíname mejor, humano.", "Nací para esto. Tú, para servirme."] },
+  { id: "es-esfomeado", language: 'es', name: "Hambriento", tagline: "Comió hace cinco minutos. Se está muriendo.", phrases: ["Comí hace cinco minutos. Me muero.", "Cuenco medio vacío. Casi me muero.", "Eso que comes es mío. Compartir es amar.", "Oí la nevera. Vine corriendo.", "¿Ya cené? No me acuerdo. Sirve otra vez."] },
+  { id: "es-dramatico", language: 'es', name: "Dramático", tagline: "Cada baño es una tragedia. Cada no, una traición.", phrases: ["Cerraron la puerta. Nunca seré el mismo.", "Me bañaron. Que conste en acta.", "Saliste cinco minutos. Envejecí diez años.", "La cena llegó tarde. Hice testamento.", "Nadie me quiere. Solo comida y mimos."] },
+  { id: "es-vilao", language: 'es', name: "Villano", tagline: "Planea dominar la casa. Empieza por el vaso.", phrases: ["Tiré el vaso de la mesa. Por la ciencia.", "Hoy el sofá. Mañana, la casa entera.", "La aspiradora sabe demasiado.", "Sonrío: ya elegí el próximo vaso.", "Volvió el cartero. Ahora es personal."] },
+  { id: "es-preguicoso", language: 'es', name: "Perezoso", tagline: "Dormir no es un hábito. Es una carrera.", phrases: ["Me desperté para comer. Vuelvo a dormir.", "¿Moverme? Hoy no. Quizá mañana.", "Dormí doce horas. Necesito descansar.", "El sol cambió de sitio. Qué fatiga.", "No duermo. Ahorro energía."] },
+  { id: "es-ciumento", language: 'es', name: "Celoso", tagline: "El móvil, el otro animal y el bebé son enemigos.", phrases: ["Miraste el móvil. Lo vi todo.", "El otro bicho tuvo mimos. Es la guerra.", "Ese portátil no te quiere como yo.", "Acariciaste al del vecino. Traidor.", "O yo o el móvil. Elige bien."] },
+  { id: "es-caotico", language: 'es', name: "Caótico", tagline: "Carreras a las tres de la mañana. El papel higiénico no tiene nada que hacer.", phrases: ["Son las tres. Hora de correr.", "No fui yo. Fui yo, pero no hay pruebas.", "El papel higiénico me retó. Perdió.", "¿Ordenaste la casa? Qué pena.", "Corrí por toda la casa. No sé por qué."] },
+  { id: "es-critico", language: 'es', name: "Crítico", tagline: "Puntúa la comida y el servicio. Nunca más de dos estrellas.", phrases: ["¿Pienso seco otra vez? Dos estrellas.", "El servicio tardó. Sin propina.", "Cojín frío. Una estrella.", "El camarero se distrajo con el móvil.", "Plato bonito. Ración ridícula."] },
+  { id: "es-ferias", language: 'es', name: "Vacaciones", tagline: "Flotador, cóctel y cero responsabilidades.", phrases: ["Hoy no ladro. Estoy de vacaciones.", "Más hielo, humano. Y menos preguntas.", "Sol, piscina y nadie me llama.", "¿Volver al trabajo? ¿Qué trabajo?", "¿Protector solar? Tengo pelo, humano."] },
+  { id: "es-domingo", language: 'es', name: "Domingo", tagline: "Sofá, mando en la pata y ningún plan.", phrases: ["Domingo. El mando es mío. Y el sofá.", "¿Paseo? Están echando mi programa.", "Cambié de canal 40 veces. Agotado.", "Hoy solo me levanto para comer.", "El sofá y yo vamos en serio."] },
+  { id: "es-vinho", language: 'es', name: "Hora del Vino", tagline: "Una copa, unas vistas y mucha clase.", phrases: ["Notas de atún. Excelente cosecha.", "Una copa después del baño. Me la gané.", "Brindo por el humano que me sirve.", "Bonitas vistas. Tapas pequeñas.", "Aprecio el vino. El queso, más."] },
+  { id: "fr-diva", language: 'fr', name: "Diva", tagline: "Exige d’être admirée. Tu es son photographe perso.", phrases: ["C’est ma meilleure lumière. De rien.", "Mon meilleur profil ? Les deux.", "Des photos sans accord ? Vois mon agent.", "Éclaire-moi mieux, humain.", "Né pour ça. Toi, pour me servir."] },
+  { id: "fr-esfomeado", language: 'fr', name: "Affamé", tagline: "A mangé il y a cinq minutes. Dépérit.", phrases: ["Mangé il y a cinq minutes. Je dépéris.", "Gamelle à moitié vide. J’ai failli mourir.", "Ce que tu manges est à moi. Partage.", "J’ai entendu le frigo. J’arrive.", "J’ai dîné ? Aucun souvenir. Ressers."] },
+  { id: "fr-dramatico", language: 'fr', name: "Dramatique", tagline: "Chaque bain est une tragédie. Chaque non, une trahison.", phrases: ["Porte fermée. Je ne m’en remettrai pas.", "On m’a lavé. Que l’histoire s’en souvienne.", "Partie 5 minutes. J’ai vieilli de 10 ans.", "Dîner en retard. J’ai fait mon testament.", "Personne ne m’aime. Juste des croquettes."] },
+  { id: "fr-vilao", language: 'fr', name: "Méchant", tagline: "Prépare la conquête de la maison. Commence par le verre.", phrases: ["Verre tombé de la table. Pour la science.", "Aujourd’hui le canapé. Demain, le monde.", "L’aspirateur en sait trop.", "Je souris : j’ai choisi le prochain verre.", "Le facteur est revenu. C’est personnel."] },
+  { id: "fr-preguicoso", language: 'fr', name: "Paresseux", tagline: "Dormir n’est pas une habitude. C’est une carrière.", phrases: ["Réveillé pour manger. Je me rendors.", "Bouger ? Pas aujourd’hui. Demain, peut-être.", "Dormi douze heures. Besoin de repos.", "Le soleil a bougé. Quelle corvée.", "Je ne dors pas. J’économise mon énergie."] },
+  { id: "fr-ciumento", language: 'fr', name: "Jaloux", tagline: "Le téléphone, l’autre animal et le bébé sont des ennemis.", phrases: ["Tu as regardé ton téléphone. J’ai tout vu.", "L’autre a eu des caresses. C’est la guerre.", "Cet ordi ne t’aime pas comme moi.", "Tu as caressé le chien du voisin. Traître.", "Moi ou le téléphone. Choisis bien."] },
+  { id: "fr-caotico", language: 'fr', name: "Chaotique", tagline: "Courses folles à 3 h du matin. Le papier toilette n’a aucune chance.", phrases: ["Il est 3 h du matin. L’heure de courir.", "C’est pas moi. Enfin si, mais sans preuves.", "Le papier toilette m’a défié. Il a perdu.", "Tu as rangé la maison ? Dommage.", "J’ai couru partout. Aucune idée pourquoi."] },
+  { id: "fr-critico", language: 'fr', name: "Critique", tagline: "Note la nourriture et le service. Jamais plus de deux étoiles.", phrases: ["Encore des croquettes ? Deux étoiles.", "Service lent. Pas de pourboire.", "Coussin froid. Une étoile.", "Le serveur regardait son téléphone.", "Belle assiette. Portion ridicule."] },
+  { id: "fr-ferias", language: 'fr', name: "Vacances", tagline: "Bouée, cocktail et zéro responsabilité.", phrases: ["Pas d’aboiement : je suis en vacances.", "Plus de glaçons, humain. Moins de questions.", "Soleil, piscine et personne ne m’appelle.", "Reprendre le travail ? Quel travail ?", "De la crème solaire ? J’ai des poils."] },
+  { id: "fr-domingo", language: 'fr', name: "Dimanche", tagline: "Canapé, télécommande sous la patte et zéro projet.", phrases: ["Dimanche. La télécommande est à moi.", "Promenade ? Mon émission commence.", "Changé de chaîne 40 fois. Épuisé.", "Aujourd’hui je me lève juste pour manger.", "Le canapé et moi, c’est sérieux."] },
+  { id: "fr-vinho", language: 'fr', name: "L’Heure du Vin", tagline: "Un verre, une vue et beaucoup de classe.", phrases: ["Notes de thon. Excellent millésime.", "Un verre après le bain. Mérité.", "À la santé de l’humain qui me sert.", "Belle vue. Petites bouchées.", "J’apprécie le vin. Le fromage, plus."] },
 ];
 
 /** Mirrors the `markets` column on the server. */
 export function marketsOf(p: Personality): Market[] {
-  return p.language === 'pt-PT' ? ['PT'] : ['US', 'GB'];
+  if (p.language === 'pt-PT') return ['PT'];
+  if (p.language === 'es') return ['ES'];
+  if (p.language === 'fr') return ['FR'];
+  return ['US', 'GB'];
 }
 
 export function personalitiesForMarket(market: Market): Personality[] {

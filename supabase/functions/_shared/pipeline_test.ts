@@ -223,6 +223,14 @@ Deno.test('crop: a failing crop falls back to the original photo', async () => {
   assert.equal(sent, 'https://signed/originals/u1/photo.jpg');
 });
 
+Deno.test('phrase prompt: Spanish, French and the two Englishes', () => {
+  assert.match(phraseSystemPrompt('es'), /Spain/);
+  assert.match(phraseSystemPrompt('fr'), /France/);
+  assert.match(phraseSystemPrompt('en', 'US'), /American spelling/);
+  assert.match(phraseSystemPrompt('en', 'GB'), /British spelling/);
+  assert.doesNotMatch(phraseSystemPrompt('pt-PT', 'US'), /spelling/);
+});
+
 Deno.test('falInput uses each model\'s field names', () => {
   assert.deepEqual(falInput('fal-ai/flux-pro/kontext', 'p', 'u').image_url, 'u');
   assert.deepEqual(falInput('google/nano-banana-2.1/edit', 'p', 'u').image_urls, ['u']);

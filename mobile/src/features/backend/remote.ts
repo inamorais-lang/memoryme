@@ -4,6 +4,7 @@ import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { Platform } from 'react-native';
 
 import { newId } from '@/features/history/history';
+import { currentSpelling } from '@/i18n';
 import type { PickedPhoto } from '@/lib/photos';
 
 import { BackendError, type Backend, type BackendErrorCode, type TranslationView } from './types';
@@ -125,7 +126,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
         throw new BackendError('network');
       }
       const { data, error } = await supabase.functions.invoke('generate', {
-        body: { personalityId, originalPath, sceneId: scene?.sceneId, customScene: scene?.customScene, aiConsent: true },
+        body: { personalityId, originalPath, sceneId: scene?.sceneId, customScene: scene?.customScene, aiConsent: true, spelling: currentSpelling() },
       });
       if (error) throw await toBackendError(error);
       return data.generationId as string;

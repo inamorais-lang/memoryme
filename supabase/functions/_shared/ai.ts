@@ -2,7 +2,7 @@
 // tested with fakes. Keys come only from Edge Function secrets.
 import Anthropic from 'npm:@anthropic-ai/sdk@1.6.0';
 
-import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type Language } from './prompts.ts';
+import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type Language, type Spelling } from './prompts.ts';
 
 /** Pet's head in the image: x, y, width, height as fractions (0..1). */
 export type HeadBox = [number, number, number, number];
@@ -24,6 +24,8 @@ export interface PhraseWriter {
   write(args: {
     imageUrl: string;
     language: Language;
+    /** English only: British or American spelling. */
+    spelling?: Spelling;
     voice: string;
     scene: string;
     exclude: string[];
@@ -186,7 +188,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
         effort: 'low',
         format: { type: 'json_schema', schema: PHRASE_SCHEMA },
       },
-      system: phraseSystemPrompt(args.language),
+      system: phraseSystemPrompt(args.language, args.spelling),
       messages: [
         {
           role: 'user',

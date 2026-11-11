@@ -1,4 +1,4 @@
-// POST { personalityId, originalPath, aiConsent: true, sceneId?, customScene? } → 202 { generationId }
+// POST { personalityId, originalPath, aiConsent: true, sceneId?, customScene?, spelling?: 'GB' | 'US' } → 202 { generationId }
 // customScene ("Cenário à medida", 3–80 chars) costs 2 credits instead of 1.
 // Spends 1 credit on the server (atomic, rate limited), then makes the image
 // and the phrase in the background. The app polls the `generations` row.
@@ -31,6 +31,7 @@ export default {
     // The photo goes to third-party AI: never without the person's explicit consent.
     if (body?.aiConsent !== true) return json({ code: 'consent_required' }, 400);
     const sceneId = typeof body?.sceneId === 'string' ? body.sceneId : undefined;
+    const spelling = body?.spelling === 'US' || body?.spelling === 'GB' ? body.spelling : undefined;
     const customScene = typeof rawScene === 'string' ? rawScene.replace(/\s+/g, ' ').trim() || undefined : undefined;
 
     // Build the AI clients first: a missing secret must fail before a credit is spent.
@@ -62,11 +63,12 @@ export default {
       .update({ ai_consent_at: new Date().toISOString() })
       .eq('id', userId)
       .is('ai_consent_at', null);
+    if (spelling) await ctx.supabaseAdmin.from('generations').update({ spelling }).eq('id', generationId);
 
     EdgeRuntime.waitUntil(
       runGeneration(
         { store: supabaseStore(ctx.supabaseAdmin), phrases, images, crop: (url, photo) => cropToPhoto(url, photo) },
-        { id: generationId, userId, personalityId, originalPath, sceneId, customScene },
+        { id: generationId, userId, personalityId, originalPath, sceneId, customScene, spelling },
       ),
     );
     return json({ generationId }, 202);

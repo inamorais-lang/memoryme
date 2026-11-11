@@ -1,0 +1,5 @@
+{
+  "NSCameraUsageDescription": "La cámara se usa para que le hagas una foto a tu mascota y crees una imagen con lo que está pensando.",
+  "NSPhotoLibraryUsageDescription": "El acceso a las fotos se usa para que elijas una foto de tu mascota y crees la imagen.",
+  "NSPhotoLibraryAddUsageDescription": "El acceso a las fotos se usa para guardar tus imágenes en el carrete."
+}

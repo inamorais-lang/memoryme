@@ -85,7 +85,9 @@
     },
     "locales": {
       "pt-PT": "./locales/ios/pt-PT.json",
-      "en": "./locales/ios/en.json"
+      "en": "./locales/ios/en.json",
+      "es": "./locales/ios/es.json",
+      "fr": "./locales/ios/fr.json"
     },
     "owner": "inamoraiss-team",
     "extra": {

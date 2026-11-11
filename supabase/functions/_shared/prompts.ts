@@ -1,7 +1,10 @@
 // Prompts for the two AI calls. Personality-specific text lives in the
 // `personalities` table; these templates wrap it with the global rules.
 
-export type Language = 'pt-PT' | 'en';
+export type Language = 'pt-PT' | 'en' | 'es' | 'fr';
+
+/** English is shared by the UK and the US: only the spelling of the line changes. */
+export type Spelling = 'GB' | 'US';
 
 /** Hard limit for the balloon text (same as a user-written line). */
 export const PHRASE_MAX = 45;
@@ -11,9 +14,11 @@ const LANGUAGE_RULES: Record<Language, string> = {
     'Write in neutral, correct European Portuguese (Portugal): PT-PT vocabulary and grammar ' +
     '(e.g. "estás a fazer", "telemóvel"), never Brazilian Portuguese, no slang or regional expressions.',
   en: 'Write in neutral, casual English. No slang.',
+  es: 'Write in neutral, correct Spanish from Spain (castellano): informal "tú", Spain vocabulary (e.g. "móvil", "ordenador"), never Latin American terms, no slang or regional expressions. Use ¿ and ¡ where needed.',
+  fr: 'Write in neutral, correct French from France: informal "tu", no slang or regional expressions, French typography (a space before ? ! : ;).',
 };
 
-export function phraseSystemPrompt(language: Language): string {
+export function phraseSystemPrompt(language: Language, spelling?: Spelling): string {
   return [
     'You write what a cat or dog in a photo is thinking, for a funny photo app.',
     'The pet speaks AS A PET, with pet logic and pet priorities. It is not a human in a costume.',
@@ -43,6 +48,7 @@ export function phraseSystemPrompt(language: Language): string {
     '- No human pop culture, celebrities, politics, brands, slang, emojis, hashtags, quotation marks or swear words.',
     '- Cheeky is fine; nothing cruel, sexual or hateful.',
     `- ${LANGUAGE_RULES[language]}`,
+    ...(language === 'en' && spelling ? [`- Use ${spelling === 'US' ? 'American' : 'British'} spelling (e.g. ${spelling === 'US' ? '"color", "favorite"' : '"colour", "favourite"'}).`] : []),
     '',
     'Your first idea is usually the obvious joke everyone would make. Think of it, then throw it away.',
     `Write 3 different, less obvious options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,

@@ -244,7 +244,7 @@ Deno.test('the pet description from the original photo reaches the image model',
     gen,
   );
   assert.equal(got.appearance, 'Black cat, white stripe on the nose.');
-  assert.match(imageEditPrompt('x', false, 'Black cat, white stripe on the nose.'), /white stripe on the nose\. Reproduce every one/);
+  assert.match(imageEditPrompt('x', false, 'Black cat, white stripe on the nose.'), /This animal: Black cat, white stripe on the nose\. Small dark spots/);
   assert.doesNotMatch(imageEditPrompt('x'), /This animal:/);
 });
 

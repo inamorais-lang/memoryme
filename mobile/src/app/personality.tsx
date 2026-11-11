@@ -65,8 +65,11 @@ export default function PersonalityScreen() {
   const choiceReady =
     choice !== null && (!isCustom || customText.length >= CUSTOM_SCENE_MIN);
   const cost = isCustom ? 2 : 1;
+  const trending = scenes.filter((s) => s.kind === "place" && s.category === "trend");
   const christmas = scenes.filter((s) => s.kind === "place" && s.category === "natal");
-  const places = scenes.filter((s) => s.kind === "place" && s.category !== "natal");
+  const places = scenes.filter(
+    (s) => s.kind === "place" && s.category !== "natal" && s.category !== "trend",
+  );
   const comics = scenes.filter((s) => s.kind === "comic");
 
   const start = useCallback(async () => {
@@ -193,6 +196,23 @@ export default function PersonalityScreen() {
           <AppText color={colors.inkMuted}>{t("personality.subtitle")}</AppText>
         </View>
       </View>
+
+      {trending.length > 0 ? (
+        <View style={styles.group}>
+          <AppText variant="heading">{t("scene.trending")}</AppText>
+          <View style={styles.chips}>
+            {trending.map((s) => (
+              <SceneChip
+                key={s.id}
+                testID={`scene-${s.id}`}
+                label={s.name}
+                selected={isScene(s.id)}
+                onPress={() => select({ kind: "scene", id: s.id })}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
 
       {christmas.length > 0 ? (
         <View style={styles.group}>

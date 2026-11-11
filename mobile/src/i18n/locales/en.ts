@@ -40,6 +40,7 @@ const en: Strings = {
     selected: 'Selected',
   },
   scene: {
+    trending: '🔥 Trending',
     places: 'Scenes',
     modes: 'Moods',
     christmas: 'Christmas',

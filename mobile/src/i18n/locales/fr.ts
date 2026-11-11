@@ -40,6 +40,7 @@ const fr: Strings = {
     selected: 'Choisie',
   },
   scene: {
+    trending: '🔥 Tendance',
     places: 'Décors',
     modes: 'Humeurs',
     christmas: 'Noël',

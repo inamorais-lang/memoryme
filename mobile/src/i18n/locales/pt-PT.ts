@@ -38,6 +38,7 @@ const ptPT = {
     selected: 'Selecionada',
   },
   scene: {
+    trending: '🔥 Em alta',
     places: 'Cenários',
     modes: 'Modos',
     christmas: 'Natal',

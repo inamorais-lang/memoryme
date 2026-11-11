@@ -78,7 +78,7 @@ Por defeito, a imagem usa o cenário do feitio. A pessoa pode escolher outro:
 Exemplos reais: `docs/screenshots/cenarios.jpg`.
 
 ### 5.3 Partilhar e guardar
-- O balão fica longe da cara do animal (a IA indica onde está a cabeça) e as bolinhas param antes dela.
+- O balão fica longe da cara do animal e do objeto principal da cena (comando, copo…): a IA indica onde estão. As bolinhas param antes da cara.
 - Opção **"Sem balão"** (grátis): partilhar ou guardar só a imagem, com a marca de água.
 - Folha de partilha nativa do iOS: Instagram, TikTok, WhatsApp, Mensagens, etc.
 - Guardar no rolo da câmara.

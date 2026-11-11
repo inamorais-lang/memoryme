@@ -303,6 +303,7 @@ export default function ResultScreen() {
         phrase={balloonHidden ? undefined : shownPhrase}
         balloonSpot={spot}
         head={item.head}
+        prop={item.prop}
         onBalloonMove={placeBalloon}
         maxHeight={canvasMaxHeight}
         balloonTint={tintFor(item.id) + tintShift}

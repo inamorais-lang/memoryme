@@ -99,7 +99,7 @@ mobile/
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)
 ```
 
-- Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos. Ao escrever a frase, a IA devolve a caixa da cabeça (`generations.head`, x/y/w/h 0..1); sem posição escolhida, a app põe o balão no canto que menos tapa a cabeça (`components/balloonLayout.ts`). Nunca tapa a marca de água.
+- Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos. Ao escrever a frase, a IA devolve a caixa da cabeça (`generations.head`, x/y/w/h 0..1); e do objeto principal da cena (`generations.prop`, ex.: comando, copo); sem posição escolhida, a app põe o balão no canto que menos tapa a cabeça e, depois, o objeto (`components/balloonLayout.ts`). Nunca tapa a marca de água.
 - "Sem balão · grátis" no resultado: esconde o balão e partilha/guarda só a imagem (com marca de água).
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
 - Cenários (`scenes`, no servidor, `image_prompt` escondido): escolhidos no ecrã do feitio; substituem o cenário do feitio. À medida: recusado (pessoas reais, marcas, impróprio…) → `scene_rejected`, 2 créditos devolvidos. No modo local não há cenários.

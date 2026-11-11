@@ -20,10 +20,11 @@ export function overlap(a: Box, b: Box): number {
 }
 
 /**
- * Picks the candidate bubble position that covers the least of the head,
- * and among equals the one farthest from it. Candidates are in order of preference.
+ * Picks the candidate bubble position that covers the least of the head
+ * (and then of the scene's main prop), and among equals the one farthest
+ * from the head. Candidates are in order of preference.
  */
-export function bestSpot(candidates: Box[], head: Box): number {
+export function bestSpot(candidates: Box[], head: Box, prop?: Box): number {
   const hc = centre(head);
   let best = 0;
   let bestScore = Infinity;
@@ -31,7 +32,7 @@ export function bestSpot(candidates: Box[], head: Box): number {
     const cc = centre(c);
     const distance = Math.hypot(cc.x - hc.x, cc.y - hc.y);
     // Covering the face always loses; distance only breaks ties (and near-ties).
-    const score = overlap(c, head) * 1000 - distance;
+    const score = overlap(c, head) * 1000 + (prop ? overlap(c, prop) * 300 : 0) - distance;
     if (score < bestScore - 0.5) {
       bestScore = score;
       best = i;

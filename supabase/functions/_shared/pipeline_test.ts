@@ -181,6 +181,12 @@ Deno.test('head box: clamped into the image, dropped when invalid', () => {
     parsePhrase(JSON.stringify({ is_pet: true, phrases: ['Olá'], head: { x: 0.2, y: 0.3, w: 0.4, h: 0.3 } })).head,
     [0.2, 0.3, 0.4, 0.3],
   );
+  const withProp = parsePhrase(
+    JSON.stringify({ is_pet: true, phrases: ['Olá'], prop: { present: true, x: 0.5, y: 0.7, w: 0.3, h: 0.1 } }),
+  );
+  assert.deepEqual(withProp.prop, [0.5, 0.7, 0.3, 0.1]);
+  const noProp = parsePhrase(JSON.stringify({ is_pet: true, phrases: ['Olá'], prop: { present: false, x: 0, y: 0, w: 0, h: 0 } }));
+  assert.equal(noProp.prop, undefined);
 });
 
 Deno.test('falInput uses each model\'s field names', () => {

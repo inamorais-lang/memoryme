@@ -7,7 +7,7 @@ import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type
 /** Pet's head in the image: x, y, width, height as fractions (0..1). */
 export type HeadBox = [number, number, number, number];
 
-export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox };
+export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox };
 
 export interface PhraseWriter {
   /** Cheap gate on the original photo, before any expensive image call. */
@@ -45,8 +45,20 @@ const PHRASE_SCHEMA = {
       required: ['x', 'y', 'w', 'h'],
       additionalProperties: false,
     },
+    prop: {
+      type: 'object',
+      properties: {
+        present: { type: 'boolean' },
+        x: { type: 'number' },
+        y: { type: 'number' },
+        w: { type: 'number' },
+        h: { type: 'number' },
+      },
+      required: ['present', 'x', 'y', 'w', 'h'],
+      additionalProperties: false,
+    },
   },
-  required: ['is_pet', 'phrases', 'head'],
+  required: ['is_pet', 'phrases', 'head', 'prop'],
   additionalProperties: false,
 };
 
@@ -194,8 +206,12 @@ export function parsePhrase(raw: string): PhraseResult {
   if (!isPet) return { isPet: false, phrase: '' };
   const fitting = options.find((p) => p.length <= PHRASE_MAX);
   if (!fitting) throw new Error(options.length ? 'phrase_too_long' : 'phrase_empty');
+  const result: PhraseResult = { isPet: true, phrase: fitting };
   const head = parseHead(data.head);
-  return head ? { isPet: true, phrase: fitting, head } : { isPet: true, phrase: fitting };
+  if (head) result.head = head;
+  const prop = data.prop?.present === true ? parseHead(data.prop) : undefined;
+  if (prop) result.prop = prop;
+  return result;
 }
 
 /** Clamps the head box into the image; drops it if it makes no sense. */

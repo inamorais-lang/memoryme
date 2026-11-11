@@ -25,6 +25,13 @@ describe('bestSpot', () => {
     expect(bestSpot(corners(), head)).toBe(3);
   });
 
+  it('avoids the main prop when the face is not at stake', () => {
+    // Head at the top: both bottom corners are free of it; the remote sits bottom-right.
+    const head: Box = { x: 100, y: 20, w: 160, h: 160 };
+    const remote: Box = { x: 240, y: 400, w: 90, h: 50 };
+    expect(bestSpot(corners(), head, remote)).toBe(3);
+  });
+
   it('keeps the first corner (top-left) when the head is low and centred', () => {
     expect(bestSpot(corners(), { x: 130, y: 260, w: 100, h: 100 })).toBe(0);
   });

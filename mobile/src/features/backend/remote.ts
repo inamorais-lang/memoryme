@@ -10,7 +10,7 @@ import { BackendError, type Backend, type BackendErrorCode, type TranslationView
 
 const MAX_SIDE = 1536;
 const COLUMNS =
-  'id, status, personality_id, image_path, phrase, custom_phrase, free_phrase_used, balloon_position, balloon_x, balloon_y, failure_reason, cost, head, created_at';
+  'id, status, personality_id, image_path, phrase, custom_phrase, free_phrase_used, balloon_position, balloon_x, balloon_y, failure_reason, cost, head, prop, created_at';
 
 type Row = {
   id: string;
@@ -26,6 +26,7 @@ type Row = {
   failure_reason: string | null;
   cost: number;
   head: number[] | null;
+  prop: number[] | null;
   created_at: string;
 };
 
@@ -86,6 +87,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       failureReason: r.failure_reason ?? undefined,
       cost: r.cost ?? 1,
       head: r.head?.length === 4 ? (r.head as [number, number, number, number]) : undefined,
+      prop: r.prop?.length === 4 ? (r.prop as [number, number, number, number]) : undefined,
       createdAt: Date.parse(r.created_at),
     }));
   }

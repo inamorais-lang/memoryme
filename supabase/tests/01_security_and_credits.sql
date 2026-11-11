@@ -68,8 +68,9 @@ select test.check((select credits = 2 from public.profiles where id = 'aaaaaaaa-
 create temp table ok (id uuid);
 grant all on ok to service_role, authenticated;
 insert into ok select id from public.generations where status = 'pending' limit 1;
-select test.check(public.finish_generation((select id from ok), 'aaaaaaaa-0000-0000-0000-000000000001/out.png', 'Frase 1', array[0.3, 0.4, 0.35, 0.3]::real[]), 'finish generation');
+select test.check(public.finish_generation((select id from ok), 'aaaaaaaa-0000-0000-0000-000000000001/out.png', 'Frase 1', array[0.3, 0.4, 0.35, 0.3]::real[], array[0.6, 0.7, 0.2, 0.1]::real[]), 'finish generation');
 select test.check((select head = array[0.3, 0.4, 0.35, 0.3]::real[] from public.generations where id = (select id from ok)), 'head box saved');
+select test.check((select prop = array[0.6, 0.7, 0.2, 0.1]::real[] from public.generations where id = (select id from ok)), 'prop box saved');
 select test.check(not public.finish_generation((select id from ok), 'x', 'y'), 'cannot finish twice');
 select test.check(not public.fail_generation((select id from ok), 'late'), 'a finished generation cannot be failed (no free refund)');
 

@@ -12,7 +12,7 @@ export interface Store {
   scene(id: string): Promise<ScenePrompt>;
   signedUrl(bucket: 'originals' | 'generated', path: string): Promise<string>;
   upload(bucket: 'generated', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
-  finish(generationId: string, imagePath: string, phrase: string, head?: HeadBox): Promise<boolean>;
+  finish(generationId: string, imagePath: string, phrase: string, head?: HeadBox, prop?: HeadBox): Promise<boolean>;
   fail(generationId: string, reason: string): Promise<boolean>;
 }
 
@@ -74,7 +74,7 @@ export async function runGeneration(
     });
     if (!phrase.phrase) throw new Error('phrase_empty');
 
-    const finished = await store.finish(gen.id, imagePath, phrase.phrase, phrase.head);
+    const finished = await store.finish(gen.id, imagePath, phrase.phrase, phrase.head, phrase.prop);
     if (!finished) throw new Error('finish_rejected');
     return 'succeeded';
   } catch (error) {

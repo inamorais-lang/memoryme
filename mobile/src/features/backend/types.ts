@@ -37,6 +37,8 @@ export type TranslationView = {
   balloonY?: number;
   /** Pet's head in the image (x, y, w, h as fractions), from the AI. Keeps the balloon off the face. */
   head?: [number, number, number, number];
+  /** Main prop of the scene (TV remote, glass…), same format. The balloon avoids it too. */
+  prop?: [number, number, number, number];
   failureReason?: string;
   /** Credits spent (1, or 2 for a scene typed by the user). */
   cost: number;

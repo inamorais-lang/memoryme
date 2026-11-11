@@ -30,12 +30,13 @@ export function supabaseStore(admin: SupabaseClient): Store {
       const { error } = await admin.storage.from(bucket).upload(path, bytes, { contentType, upsert: true });
       if (error) throw new Error(`upload_${error.message}`);
     },
-    async finish(generationId, imagePath, phrase, head) {
+    async finish(generationId, imagePath, phrase, head, prop) {
       const { data, error } = await admin.rpc('finish_generation', {
         p_generation_id: generationId,
         p_image_path: imagePath,
         p_phrase: phrase,
         p_head: head ?? null,
+        p_prop: prop ?? null,
       });
       if (error) throw new Error(`finish_${error.message}`);
       return data === true;

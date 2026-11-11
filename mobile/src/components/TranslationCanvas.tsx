@@ -42,6 +42,8 @@ type Props = {
   balloonSpot?: BalloonSpot;
   /** Pet's head (x, y, w, h as fractions of the image), from the AI. */
   head?: [number, number, number, number];
+  /** Main prop of the scene (TV remote, glass…), same format; avoided after the head. */
+  prop?: [number, number, number, number];
   /** When set, the balloon can be dragged; called when the drag ends. */
   onBalloonMove?: (spot: BalloonSpot) => void;
   /** Keeps the whole image on screen; the width shrinks to respect it. */
@@ -62,6 +64,7 @@ export function TranslationCanvas({
   phrase,
   balloonSpot,
   head,
+  prop,
   onBalloonMove,
   maxHeight,
   balloonTint,
@@ -92,7 +95,10 @@ export function TranslationCanvas({
   const headBox: Box = head
     ? { x: head[0] * frame.w, y: head[1] * frame.h, w: head[2] * frame.w, h: head[3] * frame.h }
     : { x: 0.4 * frame.w, y: 0.45 * frame.h, w: 0.2 * frame.w, h: 0.2 * frame.h };
-  const base = balloonSpot ?? autoSpot(headBox, frame, bubble);
+  const propBox: Box | undefined = prop
+    ? { x: prop[0] * frame.w, y: prop[1] * frame.h, w: prop[2] * frame.w, h: prop[3] * frame.h }
+    : undefined;
+  const base = balloonSpot ?? autoSpot(headBox, propBox, frame, bubble);
   const spot = fit(drag ?? base, frame, bubble);
 
   // Native gestures: a drag moves the balloon, a tap changes its colour.
@@ -207,10 +213,10 @@ export function TranslationCanvas({
 }
 
 /** The corner whose balloon covers the least of the head (top-left on a tie). */
-function autoSpot(head: Box, frame: Size, bubble: Size): BalloonSpot {
+function autoSpot(head: Box, prop: Box | undefined, frame: Size, bubble: Size): BalloonSpot {
   const spots = BALLOON_CORNERS.map((c) => fit(c, frame, bubble));
   const boxes = spots.map((s) => ({ x: s.x * frame.w, y: s.y * frame.h, w: bubble.w, h: bubble.h }));
-  return spots[bestSpot(boxes, head)];
+  return spots[bestSpot(boxes, head, prop)];
 }
 
 /** Keeps the balloon fully inside the photo, with a small margin. */

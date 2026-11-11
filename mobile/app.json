@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Pensamentos do Bicho",
-    "slug": "pet-thoughts",
+    "name": "PetBubble",
+    "slug": "petbubble",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "petthoughts",
+    "scheme": "petbubble",
     "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon",

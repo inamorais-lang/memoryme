@@ -128,7 +128,7 @@ export default function ResultScreen() {
     setBusy('share');
     try {
       const uri = await renderToImage(canvasRef);
-      const outcome = await shareImage(uri, `pet-thought-${item?.id}.png`);
+      const outcome = await shareImage(uri, `petbubble-${item?.id}.png`);
       if (outcome === 'unavailable') Alert.alert(t('result.shareUnavailable'));
     } catch {
       // Closing the share sheet also lands here on some platforms; nothing to report.
@@ -141,7 +141,7 @@ export default function ResultScreen() {
     setBusy('save');
     try {
       const uri = await renderToImage(canvasRef);
-      const outcome = await saveImageToLibrary(uri, `pet-thought-${item?.id}.png`);
+      const outcome = await saveImageToLibrary(uri, `petbubble-${item?.id}.png`);
       if (outcome === 'denied') {
         Alert.alert(t('permissions.saveTitle'), t('permissions.saveBody'), [
           { text: t('common.cancel'), style: 'cancel' },

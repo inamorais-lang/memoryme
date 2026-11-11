@@ -1,6 +1,6 @@
 # PRD — Tradutor de Pensamentos de Animais
 
-> Nome comercial: **por definir**. Neste documento: "a app".
+> Nome comercial: **PetBubble** (petbubble.app).
 > Versão 1.0 · 10 de novembro de 2026
 
 ## 1. Resumo

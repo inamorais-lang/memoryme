@@ -36,12 +36,20 @@ export default function ResultScreen() {
   const [item, setItem] = useState<TranslationView | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const [busy, setBusy] = useState<'retry' | 'share' | 'save' | null>(null);
-  const [saved, setSaved] = useState(false);
+  // What was in the gallery copy: any change to the picture (new line, balloon, colour) lets it be saved again.
+  const [savedLook, setSavedLook] = useState<string | null>(null);
   // Each translation gets its own pastel; tapping the balloon cycles it.
   const [tintShift, setTintShift] = useState(0);
   const [corner, setCorner] = useState(0);
   // Some people want the picture alone: share and save it without the balloon.
   const [balloonHidden, setBalloonHidden] = useState(false);
+  const look = JSON.stringify([
+    item?.customPhrase ?? item?.phrase,
+    item?.balloonX,
+    item?.balloonY,
+    tintShift,
+    balloonHidden,
+  ]);
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState('');
   const [loadingText] = useState(() => pickOne(t('result.loading', { returnObjects: true }) as string[]));
@@ -152,7 +160,7 @@ export default function ResultScreen() {
           { text: t('common.openSettings'), onPress: () => Linking.openSettings() },
         ]);
       } else {
-        setSaved(true);
+        setSavedLook(look);
         if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     } catch {
@@ -244,6 +252,7 @@ export default function ResultScreen() {
         ? undefined
         : BALLOON_CORNERS[item.balloonPosition === 'bottom' ? 3 : 0];
   const shownPhrase = editing ? draftText || t('result.writePlaceholder') : (item.customPhrase ?? item.phrase);
+  const saved = savedLook === look;
   const charsLeft = CUSTOM_PHRASE_MAX - draftText.length;
 
   const writingFooter = (

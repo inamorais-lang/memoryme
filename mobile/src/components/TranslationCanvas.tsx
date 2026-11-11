@@ -83,9 +83,17 @@ export function TranslationCanvas({
     0.56,
     1.5,
   );
-  const sizing = maxHeight
-    ? { maxWidth: maxHeight * aspectRatio, alignSelf: "center" as const }
-    : null;
+  // Exact width and height: on iOS, aspectRatio + maxWidth lets a tall photo
+  // grow past maxHeight (under the buttons, hiding a balloon placed low).
+  const [available, setAvailable] = useState(0);
+  const width = Math.min(
+    available,
+    maxHeight ? maxHeight * aspectRatio : Infinity,
+  );
+  const sizing =
+    width > 0
+      ? { width, height: width / aspectRatio }
+      : { width: "100%" as const, aspectRatio };
 
   const [frame, setFrame] = useState<Size>({ w: 360, h: 450 });
   const [bubble, setBubble] = useState<Size>({ w: 250, h: 120 });
@@ -96,10 +104,25 @@ export function TranslationCanvas({
 
   // Without a head box (older translations), aim at the middle of the photo.
   const headBox: Box = head
-    ? { x: head[0] * frame.w, y: head[1] * frame.h, w: head[2] * frame.w, h: head[3] * frame.h }
-    : { x: 0.4 * frame.w, y: 0.45 * frame.h, w: 0.2 * frame.w, h: 0.2 * frame.h };
+    ? {
+        x: head[0] * frame.w,
+        y: head[1] * frame.h,
+        w: head[2] * frame.w,
+        h: head[3] * frame.h,
+      }
+    : {
+        x: 0.4 * frame.w,
+        y: 0.45 * frame.h,
+        w: 0.2 * frame.w,
+        h: 0.2 * frame.h,
+      };
   const propBox: Box | undefined = prop
-    ? { x: prop[0] * frame.w, y: prop[1] * frame.h, w: prop[2] * frame.w, h: prop[3] * frame.h }
+    ? {
+        x: prop[0] * frame.w,
+        y: prop[1] * frame.h,
+        w: prop[2] * frame.w,
+        h: prop[3] * frame.h,
+      }
     : undefined;
   const base = balloonSpot ?? autoSpot(headBox, propBox, frame, bubble);
   const spot = fit(drag ?? base, frame, bubble);
@@ -142,85 +165,109 @@ export function TranslationCanvas({
         balloonScale,
       )
     : [];
-  const tintColor = colors.balloonTints[(balloonTint ?? 0) % colors.balloonTints.length];
+  const tintColor =
+    colors.balloonTints[(balloonTint ?? 0) % colors.balloonTints.length];
 
   return (
     <View
-      ref={ref}
-      collapsable={false}
-      style={[styles.frame, { aspectRatio }, sizing]}
-      testID="translation-canvas"
-      onLayout={(e) =>
-        setFrame({
-          w: e.nativeEvent.layout.width,
-          h: e.nativeEvent.layout.height,
-        })
-      }
+      style={styles.slot}
+      onLayout={(e) => setAvailable(e.nativeEvent.layout.width)}
     >
-      <Image
-        source={{ uri: photoUri }}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        onLoad={(e) =>
-          setLoaded({ width: e.source.width, height: e.source.height })
+      <View
+        ref={ref}
+        collapsable={false}
+        style={[styles.frame, sizing]}
+        testID="translation-canvas"
+        onLayout={(e) =>
+          setFrame({
+            w: e.nativeEvent.layout.width,
+            h: e.nativeEvent.layout.height,
+          })
         }
-      />
-      {dots.map((d, i) => (
-        <View
-          key={i}
-          pointerEvents="none"
-          style={[
-            styles.dot,
-            {
-              left: d.cx - d.size / 2,
-              top: d.cy - d.size / 2,
-              width: d.size,
-              height: d.size,
-              borderRadius: d.size / 2,
-              backgroundColor: tintColor,
-            },
-          ]}
+      >
+        <Image
+          source={{ uri: photoUri }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          onLoad={(e) =>
+            setLoaded({ width: e.source.width, height: e.source.height })
+          }
         />
-      ))}
-      {phrase ? (
-        <GestureDetector gesture={gesture}>
+        {dots.map((d, i) => (
           <View
+            key={i}
+            pointerEvents="none"
             style={[
-              styles.balloon,
-              { left: spot.x * frame.w, top: spot.y * frame.h },
+              styles.dot,
+              {
+                left: d.cx - d.size / 2,
+                top: d.cy - d.size / 2,
+                width: d.size,
+                height: d.size,
+                borderRadius: d.size / 2,
+                backgroundColor: tintColor,
+              },
             ]}
-            onLayout={(e) =>
-              setBubble({
-                w: e.nativeEvent.layout.width,
-                h: e.nativeEvent.layout.height,
-              })
-            }
+          />
+        ))}
+        {phrase ? (
+          <GestureDetector gesture={gesture}>
+            <View
+              style={[
+                styles.balloon,
+                { left: spot.x * frame.w, top: spot.y * frame.h },
+              ]}
+              onLayout={(e) =>
+                setBubble({
+                  w: e.nativeEvent.layout.width,
+                  h: e.nativeEvent.layout.height,
+                })
+              }
+            >
+              <ThoughtBalloon
+                text={phrase}
+                trail={false}
+                scale={balloonScale}
+                tint={balloonTint}
+              />
+            </View>
+          </GestureDetector>
+        ) : null}
+        {/* Always on the exported image: marks it as AI-generated (EU AI Act) and credits the app. */}
+        {watermark ? (
+          <View
+            style={styles.watermark}
+            pointerEvents="none"
+            testID="watermark"
           >
-            <ThoughtBalloon
-              text={phrase}
-              trail={false}
-              scale={balloonScale}
-              tint={balloonTint}
-            />
+            <AppText
+              variant="small"
+              color={colors.onPrimary}
+              style={styles.watermarkText}
+            >
+              {t("result.watermark")}
+            </AppText>
           </View>
-        </GestureDetector>
-      ) : null}
-      {/* Always on the exported image: marks it as AI-generated (EU AI Act) and credits the app. */}
-      {watermark ? (
-        <View style={styles.watermark} pointerEvents="none" testID="watermark">
-          <AppText variant="small" color={colors.onPrimary} style={styles.watermarkText}>
-            {t("result.watermark")}
-          </AppText>
-        </View>
-      ) : null}
+        ) : null}
+      </View>
     </View>
   );
 }
 
 /** The corner whose balloon covers the least of the head (top-left on a tie). */
-function autoSpot(head: Box, prop: Box | undefined, frame: Size, bubble: Size): BalloonSpot {
+function autoSpot(
+  head: Box,
+  prop: Box | undefined,
+  frame: Size,
+  bubble: Size,
+): BalloonSpot {
   const spots = BALLOON_CORNERS.map((c) => fit(c, frame, bubble));
-  const boxes = spots.map((s) => ({ x: s.x * frame.w, y: s.y * frame.h, w: bubble.w, h: bubble.h }));
+  const boxes = spots.map((s) => ({
+    x: s.x * frame.w,
+    y: s.y * frame.h,
+    w: bubble.w,
+    h: bubble.h,
+  }));
   return spots[bestSpot(boxes, head, prop)];
 }
 
@@ -247,8 +294,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.overlay,
   },
   watermarkText: { fontSize: 10, lineHeight: 14 },
+  slot: { width: "100%", alignItems: "center" },
   frame: {
-    width: "100%",
     overflow: "hidden",
     borderRadius: radius.lg,
     backgroundColor: colors.inkFaint,

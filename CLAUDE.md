@@ -28,7 +28,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
 | Cenários além do modo: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia e Snowboard a 1 crédito, expressão natural; 7 de Natal (`category = 'natal'`, grupo próprio no topo; esconder em janeiro com `active = false`); "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
-| Sem modo "Exagerado" (testado e retirado: pilhas de objetos confusas). Em vez disso, todas as imagens têm cara mais cómica, 2–3 dos objetos da própria cena e cores vivas | Decisão do dono do produto |
+| Sem modo "Exagerado" (testado e retirado: pilhas de objetos confusas). Em vez disso, todas as imagens têm cara mais cómica (natural para a espécie), 2–3 dos objetos da própria cena e cores vivas | Decisão do dono do produto |
 | Idade mínima 16 anos (consentimento RGPD para a IA sem pais em PT, ES, FR, Reino Unido; acima dos 13 dos EUA) | Decisão do dono do produto |
 | 5 línguas: PT-PT, ES, FR, EN-GB, EN-US (os dois ingleses só diferem na ortografia); Termos e Privacidade nas 4 línguas | Pedido do dono do produto |
 | Na app, "Feitio" chama-se **Modo** (pedido do dono do produto) | "Feitio" não soava bem; "Cenário" já é a 2.ª escolha |
@@ -119,6 +119,7 @@ mobile/
 - Regras globais de imagem (`imageEditPrompt`): **nunca exemplos concretos de objetos** — o modelo copia-os para todas as cenas (ex.: "três hambúrgueres" apareceu na praia e no Natal; "confetti" em todo o lado).
 - Mudar a pose do animal (ex.: de barriga para cima) só resulta com a pose **no início** do prompt do cenário ("Change the pose: …").
 - Fidelidade: o "há animal?" devolve também `appearance` (cores e marcas, com o sítio de cada uma), que entra no prompt da imagem como obrigatória ("reproduz todas, no mesmo sítio, não acrescentes nenhuma"). Sem isto o modelo às vezes apagava marcas pequenas (ex.: risca branca no focinho).
+- Expressão por espécie: gatos mostram atitude com olhos/orelhas/postura, boca fechada ou entreaberta, nunca sorriso de dentes (ficavam com "focinho de cão"); cães podem sorrir de boca aberta.
 - Sem mãos humanas: se o animal segura ou toca em algo, usa as próprias patas (regra global em `imageEditPrompt`).
 - Autorização da IA (Apple 5.1.2(i) + RGPD): ecrã `ai-consent` antes da 1.ª imagem (guardado no dispositivo, `features/consent`); `generate` exige `aiConsent: true` e grava `profiles.ai_consent_at`; retirar nas Definições.
 - Termos e Privacidade: `docs/legal` (PT/EN/ES/FR, Ana Abreu, petbubble.ai@icloud.com; arbitragem individual + renúncia a ações coletivas nos EUA, exclusão de garantias, limite de responsabilidade, indemnização; secções CCPA, BIPA (sem biometria), COPPA; retenção real de cada fornecedor conforme os DPA; aceitação + 16 anos confirmados no ecrã de login), publicados no GitHub Pages; a app abre-os (`LegalLinks`, `legalUrl` em `src/config.ts`) nas Definições, no login e no ecrã da autorização. Lista da Apple: `docs/APPLE_CHECKLIST.md`.

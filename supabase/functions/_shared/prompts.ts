@@ -84,13 +84,13 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
   return [
     'Edit this photo of a pet.',
     `Style: ${style}`,
-    'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape.',
+    'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape. Keep its real anatomy: a cat keeps a short cat muzzle and cat teeth, never a dog-like snout or grin.',
     // Described from the original photo: the model tends to "clean up" small markings otherwise.
     ...(appearance ? [`This animal: ${appearance} Reproduce every one of these colours and markings exactly, in the same places, and add none.`] : []),
     'The pet stays the main subject, centred and photorealistic.',
     exaggerated
       ? 'This is a comedy photo: a big, exaggerated, funny expression is welcome (wide eyes, open mouth), but the animal stays photorealistic.'
-      : 'Give the pet a lively, funny expression that fits the mood (an open-mouthed grin, a surprised look, a smug face, a dramatic side-eye): expressive and comic, but still a real animal, never a cartoon.',
+      : 'Give the pet a lively, funny expression that fits the mood, natural for its species: a cat shows attitude with its eyes, ears, whiskers and posture (smug half-closed eyes, a side-eye, wide eyes), with its mouth closed or barely open and never a wide toothy grin; a dog may smile with an open mouth and tongue out. Expressive and comic, but still a real animal, never a cartoon.',
     'Bright and colourful: vivid saturated colours and strong cheerful light, like a playful editorial photo. Never dark, moody or gloomy.',
     // No concrete examples here: the image model copies them into every scene.
     'Generous but clear: show two or three of the objects already named in the style above instead of one, neatly arranged so each is easy to recognise. Add no other objects and no cluttered piles.',

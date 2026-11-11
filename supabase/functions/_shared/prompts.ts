@@ -100,7 +100,7 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
     // No concrete examples here: the image model copies them into every scene.
     'Generous but clear: show two or three of the objects already named in the style above instead of one, neatly arranged so each is easy to recognise. Add no other objects and no cluttered piles.',
     'Frame the pet in the lower two thirds of the image and keep the top third as plain, empty background.',
-    'Never draw speech bubbles, thought bubbles, clouds of thought, text, letters, numbers, captions, logos or watermarks.',
+    'Never draw speech bubbles, thought bubbles, clouds of thought, text, letters, numbers, captions, logos or watermarks. If the source photo has any of these, or app buttons, a dimmed or washed-out overlay, remove them and show the pet with natural, full colours.',
     exaggerated
       ? 'Apart from the props asked for above, do not give the animal human features, and never make it resemble a real person.'
       : 'Do not give the animal human facial features, and never make it resemble a real person.',

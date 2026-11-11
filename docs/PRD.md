@@ -55,10 +55,10 @@ O animal fala **como animal**, com lógica de gato ou de cão (tigela vazia, asp
 | Dramático / Dramatic | Cada banho é uma tragédia | Gorro e casaco de inverno, rua com neve e casas coloridas |
 | Vilão / Villain | Planeia dominar a casa | Capa roxa e monóculo, trono verde, copo à beira da mesa |
 | Preguiçoso / Lazy | Dormir é uma carreira | Pijama de seda amarelo, cama com almofadas, tabuleiro de pequeno-almoço |
-| Ciumento / Jealous | O telemóvel e o outro animal são inimigos | Gabardina e chapéu, esplanada, telemóvel pousado na mesa |
+| Ciumento / Jealous | O telemóvel e o outro animal são inimigos | Gabardina e chapéu, no sofá a olhar de lado para um portátil |
 | Caótico / Chaos Gremlin | Corridas às 3 da manhã | Chapéu de festa, sala depois de uma festa |
-| Crítico / The Critic | Avalia comida e serviço | Boina e óculos, esplanada à beira-mar, prato gourmet |
-| Férias / Vacation Mode | Zero responsabilidades | Espreguiçadeira junto à piscina, cocktail (sem álcool) |
+| Crítico / The Critic | Avalia comida e serviço | Boina e óculos, cozinha, a avaliar uma tigela de ração |
+| Férias / Vacation Mode | Zero responsabilidades | Boia de flamingo na piscina, cocktail (sem álcool) |
 | Domingo / Sunday Mode | Sofá e nenhum plano | Sofá com manta, comando, pipocas, sala com luz do dia |
 | Hora do Vinho / Wine Time | Um copo e muita classe | Esplanada sobre vinhas ao pôr do sol, copo de vinho e queijo |
 

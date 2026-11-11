@@ -75,7 +75,6 @@ Por defeito, a imagem usa o cenário do feitio. A pessoa pode escolher outro:
 | Sorriso com dentes, Olhos arregalados, Óculos, Cabelo novo, Narigudo, Pose ridícula | 1 crédito | Fotos engraçadas, fundo pastel; só nestes a expressão pode ser exagerada |
 | Dia de praia, Snowboard | 1 crédito | Areia com chapéu e bola; prancha na neve com gorro e óculos. Expressão natural |
 | Natal (grupo próprio no topo): Compras de Natal, Consoada, Embrulhar presentes, Manhã de Natal, Rena do Pai Natal, Mercado de Natal, Natal em casa | 1 crédito | Só na época: desligam-se em janeiro sem nova versão. Expressão natural |
-| Exagerado (interruptor) | +1 crédito | Tudo em excesso: os objetos da cena multiplicados e cara bem cómica. Não existe nos cenários engraçados |
 | À medida | 2 créditos | A pessoa descreve o cenário (3–80 caracteres). A IA verifica e recusa pessoas reais, marcas, personagens com direitos, conteúdo sexual, violência, drogas, ódio ou maus-tratos a animais; se recusar, os 2 créditos são devolvidos |
 
 Exemplos reais: `docs/screenshots/cenarios.jpg`.

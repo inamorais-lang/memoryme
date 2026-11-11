@@ -11,18 +11,15 @@ type Draft = {
   personalityId: string | null;
   scene: DraftScene;
   customScene: string;
-  /** "Exagerado" (+1 credit). */
-  exaggerated: boolean;
 };
 
-const EMPTY: Draft = { photo: null, personalityId: null, scene: { kind: 'mood' }, customScene: '', exaggerated: false };
+const EMPTY: Draft = { photo: null, personalityId: null, scene: { kind: 'mood' }, customScene: '' };
 
 type DraftApi = Draft & {
   setPhoto(photo: PickedPhoto): void;
   setPersonality(id: string): void;
   setScene(scene: DraftScene): void;
   setCustomScene(text: string): void;
-  setExaggerated(on: boolean): void;
   reset(): void;
 };
 
@@ -37,7 +34,6 @@ export function DraftProvider({ children }: { children: ReactNode }) {
     setPersonality: (personalityId) => setDraft((d) => ({ ...d, personalityId })),
     setScene: (scene) => setDraft((d) => ({ ...d, scene })),
     setCustomScene: (customScene) => setDraft((d) => ({ ...d, customScene })),
-    setExaggerated: (exaggerated) => setDraft((d) => ({ ...d, exaggerated })),
     reset: () => setDraft(EMPTY),
   };
 

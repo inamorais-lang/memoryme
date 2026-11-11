@@ -41,8 +41,6 @@ const ptPT = {
     title: 'E o cenário?',
     subtitle: 'Fica o do modo, ou escolhe outro.',
     mood: 'O do modo',
-    exaggerated: 'Exagerado · +1 crédito',
-    exaggeratedHint: 'Tudo em excesso: montes de adereços e uma cara bem cómica.',
     christmas: 'Natal',
     custom: 'À medida · 2 créditos',
     customHint: 'Descreve o cenário. Sem pessoas reais, marcas ou nada impróprio.',

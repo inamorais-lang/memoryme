@@ -28,7 +28,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
 | Cenários além do feitio: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia e Snowboard a 1 crédito, expressão natural; 7 de Natal (`category = 'natal'`, grupo próprio no topo; esconder em janeiro com `active = false`); "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
-| "Exagerado · +1 crédito" (interruptor no ecrã do modo): cenário em excesso (props da própria cena multiplicados) + expressão cómica; não se aplica aos cenários engraçados (já exagerados, nunca cobrado); custo máx. 3 (à medida + exagerado) | Pedido do dono do produto (meio crédito obrigava a saldos partidos) |
+| Sem modo "Exagerado" (testado e retirado: pilhas de objetos confusas). Em vez disso, todas as imagens têm cara mais cómica, 2–3 dos objetos da própria cena e cores vivas | Decisão do dono do produto |
 | Na app, "Feitio" chama-se **Modo** (pedido do dono do produto) | "Feitio" não soava bem; "Cenário" já é a 2.ª escolha |
 | Os animais falam como animais: 8 feitios universais (PT/EN), lógica de gato/cão, português neutro; personagens humanas inativas | Decisão do dono do produto: as piadas humanizadas não tinham graça |
 | Sem Mac: EAS Build na cloud + Expo Go/builds de teste no iPhone; testes automáticos na web | O dono do produto só tem iPhone |
@@ -108,6 +108,7 @@ mobile/
 
 - Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos. Ao escrever a frase, a IA devolve a caixa da cabeça (`generations.head`, x/y/w/h 0..1); e do objeto principal da cena (`generations.prop`, ex.: comando, copo); sem posição escolhida, a app põe o balão no canto que menos tapa a cabeça e, depois, o objeto (`components/balloonLayout.ts`). Nunca tapa a marca de água.
 - "Sem balão · grátis" no resultado: esconde o balão e partilha/guarda só a imagem (com marca de água).
+- Regras globais de imagem (`imageEditPrompt`): **nunca exemplos concretos de objetos** — o modelo copia-os para todas as cenas (ex.: "três hambúrgueres" apareceu na praia e no Natal; "confetti" em todo o lado).
 - Sem mãos humanas: se o animal segura ou toca em algo, usa as próprias patas (regra global em `imageEditPrompt`).
 - Recorte: o "há animal?" devolve também onde está a fotografia dentro da imagem; se houver barras ou margens (capturas de ecrã), o servidor corta só isso — o conteúdo da foto nunca é cortado (pedido do dono do produto). Se o recorte falhar, usa a original.
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.

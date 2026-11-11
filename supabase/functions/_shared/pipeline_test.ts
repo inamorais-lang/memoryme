@@ -222,37 +222,6 @@ Deno.test('crop: a failing crop falls back to the original photo', async () => {
   assert.equal(sent, 'https://signed/originals/u1/photo.jpg');
 });
 
-Deno.test('exaggerated mode: over-the-top scene and a big expression', async () => {
-  const { store } = fakeStore();
-  let got: { style: string; exaggerated?: boolean } = { style: '' };
-  await runGeneration(
-    {
-      store,
-      phrases: phrases({ isPet: true, phrase: 'x' }),
-      images: images(async (a) => ((got = a), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
-      log: quiet,
-    },
-    { ...gen, exaggerated: true },
-  );
-  assert.match(got.style, /^OVER THE TOP.*pearls and a yacht/);
-  assert.equal(got.exaggerated, true);
-});
-
-Deno.test('exaggerated mode adds nothing to a comedy scene', async () => {
-  const { store } = fakeStore();
-  let style = '';
-  await runGeneration(
-    {
-      store,
-      phrases: phrases({ isPet: true, phrase: 'x' }),
-      images: images(async (a) => ((style = a.style), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
-      log: quiet,
-    },
-    { ...gen, sceneId: 'pt-sorriso', exaggerated: true },
-  );
-  assert.equal(style, 'joke-shop fake teeth');
-});
-
 Deno.test('falInput uses each model\'s field names', () => {
   assert.deepEqual(falInput('fal-ai/flux-pro/kontext', 'p', 'u').image_url, 'u');
   assert.deepEqual(falInput('google/nano-banana-2.1/edit', 'p', 'u').image_urls, ['u']);
@@ -267,7 +236,7 @@ Deno.test('prompts carry the pet-logic, safety and language rules', () => {
   assert.match(phraseSystemPrompt('en'), /owners lovingly say/);
   assert.match(phraseSystemPrompt('en'), /throw it away/);
   assert.match(imageEditPrompt('x'), /human hands/);
-  assert.match(imageEditPrompt('x'), /subtle, natural expression/);
+  assert.match(imageEditPrompt('x'), /lively, funny expression/);
   assert.match(phraseSystemPrompt('en'), /cat or a dog/);
   assert.match(phraseSystemPrompt('en'), /HARD LIMIT: 45/);
   assert.match(phraseSystemPrompt('en'), /politics/);

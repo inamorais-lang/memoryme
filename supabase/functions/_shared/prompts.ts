@@ -69,12 +69,6 @@ export function phraseUserPrompt(args: {
   return lines.join('\n\n');
 }
 
-/** "Modo exagerado" (+1 credit): everything over the top. */
-export const OVER_THE_TOP =
-  'OVER THE TOP, absurd abundance: every prop of this scene is multiplied tenfold and piled into towering mountains higher than the pet ' +
-  '(twenty of each food, a mountain of presents, rows of drinks, heaps of toys), overflowing everywhere; no props from other scenes. ' +
-  'The pet has a huge, comic, wide-eyed, open-mouthed expression.';
-
 /** Wraps the moderated description of a user-typed scene ("Cenário à medida"). */
 export function customSceneStyle(description: string): string {
   return `${description} Change the whole setting to match; the pet is clearly doing this. Family-friendly.`;
@@ -88,8 +82,10 @@ export function imageEditPrompt(style: string, exaggerated = false): string {
     'The pet stays the main subject, centred and photorealistic.',
     exaggerated
       ? 'This is a comedy photo: a big, exaggerated, funny expression is welcome (wide eyes, open mouth), but the animal stays photorealistic.'
-      : 'Give the pet a subtle, natural expression that fits the mood (relaxed half-closed eyes, a smug look, a slight head tilt). Small and believable: never cartoonish or human-like.',
-    'Bright, cheerful and colourful: vivid saturated colours and plenty of light, like a playful editorial photo. Never dark, moody or gloomy.',
+      : 'Give the pet a lively, funny expression that fits the mood (an open-mouthed grin, a surprised look, a smug face, a dramatic side-eye): expressive and comic, but still a real animal, never a cartoon.',
+    'Bright and colourful: vivid saturated colours and strong cheerful light, like a playful editorial photo. Never dark, moody or gloomy.',
+    // No concrete examples here: the image model copies them into every scene.
+    'Generous but clear: show two or three of the objects already named in the style above instead of one, neatly arranged so each is easy to recognise. Add no other objects and no cluttered piles.',
     'Frame the pet in the lower two thirds of the image and keep the top third as plain, empty background.',
     'Never draw speech bubbles, thought bubbles, clouds of thought, text, letters, numbers, captions, logos or watermarks.',
     exaggerated

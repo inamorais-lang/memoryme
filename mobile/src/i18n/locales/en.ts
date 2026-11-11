@@ -43,8 +43,6 @@ const en: Strings = {
     title: 'And the scene?',
     subtitle: "Keep the mood's scene, or pick another.",
     mood: "Mood's scene",
-    exaggerated: 'Over the top · +1 credit',
-    exaggeratedHint: 'Everything in excess: piles of props and a really comic face.',
     christmas: 'Christmas',
     custom: 'Your own · 2 credits',
     customHint: 'Describe the scene. No real people, brands or anything inappropriate.',

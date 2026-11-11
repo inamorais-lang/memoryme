@@ -106,7 +106,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
     async listScenes(language) {
       const { data, error } = await supabase
         .from('scenes')
-        .select('id, name, category, exaggerated')
+        .select('id, name, category')
         .eq('language', language)
         .order('sort_order');
       if (error) throw new BackendError('network');
@@ -125,7 +125,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
         throw new BackendError('network');
       }
       const { data, error } = await supabase.functions.invoke('generate', {
-        body: { personalityId, originalPath, sceneId: scene?.sceneId, customScene: scene?.customScene, exaggerated: scene?.exaggerated },
+        body: { personalityId, originalPath, sceneId: scene?.sceneId, customScene: scene?.customScene },
       });
       if (error) throw await toBackendError(error);
       return data.generationId as string;

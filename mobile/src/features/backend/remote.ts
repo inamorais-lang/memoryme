@@ -106,7 +106,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
     async listScenes(language) {
       const { data, error } = await supabase
         .from('scenes')
-        .select('id, name')
+        .select('id, name, category')
         .eq('language', language)
         .order('sort_order');
       if (error) throw new BackendError('network');

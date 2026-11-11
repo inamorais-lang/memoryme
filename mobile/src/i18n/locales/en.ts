@@ -43,6 +43,7 @@ const en: Strings = {
     title: 'And the scene?',
     subtitle: "Keep the mood's scene, or pick another.",
     mood: "Mood's scene",
+    christmas: 'Christmas',
     custom: 'Your own · 2 credits',
     customHint: 'Describe the scene. No real people, brands or anything inappropriate.',
     customPlaceholder: 'E.g. surfing a giant wave',

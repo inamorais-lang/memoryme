@@ -27,7 +27,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Login com a Apple só na primeira compra | Menos fricção no início |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
-| Cenários além do feitio: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia, Snowboard e Natal a 1 crédito, expressão natural; "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
+| Cenários além do feitio: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia e Snowboard a 1 crédito, expressão natural; 7 de Natal (`category = 'natal'`, grupo próprio no topo; esconder em janeiro com `active = false`); "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
 | Os animais falam como animais: 8 feitios universais (PT/EN), lógica de gato/cão, português neutro; personagens humanas inativas | Decisão do dono do produto: as piadas humanizadas não tinham graça |
 | Sem Mac: EAS Build na cloud + Expo Go/builds de teste no iPhone; testes automáticos na web | O dono do produto só tem iPhone |
 | Só modo claro na v1 | Identidade visual única; menos trabalho de design |

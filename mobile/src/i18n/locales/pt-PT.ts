@@ -41,6 +41,7 @@ const ptPT = {
     title: 'E o cenário?',
     subtitle: 'Fica o do feitio, ou escolhe outro.',
     mood: 'O do feitio',
+    christmas: 'Natal',
     custom: 'À medida · 2 créditos',
     customHint: 'Descreve o cenário. Sem pessoas reais, marcas ou nada impróprio.',
     customPlaceholder: 'Ex.: a surfar uma onda gigante',

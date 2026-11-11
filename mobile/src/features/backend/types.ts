@@ -5,7 +5,7 @@ import type { PickedPhoto } from '@/lib/photos';
 export type PersonalityInfo = { id: string; name: string; tagline: string };
 
 /** Preset scene chosen on top of the mood (e.g. fake teeth, glasses). */
-export type SceneInfo = { id: string; name: string };
+export type SceneInfo = { id: string; name: string; /** e.g. 'natal': shown as its own group at the top. */ category?: string | null };
 
 /** Scene for a new translation: a preset (1 credit) or one typed by the user (2 credits). */
 export type SceneChoice = { sceneId?: string; customScene?: string };

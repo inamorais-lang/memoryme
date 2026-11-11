@@ -1,12 +1,29 @@
-import * as Haptics from 'expo-haptics';
-import { Image } from 'expo-image';
-import { Redirect, router } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
+import * as Haptics from "expo-haptics";
+import { Image } from "expo-image";
+import { Redirect, router } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 
-import { AppText, border, Button, colors, radius, Screen, shadow, space, TextField } from '@/design';
-import { useAuth } from '@/features/auth/AuthContext';
+import {
+  AppText,
+  border,
+  Button,
+  colors,
+  radius,
+  Screen,
+  shadow,
+  space,
+  TextField,
+} from "@/design";
+import { useAuth } from "@/features/auth/AuthContext";
 import {
   backend,
   BackendError,
@@ -15,9 +32,9 @@ import {
   type PersonalityInfo,
   type SceneChoice,
   type SceneInfo,
-} from '@/features/backend';
-import { useDraft } from '@/features/draft/DraftContext';
-import { currentLanguage, currentMarket } from '@/i18n';
+} from "@/features/backend";
+import { useDraft } from "@/features/draft/DraftContext";
+import { currentLanguage, currentMarket } from "@/i18n";
 
 export default function PersonalityScreen() {
   const { t } = useTranslation();
@@ -39,42 +56,54 @@ export default function PersonalityScreen() {
       .catch(() => setScenes([]));
   }, []);
 
-  const customText = draft.customScene.replace(/\s+/g, ' ').trim();
-  const isCustom = draft.scene.kind === 'custom';
+  const customText = draft.customScene.replace(/\s+/g, " ").trim();
+  const isCustom = draft.scene.kind === "custom";
   const sceneReady = !isCustom || customText.length >= CUSTOM_SCENE_MIN;
 
   const start = useCallback(async () => {
     if (!draft.photo || !draft.personalityId) return;
-    if (backend.mode === 'remote' && !auth.session) {
+    if (backend.mode === "remote" && !auth.session) {
       waitingForSignIn.current = true;
-      router.push('/sign-in');
+      router.push("/sign-in");
       return;
     }
     if (!sceneReady) return;
     const scene: SceneChoice =
-      draft.scene.kind === 'preset'
+      draft.scene.kind === "preset"
         ? { sceneId: draft.scene.id }
-        : draft.scene.kind === 'custom'
+        : draft.scene.kind === "custom"
           ? { customScene: customText }
           : {};
     setStarting(true);
     try {
-      const id = await backend.createTranslation(draft.photo, draft.personalityId, scene);
-      router.push({ pathname: '/result', params: { id } });
+      const id = await backend.createTranslation(
+        draft.photo,
+        draft.personalityId,
+        scene,
+      );
+      router.push({ pathname: "/result", params: { id } });
     } catch (e) {
-      const code = e instanceof BackendError ? e.code : 'server_error';
-      if (code === 'insufficient_credits') router.push('/no-credits');
-      else if (code === 'auth_required') router.push('/sign-in');
-      else if (code === 'rate_limited') Alert.alert(t('result.rateLimited'));
-      else if (code === 'daily_limit') Alert.alert(t('result.dailyLimit'));
-      else if (code === 'network') Alert.alert(t('result.network'));
-      else if (code === 'invalid_scene') Alert.alert(t('scene.invalid'));
-      else Alert.alert(t('result.errorTitle'), t('result.errorBody'));
+      const code = e instanceof BackendError ? e.code : "server_error";
+      if (code === "insufficient_credits") router.push("/no-credits");
+      else if (code === "auth_required") router.push("/sign-in");
+      else if (code === "rate_limited") Alert.alert(t("result.rateLimited"));
+      else if (code === "daily_limit") Alert.alert(t("result.dailyLimit"));
+      else if (code === "network") Alert.alert(t("result.network"));
+      else if (code === "invalid_scene") Alert.alert(t("scene.invalid"));
+      else Alert.alert(t("result.errorTitle"), t("result.errorBody"));
     } finally {
       setStarting(false);
       auth.refreshCredits();
     }
-  }, [draft.photo, draft.personalityId, draft.scene, customText, sceneReady, auth, t]);
+  }, [
+    draft.photo,
+    draft.personalityId,
+    draft.scene,
+    customText,
+    sceneReady,
+    auth,
+    t,
+  ]);
 
   // Coming back from "Sign in with Apple": carry on with the translation.
   useEffect(() => {
@@ -87,7 +116,7 @@ export default function PersonalityScreen() {
   if (!draft.photo) return <Redirect href="/" />;
 
   function select(id: string) {
-    if (Platform.OS !== 'web') Haptics.selectionAsync();
+    if (Platform.OS !== "web") Haptics.selectionAsync();
     draft.setPersonality(id);
   }
 
@@ -98,28 +127,35 @@ export default function PersonalityScreen() {
           testID="translate"
           label={
             !draft.personalityId
-              ? t('personality.pickFirst')
+              ? t("personality.pickFirst")
               : !sceneReady
-                ? t('scene.tooShort')
+                ? t("scene.tooShort")
                 : isCustom
-                  ? t('personality.translateCustom')
-                  : t('personality.translate')
+                  ? t("personality.translateCustom")
+                  : t("personality.translate")
           }
           disabled={!draft.personalityId || !sceneReady}
           loading={starting}
           onPress={start}
         />
-      }>
+      }
+    >
       <View style={styles.header}>
-        <Image source={{ uri: draft.photo.uri }} style={styles.thumb} contentFit="cover" />
+        <Image
+          source={{ uri: draft.photo.uri }}
+          style={styles.thumb}
+          contentFit="cover"
+        />
         <View style={styles.headerText}>
-          <AppText variant="title">{t('personality.title')}</AppText>
-          <AppText color={colors.inkMuted}>{t('personality.subtitle')}</AppText>
+          <AppText variant="title">{t("personality.title")}</AppText>
+          <AppText color={colors.inkMuted}>{t("personality.subtitle")}</AppText>
         </View>
       </View>
 
       {list === null ? <ActivityIndicator color={colors.ink} /> : null}
-      {list?.length === 0 ? <AppText color={colors.inkMuted}>{t('result.network')}</AppText> : null}
+      {list?.length === 0 ? (
+        <AppText color={colors.inkMuted}>{t("result.network")}</AppText>
+      ) : null}
 
       <View style={styles.grid}>
         {(list ?? []).map((p, index) => {
@@ -134,10 +170,14 @@ export default function PersonalityScreen() {
               onPress={() => select(p.id)}
               style={({ pressed }) => [
                 styles.card,
-                { backgroundColor: colors.accents[index % colors.accents.length] },
+                {
+                  backgroundColor:
+                    colors.accents[index % colors.accents.length],
+                },
                 selected && styles.cardSelected,
                 pressed && styles.cardPressed,
-              ]}>
+              ]}
+            >
               <AppText variant="heading">{p.name}</AppText>
               <AppText variant="small" color={colors.ink}>
                 {p.tagline}
@@ -145,7 +185,7 @@ export default function PersonalityScreen() {
               {selected ? (
                 <View style={styles.badge}>
                   <AppText variant="smallStrong" color={colors.onPrimary}>
-                    {t('personality.selected')}
+                    {t("personality.selected")}
                   </AppText>
                 </View>
               ) : null}
@@ -157,44 +197,72 @@ export default function PersonalityScreen() {
       {scenes.length > 0 ? (
         <View style={styles.sceneSection}>
           <View style={styles.headerText}>
-            <AppText variant="heading">{t('scene.title')}</AppText>
-            <AppText color={colors.inkMuted}>{t('scene.subtitle')}</AppText>
+            <AppText variant="heading">{t("scene.title")}</AppText>
+            <AppText color={colors.inkMuted}>{t("scene.subtitle")}</AppText>
           </View>
+          {scenes.some((s) => s.category === "natal") ? (
+            <View style={styles.sceneGroup}>
+              <AppText variant="bodyStrong">{t("scene.christmas")}</AppText>
+              <View style={styles.chips}>
+                {scenes
+                  .filter((s) => s.category === "natal")
+                  .map((s) => (
+                    <SceneChip
+                      key={s.id}
+                      testID={`scene-${s.id}`}
+                      label={s.name}
+                      selected={
+                        draft.scene.kind === "preset" && draft.scene.id === s.id
+                      }
+                      onPress={() =>
+                        draft.setScene({ kind: "preset", id: s.id })
+                      }
+                    />
+                  ))}
+              </View>
+            </View>
+          ) : null}
           <View style={styles.chips}>
             <SceneChip
               testID="scene-mood"
-              label={t('scene.mood')}
-              selected={draft.scene.kind === 'mood'}
-              onPress={() => draft.setScene({ kind: 'mood' })}
+              label={t("scene.mood")}
+              selected={draft.scene.kind === "mood"}
+              onPress={() => draft.setScene({ kind: "mood" })}
             />
-            {scenes.map((s) => (
-              <SceneChip
-                key={s.id}
-                testID={`scene-${s.id}`}
-                label={s.name}
-                selected={draft.scene.kind === 'preset' && draft.scene.id === s.id}
-                onPress={() => draft.setScene({ kind: 'preset', id: s.id })}
-              />
-            ))}
+            {scenes
+              .filter((s) => !s.category)
+              .map((s) => (
+                <SceneChip
+                  key={s.id}
+                  testID={`scene-${s.id}`}
+                  label={s.name}
+                  selected={
+                    draft.scene.kind === "preset" && draft.scene.id === s.id
+                  }
+                  onPress={() => draft.setScene({ kind: "preset", id: s.id })}
+                />
+              ))}
             <SceneChip
               testID="scene-custom"
-              label={t('scene.custom')}
+              label={t("scene.custom")}
               selected={isCustom}
-              onPress={() => draft.setScene({ kind: 'custom' })}
+              onPress={() => draft.setScene({ kind: "custom" })}
             />
           </View>
           {isCustom ? (
             <View style={styles.customScene}>
               <AppText variant="small" color={colors.inkMuted}>
-                {t('scene.customHint')}
+                {t("scene.customHint")}
               </AppText>
               <TextField
                 testID="custom-scene"
                 value={draft.customScene}
                 onChangeText={draft.setCustomScene}
-                placeholder={t('scene.customPlaceholder')}
+                placeholder={t("scene.customPlaceholder")}
                 maxLength={CUSTOM_SCENE_MAX}
-                counterLabel={t('result.charsLeft', { count: CUSTOM_SCENE_MAX - draft.customScene.length })}
+                counterLabel={t("result.charsLeft", {
+                  count: CUSTOM_SCENE_MAX - draft.customScene.length,
+                })}
                 returnKeyType="done"
                 autoFocus
               />
@@ -206,18 +274,31 @@ export default function PersonalityScreen() {
   );
 }
 
-function SceneChip(props: { label: string; selected: boolean; onPress: () => void; testID: string }) {
+function SceneChip(props: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  testID: string;
+}) {
   return (
     <Pressable
       testID={props.testID}
       accessibilityRole="radio"
       accessibilityState={{ selected: props.selected }}
       onPress={() => {
-        if (Platform.OS !== 'web') Haptics.selectionAsync();
+        if (Platform.OS !== "web") Haptics.selectionAsync();
         props.onPress();
       }}
-      style={({ pressed }) => [styles.chip, props.selected && styles.chipSelected, pressed && styles.cardPressed]}>
-      <AppText variant="smallStrong" color={props.selected ? colors.onPrimary : colors.ink}>
+      style={({ pressed }) => [
+        styles.chip,
+        props.selected && styles.chipSelected,
+        pressed && styles.cardPressed,
+      ]}
+    >
+      <AppText
+        variant="smallStrong"
+        color={props.selected ? colors.onPrimary : colors.ink}
+      >
         {props.label}
       </AppText>
     </Pressable>
@@ -225,12 +306,12 @@ function SceneChip(props: { label: string; selected: boolean; onPress: () => voi
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', gap: space.lg, alignItems: 'center' },
+  header: { flexDirection: "row", gap: space.lg, alignItems: "center" },
   thumb: {
     width: 84,
     height: 84,
     borderRadius: radius.md,
-    transform: [{ rotate: '-4deg' }],
+    transform: [{ rotate: "-4deg" }],
     boxShadow: shadow.md,
   },
   headerText: { flex: 1, gap: space.xs },
@@ -240,7 +321,7 @@ const styles = StyleSheet.create({
     gap: space.xs,
     borderRadius: radius.md,
     borderWidth: border.widthBold,
-    borderColor: 'transparent',
+    borderColor: "transparent",
   },
   cardSelected: {
     borderColor: border.color,
@@ -249,7 +330,8 @@ const styles = StyleSheet.create({
   },
   cardPressed: { opacity: 0.85 },
   sceneSection: { gap: space.md, marginTop: space.lg },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
+  sceneGroup: { gap: space.sm },
   chip: {
     paddingHorizontal: space.md,
     paddingVertical: space.sm,
@@ -260,7 +342,7 @@ const styles = StyleSheet.create({
   chipSelected: { backgroundColor: colors.primary },
   customScene: { gap: space.sm },
   badge: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     marginTop: space.xs,
     paddingHorizontal: space.sm,
     paddingVertical: space.xxs,

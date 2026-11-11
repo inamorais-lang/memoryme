@@ -73,6 +73,7 @@ Por defeito, a imagem usa o cenário do feitio. A pessoa pode escolher outro:
 | Cenário | Custo | O que faz |
 |---|---|---|
 | Sorriso com dentes, Olhos arregalados, Óculos, Cabelo novo, Narigudo, Pose ridícula | 1 crédito | Fotos engraçadas, fundo pastel; só nestes a expressão pode ser exagerada |
+| Dia de praia, Snowboard, Natal | 1 crédito | Areia com chapéu e bola; prancha na neve com gorro e óculos; camisola de Natal e gorro junto à árvore. Expressão natural |
 | À medida | 2 créditos | A pessoa descreve o cenário (3–80 caracteres). A IA verifica e recusa pessoas reais, marcas, personagens com direitos, conteúdo sexual, violência, drogas, ódio ou maus-tratos a animais; se recusar, os 2 créditos são devolvidos |
 
 Exemplos reais: `docs/screenshots/cenarios.jpg`.

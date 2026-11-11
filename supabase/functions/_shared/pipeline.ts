@@ -40,8 +40,8 @@ export async function runGeneration(
     phrases: PhraseWriter;
     images: ImageEditor;
     log?: (msg: string) => void;
-    /** Cuts margins around the pet; returns a data URI, or null when not needed. */
-    crop?: (imageUrl: string, pet: HeadBox) => Promise<string | null>;
+    /** Cuts screen bars and borders around the photograph; returns a data URI, or null when not needed. */
+    crop?: (imageUrl: string, photo: HeadBox) => Promise<string | null>;
   },
   gen: Generation,
 ): Promise<Outcome> {
@@ -56,11 +56,11 @@ export async function runGeneration(
       return 'not_a_pet';
     }
 
-    // Screenshots and photos with borders: keep only the pet and some room around it.
+    // Screenshots and photos with borders: keep only the photograph (its content is never cut).
     let sourceUrl = originalUrl;
-    if (crop && check.box) {
+    if (crop && check.photo) {
       try {
-        sourceUrl = (await crop(originalUrl, check.box)) ?? originalUrl;
+        sourceUrl = (await crop(originalUrl, check.photo)) ?? originalUrl;
       } catch (error) {
         log(`crop skipped for ${gen.id}: ${error instanceof Error ? error.message : error}`);
       }

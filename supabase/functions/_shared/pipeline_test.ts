@@ -189,13 +189,13 @@ Deno.test('head box: clamped into the image, dropped when invalid', () => {
   assert.equal(noProp.prop, undefined);
 });
 
-Deno.test('crop: the image model gets the cropped photo when the pet box allows it', async () => {
+Deno.test('crop: the image model gets the photo without screen bars', async () => {
   const { store } = fakeStore();
   let sent = '';
   await runGeneration(
     {
       store,
-      phrases: { ...phrases({ isPet: true, phrase: 'x' }), isPet: async () => ({ isPet: true, box: [0.1, 0.3, 0.8, 0.4] }) },
+      phrases: { ...phrases({ isPet: true, phrase: 'x' }), isPet: async () => ({ isPet: true, photo: [0.05, 0.17, 0.9, 0.55] }) },
       images: images(async (a) => ((sent = a.imageUrl), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
       crop: async () => 'data:image/jpeg;base64,AAAA',
       log: quiet,
@@ -211,7 +211,7 @@ Deno.test('crop: a failing crop falls back to the original photo', async () => {
   const outcome = await runGeneration(
     {
       store,
-      phrases: { ...phrases({ isPet: true, phrase: 'x' }), isPet: async () => ({ isPet: true, box: [0.1, 0.3, 0.8, 0.4] }) },
+      phrases: { ...phrases({ isPet: true, phrase: 'x' }), isPet: async () => ({ isPet: true, photo: [0.05, 0.17, 0.9, 0.55] }) },
       images: images(async (a) => ((sent = a.imageUrl), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
       crop: () => Promise.reject(new Error('boom')),
       log: quiet,

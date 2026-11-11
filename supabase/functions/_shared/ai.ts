@@ -7,8 +7,8 @@ import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type
 /** Pet's head in the image: x, y, width, height as fractions (0..1). */
 export type HeadBox = [number, number, number, number];
 
-/** Is there a pet, and where (whole animal, fractions 0..1). */
-export type PetCheck = { isPet: boolean; box?: HeadBox };
+/** Is there a pet; and where the photograph is inside the image (without screen bars or borders). */
+export type PetCheck = { isPet: boolean; photo?: HeadBox };
 
 export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox };
 
@@ -127,14 +127,14 @@ export class ClaudePhraseWriter implements PhraseWriter {
             type: 'object',
             properties: {
               is_pet: { type: 'boolean' },
-              pet: {
+              photo: {
                 type: 'object',
                 properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } },
                 required: ['x', 'y', 'w', 'h'],
                 additionalProperties: false,
               },
             },
-            required: ['is_pet', 'pet'],
+            required: ['is_pet', 'photo'],
             additionalProperties: false,
           },
         },
@@ -148,8 +148,9 @@ export class ClaudePhraseWriter implements PhraseWriter {
               type: 'text',
               text:
                 'Does this photo clearly show a real cat or dog? Answer in is_pet. ' +
-                'In "pet", give the box around the whole animal (ears, paws and tail included) as fractions of the image: ' +
-                'x and y of the top-left corner, then width and height, all between 0 and 1. Leave out screen bars, borders and margins.',
+                'In "photo", give the box of the actual photograph inside the image, as fractions: x and y of the top-left corner, ' +
+                'then width and height, all between 0 and 1. If the image is a screenshot or has borders, margins, app bars or text ' +
+                'around the photograph, return only the photograph. Never cut into the photograph itself. Otherwise return 0, 0, 1, 1.',
             },
           ],
         },
@@ -160,8 +161,8 @@ export class ClaudePhraseWriter implements PhraseWriter {
     if (!text || text.type !== 'text') throw new Error('phrase_empty');
     const data = JSON.parse(text.text);
     if (data.is_pet !== true) return { isPet: false };
-    const box = parseHead(data.pet);
-    return box ? { isPet: true, box } : { isPet: true };
+    const photo = parseHead(data.photo);
+    return photo ? { isPet: true, photo } : { isPet: true };
   }
 
   async write(args: Parameters<PhraseWriter['write']>[0]): Promise<PhraseResult> {

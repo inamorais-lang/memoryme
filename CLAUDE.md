@@ -4,7 +4,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 
 - Produto: `docs/PRD.md`
 - Fases: `docs/ROADMAP.md`
-- Estado atual: **Fase 2 quase concluída**. Servidor no Supabase real (zuwfxzgbxhdpnmkyjdad), IA a funcionar, app testada no iPhone pela Expo Go. Ficam para a Fase 3: compras (tabela `purchases`) e revogar o token da Apple ao apagar a conta.
+- Estado atual: **Fase 3 em curso** (aprovada). Feito: servidor de compras, paywall com StoreKit 2, dois modelos de imagem. Falta: onboarding, PostHog, Sentry, revogar o token da Apple ao apagar a conta, link da App Store na partilha, EAS Build → TestFlight (precisa da conta Apple Developer).
 
 ## Regras não negociáveis
 - Chaves secretas (IA, service role do Supabase) **só** em Supabase Edge Functions. Nunca no código da app nem em variáveis `EXPO_PUBLIC_*`.

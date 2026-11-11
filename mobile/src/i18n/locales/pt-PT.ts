@@ -152,6 +152,7 @@ const ptPT = {
     },
   },
   settings: {
+    accountCode: 'Código da conta (para ofertas e apoio)',
     redeemCode: 'Tenho um código',
     codeRedeemed_one: 'Recebeste {{count}} crédito!',
     codeRedeemed_other: 'Recebeste {{count}} créditos!',

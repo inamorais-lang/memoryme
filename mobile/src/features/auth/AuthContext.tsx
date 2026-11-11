@@ -14,6 +14,8 @@ type AuthApi = {
   ready: boolean;
   session: Session | null;
   credits: number | null;
+  /** Short code of this account (e.g. PB-7K3Q9X): the owner gives credits with it. */
+  accountCode: string | null;
   appleAvailable: boolean;
   signInWithApple(): Promise<'signed_in' | 'cancelled'>;
   signOut(): Promise<void>;
@@ -27,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(!supabase);
   const [credits, setCredits] = useState<number | null>(null);
+  const [accountCode, setAccountCode] = useState<string | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
 
   useEffect(() => {
@@ -42,8 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshCredits = useCallback(async () => {
     if (!supabase || !session) return;
-    const { data } = await supabase.from('profiles').select('credits').eq('id', session.user.id).maybeSingle();
+    const { data } = await supabase
+      .from('profiles')
+      .select('credits, account_code')
+      .eq('id', session.user.id)
+      .maybeSingle();
     setCredits(data?.credits ?? 0);
+    setAccountCode(data?.account_code ?? null);
   }, [session]);
 
   // Purchases left unfinished (app closed mid-purchase, Ask to Buy approved later) and vouchers
@@ -107,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ready,
         session,
         credits: session ? credits : null,
+        accountCode: session ? accountCode : null,
         appleAvailable,
         signInWithApple,
         signOut,

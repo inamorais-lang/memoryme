@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>PetBubble · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#F7F6F2; --ink:#141414; --muted:#6E6D72; --pink:#FF3D81; --lime:#C8F53A; --surface:#fff; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.45 "DM Sans", system-ui, sans-serif; }
+  main { max-width:440px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font:700 28px/1.1 "Bricolage Grotesque", sans-serif; margin:8px 0 4px; }
+  .muted { color:var(--muted); margin:0 0 20px; }
+  .card { background:var(--surface); border-radius:18px; padding:16px; box-shadow:0 2px 10px rgba(0,0,0,.06); display:grid; gap:12px; margin-bottom:16px; }
+  label { font-weight:600; font-size:14px; display:grid; gap:6px; }
+  input, select { font:inherit; padding:12px 14px; border-radius:12px; border:0; background:var(--paper); width:100%; }
+  input:focus, select:focus { outline:2px solid var(--pink); }
+  button { font:600 16px "DM Sans", sans-serif; border:0; border-radius:999px; padding:14px; cursor:pointer; }
+  .primary { background:var(--pink); color:#fff; }
+  .secondary { background:var(--lime); color:var(--ink); }
+  button:disabled { opacity:.5; }
+  .msg { padding:12px 14px; border-radius:12px; background:#EEF9D0; }
+  .msg.error { background:#FFE3EC; }
+  [hidden] { display:none !important; }
+  .row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>PetBubble · Admin</h1>
+  <p class="muted">Dar créditos a uma conta pelo código que aparece nas Definições da app.</p>
+
+  <section class="card" id="step-email">
+    <label>O teu email de administradora
+      <input id="email" type="email" autocomplete="email" inputmode="email">
+    </label>
+    <button class="primary" id="send">Enviar código</button>
+  </section>
+
+  <section class="card" id="step-code" hidden>
+    <label>Código que recebeste por email
+      <input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
+    </label>
+    <button class="primary" id="verify">Entrar</button>
+  </section>
+
+  <section class="card" id="step-grant" hidden>
+    <label>Código da conta
+      <input id="account" placeholder="PB-7K3Q9X" autocapitalize="characters" autocomplete="off">
+    </label>
+    <label>Créditos
+      <select id="credits">
+        <option>1</option><option selected>2</option><option>3</option><option>5</option><option>10</option><option>30</option>
+      </select>
+    </label>
+    <label>Nota (opcional)
+      <input id="note" maxlength="200" placeholder="Ex.: influencer, compensação">
+    </label>
+    <button class="primary" id="grant">Dar créditos</button>
+    <div class="row"><span class="muted" id="who"></span><button class="secondary" id="logout">Sair</button></div>
+  </section>
+
+  <div class="msg" id="msg" hidden></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+  // Public (publishable) key: safe in a page. Only accounts listed as admin on the server can give credits.
+  const sb = supabase.createClient('https://zuwfxzgbxhdpnmkyjdad.supabase.co', 'sb_publishable_yoH55zM1CCVPzjsS9z36lA_qcD7R6M8');
+  const $ = (id) => document.getElementById(id);
+  const ERRORS = {
+    not_admin: 'Esta conta não é de administradora.',
+    unknown_account: 'Não existe nenhuma conta com esse código.',
+    invalid_amount: 'Escolhe entre 1 e 100 créditos.',
+  };
+  function say(text, error = false) { const m = $('msg'); m.textContent = text; m.hidden = false; m.classList.toggle('error', error); }
+  function show(step) { for (const s of ['step-email', 'step-code', 'step-grant']) $(s).hidden = s !== step; }
+
+  async function call(body) {
+    const { data, error } = await sb.functions.invoke('admin-grant', { body });
+    if (error) {
+      const payload = await error.context?.json?.().catch(() => null);
+      throw new Error(payload?.code ?? 'server_error');
+    }
+    return data;
+  }
+
+  async function enter(session) {
+    try {
+      const { admin } = await call({ check: true });
+      if (!admin) { await sb.auth.signOut(); show('step-email'); return say(ERRORS.not_admin, true); }
+      $('who').textContent = session.user.email ?? '';
+      show('step-grant');
+    } catch { say('Não foi possível ligar ao servidor.', true); }
+  }
+
+  $('send').onclick = async () => {
+    const email = $('email').value.trim();
+    if (!email) return;
+    $('send').disabled = true;
+    // Never creates accounts: only the existing admin account can sign in here.
+    const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: location.href.split('#')[0] } });
+    $('send').disabled = false;
+    if (error) return say('Não foi possível enviar o código. Espera um pouco e tenta outra vez.', true);
+    show('step-code');
+    say('Enviámos um código para o teu email.');
+  };
+
+  $('verify').onclick = async () => {
+    const { data, error } = await sb.auth.verifyOtp({ email: $('email').value.trim(), token: $('otp').value.trim(), type: 'email' });
+    if (error || !data.session) return say('Código errado ou expirado.', true);
+    $('msg').hidden = true;
+    enter(data.session);
+  };
+
+  $('grant').onclick = async () => {
+    const accountCode = $('account').value.trim();
+    const credits = Number($('credits').value);
+    if (!accountCode) return say('Escreve o código da conta.', true);
+    if (!confirm(`Dar ${credits} crédito(s) à conta ${accountCode.toUpperCase()}?`)) return;
+    $('grant').disabled = true;
+    try {
+      const r = await call({ accountCode, credits, note: $('note').value });
+      say(`Feito: +${credits} na conta ${r.accountCode}. Saldo agora: ${r.balance}.`);
+      $('account').value = ''; $('note').value = '';
+    } catch (e) {
+      say(ERRORS[e.message] ?? 'Não foi possível dar os créditos.', true);
+    } finally { $('grant').disabled = false; }
+  };
+
+  $('logout').onclick = async () => { await sb.auth.signOut(); show('step-email'); $('msg').hidden = true; };
+
+  sb.auth.getSession().then(({ data }) => { if (data.session) enter(data.session); });
+</script>
+</body>
+</html>

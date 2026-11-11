@@ -27,6 +27,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Login com a Apple só na primeira compra | Menos fricção no início |
 | Paywall feito por nós (`app/credits.tsx`): no topo 3 exemplos com o cão do dono (`assets/examples`, frases no i18n `paywall.examples`), título + "1 crédito = 1 imagem · frase nova grátis", 4 packs com preço da App Store, destaque "Mais popular" no de 10, sem preço por imagem; "Restaurar compras" | Decisão do dono do produto |
 | Vouchers para amigos e influencers: códigos de oferta da Apple (nunca códigos nossos, regra 3.1.1) num pack escondido de 2 créditos (`app.petbubble.credits.2`, `credit_packs.on_sale = false`). Usar em Definições → "Tenho um código" (folha da Apple) ou na App Store; os créditos entram quando a app volta ao primeiro plano (`restore`). O servidor aceita transações sem `appAccountToken` só se `offerType = 3` | Decisão do dono do produto (botão só nas Definições) |
+| Ofertas de créditos pela dona: cada conta tem um código curto (`profiles.account_code`, ex.: PB-7K3Q9X) nas Definições; a página privada `docs/admin/` (GitHub Pages, login por código enviado por email, conta em `private.admins`) chama `admin-grant` → `admin_grant_credits` (1–100, fica registado em `admin_grants`). Sem vouchers por email (sem custos extra) | Decisão do dono do produto |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
 | Ecrã de escolha: no topo Natal (7, `category = 'natal'`; esconder em janeiro com `active = false`), depois Cenários (Dia de praia, Snowboard, "Criar cenário" 3–80 caracteres a 2 créditos) e por fim os 11 Modos; escolhe-se **um** destes. Cenários (`scenes.kind = 'place'`) têm tom de frase próprio (`voice_prompt`). Depois de escolher aparece o "Toque engraçado" opcional e grátis (`kind = 'comic'`: sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula; `addon_prompt` junta-se ao estilo; expressão exagerada só com ele) | Pedido do dono do produto; o criar cenário custa mais e é verificado pela IA |
@@ -76,6 +77,7 @@ supabase/
   functions/delete-image      apaga uma imagem do utilizador (ficheiro + linha); não apaga as que estão a ser criadas
   functions/verify-purchase   compra StoreKit 2 (JWS da Apple, verificado até à Apple Root CA G3) → confere app, consumível e appAccountToken = id do utilizador → grant_purchase (uma vez por transação)
   functions/apple-notifications  notificações da App Store (V2, assinadas): REFUND/REVOKE → revoke_purchase (retira créditos, nunca abaixo de 0). Sem login
+  functions/admin-grant       página de admin: confirma se é administradora e dá créditos por código de conta
   functions/cleanup-originals  de hora a hora (pg_cron): apaga fotos originais com mais de 23 h (RGPD: máx. 24 h). Sem chave: só apaga, nunca devolve dados
   functions/_shared           ai.ts (Claude, fal), pipeline.ts (lógica testável), store.ts, prompts.ts
   tests/                      testes SQL (Postgres simples) — `supabase/tests/run.sh`

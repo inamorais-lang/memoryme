@@ -248,3 +248,35 @@ select test.check((select credits = 2 and not on_sale from public.credit_packs w
 reset role;
 reset role;
 
+
+-- ───────── Admin gifts ─────────
+select test.check((select count(*) = 2 and bool_and(account_code ~ '^PB-[2-9A-HJ-NP-Z]{6}$') from public.profiles), 'every account gets a code like PB-7K3Q9X');
+insert into private.admins (user_id) values ('aaaaaaaa-0000-0000-0000-000000000001');
+create temp table codes as select id, account_code from public.profiles;
+grant select on codes to service_role, authenticated;
+create temp table before_gift as select credits from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002';
+grant select on before_gift to service_role;
+set role service_role;
+select test.check(public.is_admin('aaaaaaaa-0000-0000-0000-000000000001') and not public.is_admin('bbbbbbbb-0000-0000-0000-000000000002'), 'only the listed account is admin');
+-- The code works in lower case and without "PB-".
+select test.check(
+  (select balance = (select credits from before_gift) + 3
+   from public.admin_grant_credits('aaaaaaaa-0000-0000-0000-000000000001',
+     lower(substr((select account_code from codes where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 4)), 3, 'amigo')),
+  'the admin gives 3 credits by account code');
+select test.check((select count(*) = 1 from public.admin_grants where credits = 3 and note = 'amigo'), 'the gift is logged');
+select test.expect_error($$select * from public.admin_grant_credits('bbbbbbbb-0000-0000-0000-000000000002', (select account_code from codes limit 1), 3)$$, 'not_admin');
+select test.check(true, 'a non-admin cannot give credits');
+select test.expect_error($$select * from public.admin_grant_credits('aaaaaaaa-0000-0000-0000-000000000001', 'PB-ZZZZZZ', 3)$$, 'unknown_account');
+select test.check(true, 'an unknown code is refused');
+select test.expect_error($$select * from public.admin_grant_credits('aaaaaaaa-0000-0000-0000-000000000001', (select account_code from codes limit 1), 500)$$, 'invalid_amount');
+select test.check(true, 'at most 100 credits at a time');
+reset role;
+set role authenticated;
+set request.jwt.claim.sub = 'bbbbbbbb-0000-0000-0000-000000000002';
+select test.check((select count(*) = 1 and bool_and(account_code like 'PB-%') from public.profiles), 'each user sees their own account code');
+select test.expect_error($$select * from public.admin_grant_credits('aaaaaaaa-0000-0000-0000-000000000001', 'PB-ZZZZZZ', 3)$$, 'permission denied');
+select test.check(true, 'users cannot call the admin function');
+select test.expect_error($$select * from public.admin_grants$$, 'permission denied');
+select test.check(true, 'users cannot read the gift log');
+reset role;

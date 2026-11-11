@@ -99,6 +99,16 @@ export default function SettingsScreen() {
         <AppText>
           {auth.session ? t("settings.signedIn") : t("settings.signedOut")}
         </AppText>
+        {auth.accountCode ? (
+          <View style={styles.accountCode}>
+            <AppText variant="small" color={colors.inkMuted}>
+              {t("settings.accountCode")}
+            </AppText>
+            <AppText variant="heading" selectable testID="account-code">
+              {auth.accountCode}
+            </AppText>
+          </View>
+        ) : null}
         {auth.session ? (
           <>
             <Button
@@ -147,6 +157,7 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  accountCode: { gap: space.xxs },
   card: {
     gap: space.sm,
     padding: space.lg,

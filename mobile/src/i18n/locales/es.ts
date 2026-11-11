@@ -154,6 +154,7 @@ const es: Strings = {
     },
   },
   settings: {
+    accountCode: 'Código de la cuenta (para regalos y ayuda)',
     redeemCode: 'Tengo un código',
     codeRedeemed_one: '¡Has recibido {{count}} crédito!',
     codeRedeemed_other: '¡Has recibido {{count}} créditos!',

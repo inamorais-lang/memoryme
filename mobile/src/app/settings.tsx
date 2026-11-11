@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import { AppText, Button, colors, radius, Screen, shadow, space } from '@/design';
+import { LegalLinks } from '@/components/LegalLinks';
 import { useAuth } from '@/features/auth/AuthContext';
 
 export default function SettingsScreen() {
@@ -59,6 +60,16 @@ export default function SettingsScreen() {
         ) : (
           <Button testID="sign-in" variant="secondary" label={t('settings.signIn')} onPress={() => router.push('/sign-in')} />
         )}
+      </View>
+
+      <View style={styles.card}>
+        <AppText variant="smallStrong" color={colors.inkMuted}>
+          {t('legal.title')}
+        </AppText>
+        <AppText variant="small" color={colors.inkMuted}>
+          {t('legal.owner')}
+        </AppText>
+        <LegalLinks />
       </View>
     </Screen>
   );

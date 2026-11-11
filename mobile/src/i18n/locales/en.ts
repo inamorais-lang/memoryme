@@ -94,6 +94,13 @@ const en: Strings = {
     dailyLimit: "You've reached today's picture limit. Come back tomorrow.",
     network: 'No connection. Check your internet and try again.',
   },
+  legal: {
+    title: 'Terms and privacy',
+    owner: 'PetBubble · Ana Abreu, Portugal',
+    terms: 'Terms and conditions',
+    privacy: 'Privacy policy',
+    accept: 'By continuing, you accept the Terms and conditions and the Privacy policy.',
+  },
   signIn: {
     screenTitle: 'Sign in',
     title: 'Keep your credits safe',

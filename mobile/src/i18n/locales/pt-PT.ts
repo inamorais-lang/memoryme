@@ -92,6 +92,13 @@ const ptPT = {
     dailyLimit: 'Chegaste ao limite de imagens de hoje. Volta amanhã.',
     network: 'Sem ligação. Verifica a internet e tenta outra vez.',
   },
+  legal: {
+    title: 'Termos e privacidade',
+    owner: 'PetBubble · Ana Abreu, Portugal',
+    terms: 'Termos e condições',
+    privacy: 'Política de privacidade',
+    accept: 'Ao continuar, aceitas os Termos e condições e a Política de privacidade.',
+  },
   signIn: {
     screenTitle: 'Iniciar sessão',
     title: 'Guarda os teus créditos',

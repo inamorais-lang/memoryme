@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import { AppText, colors, layout, radius, Screen, space } from '@/design';
+import { LegalLinks } from '@/components/LegalLinks';
 import { useAuth } from '@/features/auth/AuthContext';
 
 export default function SignInScreen() {
@@ -44,6 +45,10 @@ export default function SignInScreen() {
           </AppText>
         )}
       </View>
+      <AppText variant="small" color={colors.inkMuted} align="center">
+        {t('legal.accept')}
+      </AppText>
+      <LegalLinks />
     </Screen>
   );
 }

@@ -1,7 +1,7 @@
 // Run: deno test supabase/functions/_shared
 import assert from 'node:assert/strict';
 
-import { falInput, parsePhrase, type ImageEditor, type PhraseWriter } from './ai.ts';
+import { falInput, parseHead, parsePhrase, type ImageEditor, type PhraseWriter } from './ai.ts';
 import { httpErrorFor, runGeneration, safeReason, type Store } from './pipeline.ts';
 import { imageEditPrompt, phraseSystemPrompt, phraseUserPrompt } from './prompts.ts';
 
@@ -170,6 +170,17 @@ Deno.test('preset scene replaces the mood scene and asks for an exaggerated expr
   );
   assert.equal(got.style, 'joke-shop fake teeth');
   assert.equal(got.exaggerated, true);
+});
+
+Deno.test('head box: clamped into the image, dropped when invalid', () => {
+  assert.deepEqual(parseHead({ x: 0.3, y: 0.4, w: 0.35, h: 0.3 }), [0.3, 0.4, 0.35, 0.3]);
+  assert.deepEqual(parseHead({ x: 0.8, y: -0.1, w: 0.5, h: 0.4 }), [0.8, 0, 0.2, 0.4]);
+  assert.equal(parseHead({ x: 0.5, y: 0.5, w: 0, h: 0.2 }), undefined);
+  assert.equal(parseHead(null), undefined);
+  assert.deepEqual(
+    parsePhrase(JSON.stringify({ is_pet: true, phrases: ['Olá'], head: { x: 0.2, y: 0.3, w: 0.4, h: 0.3 } })).head,
+    [0.2, 0.3, 0.4, 0.3],
+  );
 });
 
 Deno.test('falInput uses each model\'s field names', () => {

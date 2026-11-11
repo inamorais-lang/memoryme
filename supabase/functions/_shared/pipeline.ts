@@ -1,6 +1,6 @@
 // Generation pipeline. Pure logic over small interfaces, so it can be tested
 // without Supabase, Claude or fal.
-import type { ImageEditor, PhraseWriter } from './ai.ts';
+import type { HeadBox, ImageEditor, PhraseWriter } from './ai.ts';
 import { customSceneStyle, type Language } from './prompts.ts';
 
 export type PersonalityPrompts = { language: Language; voice: string; style: string };
@@ -12,7 +12,7 @@ export interface Store {
   scene(id: string): Promise<ScenePrompt>;
   signedUrl(bucket: 'originals' | 'generated', path: string): Promise<string>;
   upload(bucket: 'generated', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
-  finish(generationId: string, imagePath: string, phrase: string): Promise<boolean>;
+  finish(generationId: string, imagePath: string, phrase: string, head?: HeadBox): Promise<boolean>;
   fail(generationId: string, reason: string): Promise<boolean>;
 }
 
@@ -74,7 +74,7 @@ export async function runGeneration(
     });
     if (!phrase.phrase) throw new Error('phrase_empty');
 
-    const finished = await store.finish(gen.id, imagePath, phrase.phrase);
+    const finished = await store.finish(gen.id, imagePath, phrase.phrase, phrase.head);
     if (!finished) throw new Error('finish_rejected');
     return 'succeeded';
   } catch (error) {

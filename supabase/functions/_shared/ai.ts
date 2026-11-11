@@ -4,7 +4,10 @@ import Anthropic from 'npm:@anthropic-ai/sdk@1.6.0';
 
 import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type Language } from './prompts.ts';
 
-export type PhraseResult = { isPet: boolean; phrase: string };
+/** Pet's head in the image: x, y, width, height as fractions (0..1). */
+export type HeadBox = [number, number, number, number];
+
+export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox };
 
 export interface PhraseWriter {
   /** Cheap gate on the original photo, before any expensive image call. */
@@ -36,8 +39,14 @@ const PHRASE_SCHEMA = {
   properties: {
     is_pet: { type: 'boolean' },
     phrases: { type: 'array', items: { type: 'string' } },
+    head: {
+      type: 'object',
+      properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } },
+      required: ['x', 'y', 'w', 'h'],
+      additionalProperties: false,
+    },
   },
-  required: ['is_pet', 'phrases'],
+  required: ['is_pet', 'phrases', 'head'],
   additionalProperties: false,
 };
 
@@ -185,7 +194,23 @@ export function parsePhrase(raw: string): PhraseResult {
   if (!isPet) return { isPet: false, phrase: '' };
   const fitting = options.find((p) => p.length <= PHRASE_MAX);
   if (!fitting) throw new Error(options.length ? 'phrase_too_long' : 'phrase_empty');
-  return { isPet: true, phrase: fitting };
+  const head = parseHead(data.head);
+  return head ? { isPet: true, phrase: fitting, head } : { isPet: true, phrase: fitting };
+}
+
+/** Clamps the head box into the image; drops it if it makes no sense. */
+export function parseHead(raw: unknown): HeadBox | undefined {
+  const box = raw as Record<string, unknown> | null;
+  const nums = ['x', 'y', 'w', 'h'].map((k) => (typeof box?.[k] === 'number' ? (box[k] as number) : NaN));
+  if (nums.some((n) => !Number.isFinite(n))) return undefined;
+  const c = (n: number) => Math.min(1, Math.max(0, n));
+  const x = c(nums[0]);
+  const y = c(nums[1]);
+  const w = c(Math.min(nums[2], 1 - x));
+  const h = c(Math.min(nums[3], 1 - y));
+  if (w < 0.03 || h < 0.03) return undefined;
+  const r = (n: number) => Math.round(n * 1000) / 1000;
+  return [r(x), r(y), r(w), r(h)];
 }
 
 // ───────────────────────── fal.ai (image restyle) ─────────────────────────

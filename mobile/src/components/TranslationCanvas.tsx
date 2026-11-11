@@ -12,7 +12,8 @@ import { useTranslation } from "react-i18next";
 
 import { AppText, colors, radius, shadow, space } from "@/design";
 
-import { ThoughtBalloon } from "./ThoughtBalloon";
+import { bestSpot, trailDots, type Box } from "./balloonLayout";
+import { ThoughtBalloon, TRAIL_DOTS } from "./ThoughtBalloon";
 
 export type CanvasRef = React.ComponentRef<typeof View>;
 
@@ -20,6 +21,8 @@ export type CanvasRef = React.ComponentRef<typeof View>;
 export type BalloonSpot = { x: number; y: number };
 
 const MARGIN = 0.03;
+/** Height kept free at the bottom for the watermark (pt); the balloon never covers it. */
+const WATERMARK_ROOM = 34;
 /** The four corners "Mover balão" cycles through (clamped to fit). */
 export const BALLOON_CORNERS: BalloonSpot[] = [
   { x: 0, y: 0 },
@@ -35,7 +38,10 @@ type Props = {
   photoWidth?: number;
   photoHeight?: number;
   phrase?: string;
-  balloonSpot: BalloonSpot;
+  /** Where the user put the balloon; when missing, the corner farthest from the head. */
+  balloonSpot?: BalloonSpot;
+  /** Pet's head (x, y, w, h as fractions of the image), from the AI. */
+  head?: [number, number, number, number];
   /** When set, the balloon can be dragged; called when the drag ends. */
   onBalloonMove?: (spot: BalloonSpot) => void;
   /** Keeps the whole image on screen; the width shrinks to respect it. */
@@ -55,6 +61,7 @@ export function TranslationCanvas({
   photoHeight,
   phrase,
   balloonSpot,
+  head,
   onBalloonMove,
   maxHeight,
   balloonTint,
@@ -80,11 +87,17 @@ export function TranslationCanvas({
 
   // The balloon is designed for a ~360pt-wide photo and scales with it.
   const balloonScale = Math.min(1, Math.max(0.6, frame.w / 360));
-  const spot = fit(drag ?? balloonSpot, frame, bubble);
+
+  // Without a head box (older translations), aim at the middle of the photo.
+  const headBox: Box = head
+    ? { x: head[0] * frame.w, y: head[1] * frame.h, w: head[2] * frame.w, h: head[3] * frame.h }
+    : { x: 0.4 * frame.w, y: 0.45 * frame.h, w: 0.2 * frame.w, h: 0.2 * frame.h };
+  const base = balloonSpot ?? autoSpot(headBox, frame, bubble);
+  const spot = fit(drag ?? base, frame, bubble);
 
   // Native gestures: a drag moves the balloon, a tap changes its colour.
   // (Gesture handler wins over the page scroll on iOS.)
-  const start = fit(balloonSpot, frame, bubble);
+  const start = fit(base, frame, bubble);
   const moved = (dx: number, dy: number) => ({
     x: start.x + dx / frame.w,
     y: start.y + dy / frame.h,
@@ -111,9 +124,16 @@ export function TranslationCanvas({
   });
   const gesture = useExclusiveGestures(pan, tap);
 
-  // Trail points from the bubble towards the middle of the photo (the pet).
-  const centreX = spot.x + bubble.w / frame.w / 2;
-  const centreY = spot.y + bubble.h / frame.h / 2;
+  // Dots point from the bubble towards the head and stop before it.
+  const dots = phrase
+    ? trailDots(
+        { x: spot.x * frame.w, y: spot.y * frame.h, w: bubble.w, h: bubble.h },
+        headBox,
+        TRAIL_DOTS,
+        balloonScale,
+      )
+    : [];
+  const tintColor = colors.balloonTints[(balloonTint ?? 0) % colors.balloonTints.length];
 
   return (
     <View
@@ -136,12 +156,23 @@ export function TranslationCanvas({
           setLoaded({ width: e.source.width, height: e.source.height })
         }
       />
-      {/* Always on the exported image: marks it as AI-generated (EU AI Act) and credits the app. */}
-      <View style={styles.watermark} pointerEvents="none" testID="watermark">
-        <AppText variant="small" color={colors.onPrimary} style={styles.watermarkText}>
-          {t("result.watermark")}
-        </AppText>
-      </View>
+      {dots.map((d, i) => (
+        <View
+          key={i}
+          pointerEvents="none"
+          style={[
+            styles.dot,
+            {
+              left: d.cx - d.size / 2,
+              top: d.cy - d.size / 2,
+              width: d.size,
+              height: d.size,
+              borderRadius: d.size / 2,
+              backgroundColor: tintColor,
+            },
+          ]}
+        />
+      ))}
       {phrase ? (
         <GestureDetector gesture={gesture}>
           <View
@@ -158,22 +189,34 @@ export function TranslationCanvas({
           >
             <ThoughtBalloon
               text={phrase}
-              tail={centreY < 0.5 ? "down" : "up"}
-              trailSide={centreX < 0.5 ? "right" : "left"}
+              trail={false}
               scale={balloonScale}
               tint={balloonTint}
             />
           </View>
         </GestureDetector>
       ) : null}
+      {/* Always on the exported image: marks it as AI-generated (EU AI Act) and credits the app. */}
+      <View style={styles.watermark} pointerEvents="none" testID="watermark">
+        <AppText variant="small" color={colors.onPrimary} style={styles.watermarkText}>
+          {t("result.watermark")}
+        </AppText>
+      </View>
     </View>
   );
+}
+
+/** The corner whose balloon covers the least of the head (top-left on a tie). */
+function autoSpot(head: Box, frame: Size, bubble: Size): BalloonSpot {
+  const spots = BALLOON_CORNERS.map((c) => fit(c, frame, bubble));
+  const boxes = spots.map((s) => ({ x: s.x * frame.w, y: s.y * frame.h, w: bubble.w, h: bubble.h }));
+  return spots[bestSpot(boxes, head)];
 }
 
 /** Keeps the balloon fully inside the photo, with a small margin. */
 function fit(spot: BalloonSpot, frame: Size, bubble: Size): BalloonSpot {
   const maxX = Math.max(MARGIN, 1 - bubble.w / frame.w - MARGIN);
-  const maxY = Math.max(MARGIN, 1 - bubble.h / frame.h - MARGIN);
+  const maxY = Math.max(MARGIN, 1 - (bubble.h + WATERMARK_ROOM) / frame.h);
   return { x: clamp(spot.x, MARGIN, maxX), y: clamp(spot.y, MARGIN, maxY) };
 }
 
@@ -182,6 +225,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 const styles = StyleSheet.create({
+  dot: { position: "absolute", boxShadow: shadow.balloon },
   watermark: {
     position: "absolute",
     right: space.sm,

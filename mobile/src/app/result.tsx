@@ -39,6 +39,8 @@ export default function ResultScreen() {
   // Each translation gets its own pastel; tapping the balloon cycles it.
   const [tintShift, setTintShift] = useState(0);
   const [corner, setCorner] = useState(0);
+  // Some people want the picture alone: share and save it without the balloon.
+  const [balloonHidden, setBalloonHidden] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState('');
   const [loadingText] = useState(() => pickOne(t('result.loading', { returnObjects: true }) as string[]));
@@ -212,10 +214,13 @@ export default function ResultScreen() {
   }
 
   const personality = findPersonality(item.personalityId);
-  const spot: BalloonSpot =
+  // No spot chosen yet: with the head box the canvas picks the corner away from the face.
+  const spot: BalloonSpot | undefined =
     item.balloonX !== undefined && item.balloonY !== undefined
       ? { x: item.balloonX, y: item.balloonY }
-      : BALLOON_CORNERS[item.balloonPosition === 'bottom' ? 3 : 0];
+      : item.head
+        ? undefined
+        : BALLOON_CORNERS[item.balloonPosition === 'bottom' ? 3 : 0];
   const shownPhrase = editing ? draftText || t('result.writePlaceholder') : (item.customPhrase ?? item.phrase);
   const charsLeft = CUSTOM_PHRASE_MAX - draftText.length;
 
@@ -258,12 +263,22 @@ export default function ResultScreen() {
         </View>
       </View>
       <View style={styles.secondary}>
-        <Button testID="move-balloon" variant="tertiary" label={t('result.moveBalloon')} onPress={nextCorner} />
-        <Button testID="write-own-line" variant="tertiary" label={t('result.writeOwn')} onPress={startWriting} />
-        {item.customPhrase ? (
+        {!balloonHidden ? (
+          <>
+            <Button testID="move-balloon" variant="tertiary" label={t('result.moveBalloon')} onPress={nextCorner} />
+            <Button testID="write-own-line" variant="tertiary" label={t('result.writeOwn')} onPress={startWriting} />
+          </>
+        ) : null}
+        <Button
+          testID="toggle-balloon"
+          variant="tertiary"
+          label={balloonHidden ? t('result.showBalloon') : t('result.hideBalloon')}
+          onPress={() => setBalloonHidden((h) => !h)}
+        />
+        {item.customPhrase && !balloonHidden ? (
           <Button testID="use-ai-line" variant="tertiary" label={t('result.useAi')} onPress={useAiLine} />
         ) : null}
-        {!item.freePhraseUsed ? (
+        {!item.freePhraseUsed && !balloonHidden ? (
           <Button
             testID="retry"
             variant="tertiary"
@@ -285,8 +300,9 @@ export default function ResultScreen() {
         photoUri={item.imageUri}
         photoWidth={item.width}
         photoHeight={item.height}
-        phrase={shownPhrase}
+        phrase={balloonHidden ? undefined : shownPhrase}
         balloonSpot={spot}
+        head={item.head}
         onBalloonMove={placeBalloon}
         maxHeight={canvasMaxHeight}
         balloonTint={tintFor(item.id) + tintShift}
@@ -294,7 +310,7 @@ export default function ResultScreen() {
       />
       <AppText variant="small" color={colors.inkMuted} align="center">
         {personality ? `${personality.name} · ` : ''}
-        {t('result.dragHint')}
+        {balloonHidden ? t('result.hiddenHint') : t('result.dragHint')}
       </AppText>
     </Screen>
   );

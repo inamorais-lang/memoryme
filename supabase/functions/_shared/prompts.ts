@@ -47,6 +47,7 @@ export function phraseSystemPrompt(language: Language): string {
     'Your first idea is usually the obvious joke everyone would make. Think of it, then throw it away.',
     `Write 3 different, less obvious options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,
     'Set is_pet to true when a cat or dog is visible (it normally is).',
+    'In "head", give the box around the pet\'s whole head (ears included) as fractions of the image: x and y of the top-left corner, then width and height, all between 0 and 1. The app uses it to keep the thought bubble off the face, so be accurate.',
   ].join('\n');
 }
 

@@ -14,6 +14,7 @@ function fakeStore() {
     upload: async (bucket, path) => void calls.push(`upload ${bucket}/${path}`),
     finish: async (id, imagePath, phrase) => (calls.push(`finish ${id} ${imagePath} ${phrase}`), true),
     fail: async (id, reason) => (calls.push(`fail ${id} ${reason}`), true),
+    removeOriginal: async (path) => void calls.push(`remove ${path}`),
   };
   return { store, calls };
 }
@@ -35,7 +36,7 @@ Deno.test('success: uploads the image and finishes with the phrase', async () =>
     gen,
   );
   assert.equal(outcome, 'succeeded');
-  assert.deepEqual(calls, ['upload generated/u1/g1.jpg', 'finish g1 u1/g1.jpg Querida, isto é básico.']);
+  assert.deepEqual(calls, ['upload generated/u1/g1.jpg', 'finish g1 u1/g1.jpg Querida, isto é básico.', 'remove u1/photo.jpg']);
 });
 
 Deno.test('no pet: refunds and never calls the expensive image model', async () => {
@@ -52,7 +53,7 @@ Deno.test('no pet: refunds and never calls the expensive image model', async () 
   );
   assert.equal(outcome, 'not_a_pet');
   assert.equal(imageCalled, false);
-  assert.deepEqual(calls, ['fail g1 not_a_pet']);
+  assert.deepEqual(calls, ['fail g1 not_a_pet', 'remove u1/photo.jpg']);
 });
 
 Deno.test('image model error: refunds the credit', async () => {
@@ -69,7 +70,7 @@ Deno.test('image model error: refunds the credit', async () => {
     gen,
   );
   assert.equal(outcome, 'failed');
-  assert.deepEqual(calls, ['fail g1 image_failed_500']);
+  assert.deepEqual(calls, ['fail g1 image_failed_500', 'remove u1/photo.jpg']);
 });
 
 Deno.test('phrase model error: refunds the credit', async () => {
@@ -84,7 +85,7 @@ Deno.test('phrase model error: refunds the credit', async () => {
     gen,
   );
   assert.equal(outcome, 'failed');
-  assert.deepEqual(calls, ['upload generated/u1/g1.jpg', 'fail g1 phrase_refused']);
+  assert.deepEqual(calls, ['upload generated/u1/g1.jpg', 'fail g1 phrase_refused', 'remove u1/photo.jpg']);
 });
 
 Deno.test('upload error: refunds the credit', async () => {
@@ -94,7 +95,7 @@ Deno.test('upload error: refunds the credit', async () => {
   };
   const outcome = await runGeneration({ store, phrases: phrases({ isPet: true, phrase: 'x' }), images: okImage, log: quiet }, gen);
   assert.equal(outcome, 'failed');
-  assert.deepEqual(calls, ['fail g1 upload_boom']);
+  assert.deepEqual(calls, ['fail g1 upload_boom', 'remove u1/photo.jpg']);
 });
 
 Deno.test('parsePhrase picks the funniest option that fits 45 characters', () => {
@@ -137,7 +138,7 @@ Deno.test('custom scene: a refused scene refunds and never reaches the image mod
   );
   assert.equal(outcome, 'scene_rejected');
   assert.equal(imageCalled, false);
-  assert.deepEqual(calls, ['fail g1 scene_rejected']);
+  assert.deepEqual(calls, ['fail g1 scene_rejected', 'remove u1/photo.jpg']);
 });
 
 Deno.test('custom scene replaces the mood scene in the image prompt', async () => {
@@ -270,7 +271,7 @@ Deno.test('a crash stores only a safe code', async () => {
     },
     gen,
   );
-  assert.deepEqual(calls, ['fail g1 internal_error']);
+  assert.deepEqual(calls, ['fail g1 internal_error', 'remove u1/photo.jpg']);
 });
 
 Deno.test('SQL errors map to app-friendly HTTP codes', () => {

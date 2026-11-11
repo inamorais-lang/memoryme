@@ -41,6 +41,10 @@ export function supabaseStore(admin: SupabaseClient): Store {
       if (error) throw new Error(`finish_${error.message}`);
       return data === true;
     },
+    async removeOriginal(path) {
+      const { error } = await admin.storage.from('originals').remove([path]);
+      if (error) throw new Error(`remove_original_${error.message}`);
+    },
     async fail(generationId, reason) {
       const { data, error } = await admin.rpc('fail_generation', {
         p_generation_id: generationId,

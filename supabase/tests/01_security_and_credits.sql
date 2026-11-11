@@ -192,3 +192,16 @@ select test.expect_error($$select * from public.profiles$$, 'permission denied')
 select test.check(true, 'anonymous users see no profiles');
 reset role;
 
+-- Privacy: originals older than 23 h are listed for deletion; only the server can list them.
+insert into storage.objects (bucket_id, name, created_at) values
+  ('originals', 'aaaaaaaa-0000-0000-0000-000000000001/old.jpg', now() - interval '25 hours'),
+  ('originals', 'aaaaaaaa-0000-0000-0000-000000000001/new.jpg', now() - interval '1 hour'),
+  ('generated', 'aaaaaaaa-0000-0000-0000-000000000001/old-result.jpg', now() - interval '25 hours');
+set role service_role;
+select test.check((select array_agg(p) = array['aaaaaaaa-0000-0000-0000-000000000001/old.jpg'] from public.stale_originals(10) p), 'only originals older than 23 h are listed');
+reset role;
+set role authenticated;
+select test.expect_error($$select public.stale_originals(10)$$, 'permission denied');
+select test.check(true, 'users cannot call the clean-up listing');
+reset role;
+

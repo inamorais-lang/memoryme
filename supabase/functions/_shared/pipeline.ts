@@ -14,6 +14,8 @@ export interface Store {
   upload(bucket: 'generated', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
   finish(generationId: string, imagePath: string, phrase: string, head?: HeadBox, prop?: HeadBox): Promise<boolean>;
   fail(generationId: string, reason: string): Promise<boolean>;
+  /** Privacy: the original photo is only needed to make the picture. */
+  removeOriginal(path: string): Promise<void>;
 }
 
 export type Generation = {
@@ -104,6 +106,10 @@ export async function runGeneration(
     log(`generation ${gen.id} failed: ${message.replace(/(Key|Bearer)\s+\S+/gi, '$1 [redacted]')}`);
     await store.fail(gen.id, safeReason(message)).catch((e) => log(`refund failed for ${gen.id}: ${e}`));
     return 'failed';
+  } finally {
+    // Whatever happened, the original photo is no longer needed (privacy policy: gone within 24 h;
+    // the hourly clean-up catches anything this misses).
+    await store.removeOriginal(gen.originalPath).catch((e) => log(`original not removed for ${gen.id}: ${e}`));
   }
 }
 

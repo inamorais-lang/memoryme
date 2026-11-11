@@ -39,6 +39,10 @@ echo "→ deploying Edge Functions"
 for fn in generate new-phrase delete-account; do
   npx -y supabase@2 functions deploy "$fn" --project-ref "$REF" --use-api
 done
+# Called by pg_cron (no user JWT; it can only delete originals older than 23 h).
+for fn in cleanup-originals; do
+  npx -y supabase@2 functions deploy "$fn" --project-ref "$REF" --use-api --no-verify-jwt
+done
 
 echo "→ secrets present on the project"
 curl -sS "$API/secrets" -H "Authorization: Bearer $TOKEN" | python3 -c 'import json,sys; print(sorted(s["name"] for s in json.load(sys.stdin)))'

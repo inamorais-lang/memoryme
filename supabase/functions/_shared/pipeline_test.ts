@@ -9,7 +9,10 @@ function fakeStore() {
   const calls: string[] = [];
   const store: Store = {
     personality: async () => ({ language: 'pt-PT', voice: 'Tia de Cascais', style: 'pearls and a yacht' }),
-    scene: async () => ({ style: 'joke-shop fake teeth', exaggerated: true }),
+    scene: async (id) =>
+      id.endsWith('sorriso')
+        ? { kind: 'comic', language: 'pt-PT', style: 'teeth on a pastel background', exaggerated: true, addon: 'Funny extra: joke-shop fake teeth.' }
+        : { kind: 'place', language: 'pt-PT', style: 'a sunny beach', exaggerated: false, voice: 'Beach snob' },
     signedUrl: async (bucket, path) => `https://signed/${bucket}/${path}`,
     upload: async (bucket, path) => void calls.push(`upload ${bucket}/${path}`),
     finish: async (id, imagePath, phrase) => (calls.push(`finish ${id} ${imagePath} ${phrase}`), true),
@@ -157,20 +160,57 @@ Deno.test('custom scene replaces the mood scene in the image prompt', async () =
   assert.doesNotMatch(style, /pearls and a yacht/);
 });
 
-Deno.test('preset scene replaces the mood scene and asks for an exaggerated expression', async () => {
+function captureRun(genOver: Partial<typeof gen> & Record<string, unknown>) {
   const { store } = fakeStore();
-  let got: { style: string; exaggerated?: boolean } = { style: '' };
-  await runGeneration(
+  const got = { style: '', exaggerated: false as boolean | undefined, voice: '', language: '' };
+  return runGeneration(
     {
       store,
-      phrases: phrases({ isPet: true, phrase: 'x' }),
-      images: images(async (a) => ((got = a), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
+      phrases: {
+        isPet: async () => ({ isPet: true }),
+        describeScene: async (scene: string) => `A pet ${scene}.`,
+        write: async (a) => ((got.voice = a.voice), (got.language = a.language), { isPet: true, phrase: 'x' }),
+      },
+      images: images(async (a) => ((got.style = a.style), (got.exaggerated = a.exaggerated), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
       log: quiet,
     },
-    { ...gen, sceneId: 'pt-sorriso' },
-  );
-  assert.equal(got.style, 'joke-shop fake teeth');
+    { ...gen, ...genOver },
+  ).then(() => got);
+}
+
+Deno.test('place scene instead of a mode: its own picture and phrase tone', async () => {
+  const got = await captureRun({ personalityId: undefined, sceneId: 'pt-praia' });
+  assert.equal(got.style, 'a sunny beach');
+  assert.equal(got.voice, 'Beach snob');
+  assert.equal(got.exaggerated, false);
+});
+
+Deno.test('funny extra: added on top of a mode, with an exaggerated expression', async () => {
+  const got = await captureRun({ comicId: 'pt-sorriso' });
+  assert.equal(got.style, 'pearls and a yacht Funny extra: joke-shop fake teeth.');
+  assert.equal(got.voice, 'Tia de Cascais');
   assert.equal(got.exaggerated, true);
+});
+
+Deno.test('funny extra on a place scene and on a custom scene', async () => {
+  assert.equal((await captureRun({ personalityId: undefined, sceneId: 'pt-praia', comicId: 'pt-sorriso' })).style, 'a sunny beach Funny extra: joke-shop fake teeth.');
+  const custom = await captureRun({ personalityId: undefined, customScene: 'no espaço', comicId: 'pt-sorriso', language: 'fr' });
+  assert.match(custom.style, /^A pet no espaço\..*Funny extra: joke-shop fake teeth\.$/);
+  assert.equal(custom.language, 'fr');
+  assert.match(custom.voice, /animal logic/);
+});
+
+Deno.test('older apps: a funny one sent as the scene still works as the extra', async () => {
+  const got = await captureRun({ sceneId: 'pt-sorriso' });
+  assert.equal(got.style, 'pearls and a yacht Funny extra: joke-shop fake teeth.');
+  assert.equal(got.exaggerated, true);
+});
+
+Deno.test('no mode, scene or custom scene: refunds', async () => {
+  const { store, calls } = fakeStore();
+  const outcome = await runGeneration({ store, phrases: phrases({ isPet: true, phrase: 'x' }), images: okImage, log: quiet }, { ...gen, personalityId: undefined });
+  assert.equal(outcome, 'failed');
+  assert.deepEqual(calls, ['fail g1 unknown_personality', 'remove u1/photo.jpg']);
 });
 
 Deno.test('head box: clamped into the image, dropped when invalid', () => {

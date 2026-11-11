@@ -1,11 +1,19 @@
 // Generation pipeline. Pure logic over small interfaces, so it can be tested
 // without Supabase, Claude or fal.
 import type { HeadBox, ImageEditor, PhraseWriter } from './ai.ts';
-import { customSceneStyle, type Language, type Spelling } from './prompts.ts';
+import { CUSTOM_SCENE_VOICE, customSceneStyle, type Language, type Spelling } from './prompts.ts';
 
 export type PersonalityPrompts = { language: Language; voice: string; style: string };
 
-export type ScenePrompt = { style: string; exaggerated: boolean };
+/** 'place': chosen instead of a mode (own phrase tone). 'comic': optional funny extra. */
+export type ScenePrompt = {
+  kind: 'place' | 'comic';
+  language: Language;
+  style: string;
+  exaggerated: boolean;
+  voice?: string;
+  addon?: string;
+};
 
 export interface Store {
   personality(id: string): Promise<PersonalityPrompts>;
@@ -21,15 +29,60 @@ export interface Store {
 export type Generation = {
   id: string;
   userId: string;
-  personalityId: string;
+  /** Mode (personality). Absent when a scene or a custom scene was chosen instead. */
+  personalityId?: string;
   originalPath: string;
-  /** Preset scene (e.g. fake teeth, glasses); replaces the mood's scene. */
+  /** Place scene (Natal, beach…), chosen instead of a mode. */
   sceneId?: string;
-  /** Scene typed by the user ("Cenário à medida"); replaces the mood's scene. */
+  /** Scene typed by the user ("Criar cenário"), chosen instead of a mode. */
   customScene?: string;
+  /** Optional funny extra (glasses, big nose…), on top of the choice. */
+  comicId?: string;
+  /** Language of the line when there is no mode or scene to tell it (custom scene). */
+  language?: Language;
   /** English lines: British or American spelling. */
   spelling?: Spelling;
 };
+
+export type Choice = {
+  personalityId?: string;
+  sceneId?: string;
+  comicId?: string;
+  /** Picture style of a custom scene, already checked and described. */
+  customStyle?: string;
+  language?: Language;
+};
+
+/** Picture style, phrase tone and language for a choice: a custom scene, a place scene or a mode, plus the funny extra. */
+export async function resolvePrompts(
+  store: Store,
+  choice: Choice,
+): Promise<{ language: Language; voice: string; style: string; exaggerated: boolean }> {
+  let scene = choice.sceneId ? await store.scene(choice.sceneId) : null;
+  let comic = choice.comicId ? await store.scene(choice.comicId) : null;
+  // Older app versions sent the funny ones as the scene.
+  if (scene?.kind === 'comic' && !comic) [comic, scene] = [scene, null];
+  if (scene && scene.kind !== 'place') scene = null;
+  if (comic && comic.kind !== 'comic') comic = null;
+  const personality = choice.personalityId ? await store.personality(choice.personalityId) : null;
+
+  let base: { language: Language; voice: string; style: string };
+  if (choice.customStyle) {
+    base = { language: choice.language ?? personality?.language ?? 'en', voice: CUSTOM_SCENE_VOICE, style: choice.customStyle };
+  } else if (scene) {
+    base = { language: scene.language, voice: scene.voice ?? personality?.voice ?? CUSTOM_SCENE_VOICE, style: scene.style };
+  } else if (personality) {
+    base = personality;
+  } else {
+    throw new Error('unknown_personality');
+  }
+  const addon = comic ? (comic.addon ?? comic.style) : null;
+  return {
+    ...base,
+    style: addon ? `${base.style} ${addon}` : base.style,
+    exaggerated: Boolean(comic),
+  };
+}
 
 export type Outcome = 'succeeded' | 'not_a_pet' | 'scene_rejected' | 'failed';
 
@@ -51,7 +104,6 @@ export async function runGeneration(
 ): Promise<Outcome> {
   const { store, phrases, images, crop, log = console.log } = deps;
   try {
-    const prompts = await store.personality(gen.personalityId);
     const originalUrl = await store.signedUrl('originals', gen.originalPath);
 
     const check = await phrases.isPet(originalUrl);
@@ -78,13 +130,19 @@ export async function runGeneration(
         return 'scene_rejected';
       }
     }
-    const preset = gen.sceneId ? await store.scene(gen.sceneId) : null;
-    const style = custom ? customSceneStyle(custom) : (preset?.style ?? prompts.style);
+    const prompts = await resolvePrompts(store, {
+      personalityId: gen.personalityId,
+      sceneId: gen.sceneId,
+      comicId: gen.comicId,
+      customStyle: custom ? customSceneStyle(custom) : undefined,
+      language: gen.language,
+    });
+    const style = prompts.style;
 
     const image = await images.edit({
       imageUrl: sourceUrl,
       style,
-      exaggerated: preset?.exaggerated ?? false,
+      exaggerated: prompts.exaggerated,
       appearance: check.appearance,
     });
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';

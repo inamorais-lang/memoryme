@@ -2,23 +2,24 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 
 import type { PickedPhoto } from '@/lib/photos';
 
-/** Scene on top of the mood: the mood's own, a preset, or one typed by the user. */
-export type DraftScene = { kind: 'mood' } | { kind: 'preset'; id: string } | { kind: 'custom' };
+/** What the picture starts from: a mode, a scene (Natal, beach…) or a scene typed by the person. */
+export type DraftChoice = { kind: 'mode'; id: string } | { kind: 'scene'; id: string } | { kind: 'custom' };
 
-/** The photo, personality and scene being chosen before a translation exists. */
+/** The photo and choices made before a translation exists. */
 type Draft = {
   photo: PickedPhoto | null;
-  personalityId: string | null;
-  scene: DraftScene;
+  choice: DraftChoice | null;
+  /** Optional funny extra (glasses, big nose…), free. */
+  comicId: string | null;
   customScene: string;
 };
 
-const EMPTY: Draft = { photo: null, personalityId: null, scene: { kind: 'mood' }, customScene: '' };
+const EMPTY: Draft = { photo: null, choice: null, comicId: null, customScene: '' };
 
 type DraftApi = Draft & {
   setPhoto(photo: PickedPhoto): void;
-  setPersonality(id: string): void;
-  setScene(scene: DraftScene): void;
+  setChoice(choice: DraftChoice): void;
+  setComic(id: string | null): void;
   setCustomScene(text: string): void;
   reset(): void;
 };
@@ -31,8 +32,8 @@ export function DraftProvider({ children }: { children: ReactNode }) {
   const api: DraftApi = {
     ...draft,
     setPhoto: (photo) => setDraft((d) => ({ ...d, photo })),
-    setPersonality: (personalityId) => setDraft((d) => ({ ...d, personalityId })),
-    setScene: (scene) => setDraft((d) => ({ ...d, scene })),
+    setChoice: (choice) => setDraft((d) => ({ ...d, choice })),
+    setComic: (comicId) => setDraft((d) => ({ ...d, comicId })),
     setCustomScene: (customScene) => setDraft((d) => ({ ...d, customScene })),
     reset: () => setDraft(EMPTY),
   };

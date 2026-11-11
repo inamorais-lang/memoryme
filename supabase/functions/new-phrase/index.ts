@@ -3,7 +3,8 @@
 import { withSupabase } from 'npm:@supabase/server@1.9.2';
 
 import { json, phraseWriter } from '../_shared/config.ts';
-import { httpErrorFor } from '../_shared/pipeline.ts';
+import { httpErrorFor, resolvePrompts } from '../_shared/pipeline.ts';
+import { customSceneStyle } from '../_shared/prompts.ts';
 import { supabaseStore } from '../_shared/store.ts';
 
 export default {
@@ -29,9 +30,19 @@ export default {
 
     try {
       const store = supabaseStore(admin);
-      const prompts = await store.personality(row.personality_id);
-      const { data: gen } = await admin.from('generations').select('image_path, spelling').eq('id', generationId).single();
+      const { data: gen } = await admin
+        .from('generations')
+        .select('image_path, spelling, personality_id, scene_id, comic_id, custom_scene, language')
+        .eq('id', generationId)
+        .single();
       if (!gen?.image_path) throw new Error('image_missing');
+      const prompts = await resolvePrompts(store, {
+        personalityId: gen.personality_id ?? undefined,
+        sceneId: gen.scene_id ?? undefined,
+        comicId: gen.comic_id ?? undefined,
+        customStyle: gen.custom_scene ? customSceneStyle(gen.custom_scene) : undefined,
+        language: gen.language ?? undefined,
+      });
       const { phrase } = await phraseWriter().write({
         imageUrl: await store.signedUrl('generated', gen.image_path),
         language: prompts.language,

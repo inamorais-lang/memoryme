@@ -81,6 +81,6 @@ export function personalitiesFor(language: AppLanguage): Personality[] {
   return personalities.filter((p) => p.language === language);
 }
 
-export function findPersonality(id: string): Personality | undefined {
-  return personalities.find((p) => p.id === id);
+export function findPersonality(id: string | undefined): Personality | undefined {
+  return id ? personalities.find((p) => p.id === id) : undefined;
 }

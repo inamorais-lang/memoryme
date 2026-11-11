@@ -27,7 +27,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Login com a Apple só na primeira compra | Menos fricção no início |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
-| Cenários além do modo: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia e Snowboard a 1 crédito, expressão natural; 7 de Natal (`category = 'natal'`, grupo próprio no topo; esconder em janeiro com `active = false`); "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
+| Ecrã de escolha: no topo Natal (7, `category = 'natal'`; esconder em janeiro com `active = false`), depois Cenários (Dia de praia, Snowboard, "Criar cenário" 3–80 caracteres a 2 créditos) e por fim os 11 Modos; escolhe-se **um** destes. Cenários (`scenes.kind = 'place'`) têm tom de frase próprio (`voice_prompt`). Depois de escolher aparece o "Toque engraçado" opcional e grátis (`kind = 'comic'`: sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula; `addon_prompt` junta-se ao estilo; expressão exagerada só com ele) | Pedido do dono do produto; o criar cenário custa mais e é verificado pela IA |
 | Sem modo "Exagerado" (testado e retirado: pilhas de objetos confusas). Em vez disso, todas as imagens têm cara mais cómica (natural para a espécie), 2–3 dos objetos da própria cena e cores vivas | Decisão do dono do produto |
 | Idade mínima 16 anos (consentimento RGPD para a IA sem pais em PT, ES, FR, Reino Unido; acima dos 13 dos EUA) | Decisão do dono do produto |
 | 5 línguas: PT-PT, ES, FR, EN-GB, EN-US (os dois ingleses só diferem na ortografia); Termos e Privacidade nas 4 línguas | Pedido do dono do produto |
@@ -67,7 +67,7 @@ npm test             # só os testes unitários (Jest)
 ```
 supabase/
   migrations/                 esquema + RLS + funções de créditos; personalidades e prompts
-  functions/generate          gasta 1 crédito, ou 2 com cenário à medida (SQL atómico) → 202; em segundo plano: Claude ("há animal?") → recorte das barras/margens se a foto for uma captura de ecrã (`crop.ts`, jpeg-js) → [à medida: Claude verifica e descreve o cenário] → fal (imagem) → Storage → Claude (frase sobre a imagem final)
+  functions/generate          um modo, um cenário ou um cenário criado (+ toque engraçado grátis); gasta 1 crédito, ou 2 com cenário criado (SQL atómico) → 202; em segundo plano: Claude ("há animal?") → recorte das barras/margens se a foto for uma captura de ecrã (`crop.ts`, jpeg-js) → [à medida: Claude verifica e descreve o cenário] → fal (imagem) → Storage → Claude (frase sobre a imagem final)
   functions/new-phrase        a frase grátis (1 por geração), sem gastar crédito
   functions/delete-account    apaga fotos + utilizador (linhas apagadas em cascata)
   functions/delete-image      apaga uma imagem do utilizador (ficheiro + linha); não apaga as que estão a ser criadas
@@ -87,7 +87,7 @@ supabase/
 
 ### Comandos do servidor
 ```bash
-supabase/tests/run.sh                      # migrações + 56 testes SQL (precisa de PGHOST/PGPORT de um Postgres local)
+supabase/tests/run.sh                      # migrações + testes SQL (precisa de PGHOST/PGPORT de um Postgres local)
 deno test supabase/functions/_shared       # testes do pipeline (IA falsa)
 deno check supabase/functions/*/index.ts   # tipos das Edge Functions
 npx supabase@2 ...                         # CLI fixada na v2 (a v3 mudou comportamentos)
@@ -100,7 +100,7 @@ mobile/
   app.json                     nome, permissões (PT), plugins, idiomas iOS
   locales/ios/*.json           textos das permissões por idioma
   src/
-    app/                       ecrãs (Expo Router): index → personality (modo + cenário) → (sign-in | no-credits) → result; history; settings
+    app/                       ecrãs (Expo Router): index → personality (Natal / cenário / modo + toque engraçado) → (sign-in | no-credits) → result; history; settings
     design/                    design system: tokens.ts + AppText, Button, Screen
     i18n/                      i18next; locales/pt-PT.ts é a referência, en.ts igual em chaves
     features/
@@ -109,7 +109,7 @@ mobile/
       auth/AuthContext.tsx     sessão, login com a Apple, créditos, terminar sessão, apagar conta
       translate/translate.ts   frases locais (só modo local)
       history/history.ts       histórico guardado no dispositivo
-      draft/DraftContext.tsx   foto + modo + cenário escolhidos antes de criar a imagem
+      draft/DraftContext.tsx   foto + escolha (modo | cenário | criar cenário) + toque engraçado, antes de criar a imagem
     components/                ThoughtBalloon, TranslationCanvas (vista exportada como PNG)
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)
 ```
@@ -118,7 +118,7 @@ mobile/
 - "Sem balão · grátis" no resultado: esconde o balão e partilha/guarda só a imagem (com marca de água).
 - Regras globais de imagem (`imageEditPrompt`): **nunca exemplos concretos de objetos** — o modelo copia-os para todas as cenas (ex.: "três hambúrgueres" apareceu na praia e no Natal; "confetti" em todo o lado).
 - Mudar a pose do animal (ex.: de barriga para cima) só resulta com a pose **no início** do prompt do cenário ("Change the pose: …").
-- Fidelidade: o "há animal?" devolve também `appearance` (cores e marcas, com o sítio de cada uma), que entra no prompt da imagem como obrigatória ("reproduz todas, no mesmo sítio, não acrescentes nenhuma"). Sem isto o modelo às vezes apagava marcas pequenas (ex.: risca branca no focinho).
+- Fidelidade: o "há animal?" devolve também `appearance` (vai no início do prompt; manchas pequenas são "pelo, não sujidade"; mesmo assim o FLUX Kontext apaga manchas muito pequenas, ex.: a do lábio do gato) (cores e marcas, com o sítio de cada uma), que entra no prompt da imagem como obrigatória ("reproduz todas, no mesmo sítio, não acrescentes nenhuma"). Sem isto o modelo às vezes apagava marcas pequenas (ex.: risca branca no focinho).
 - Expressão por espécie: gatos mostram atitude com olhos/orelhas/postura, boca fechada ou entreaberta, nunca sorriso de dentes (ficavam com "focinho de cão"); cães podem sorrir de boca aberta.
 - Sem mãos humanas: se o animal segura ou toca em algo, usa as próprias patas (regra global em `imageEditPrompt`).
 - Autorização da IA (Apple 5.1.2(i) + RGPD): ecrã `ai-consent` antes da 1.ª imagem (guardado no dispositivo, `features/consent`); `generate` exige `aiConsent: true` e grava `profiles.ai_consent_at`; retirar nas Definições.
@@ -126,7 +126,7 @@ mobile/
 - Fotos originais: apagadas pelo pipeline assim que a imagem fica pronta (ou falha) e, por segurança, pela limpeza de hora a hora (máx. 24 h). As imagens criadas ficam até a pessoa apagar a conta.
 - Recorte: o "há animal?" devolve também onde está a fotografia dentro da imagem; se houver barras ou margens (capturas de ecrã), o servidor corta só isso — o conteúdo da foto nunca é cortado (pedido do dono do produto). Se o recorte falhar, usa a original.
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
-- Cenários (`scenes`, no servidor, `image_prompt` escondido): escolhidos no ecrã do modo; substituem o cenário do modo. À medida: recusado (pessoas reais, marcas, impróprio…) → `scene_rejected`, 2 créditos devolvidos. No modo local não há cenários.
+- Cenários (`scenes`, no servidor, prompts escondidos): escolhidos em vez de um modo (`generations.personality_id` fica vazio; `language` guarda a língua do cenário criado). Apps antigas que enviam um engraçado como `sceneId` continuam a funcionar (passa a toque). Criar cenário: recusado (pessoas reais, marcas, impróprio…) → `scene_rejected`, 2 créditos devolvidos. No modo local não há cenários.
 - Frase própria: "Escrever a minha frase", máx. **45** caracteres (`CUSTOM_PHRASE_MAX` e `check` na BD), grátis, sem IA; `custom_phrase` substitui a frase da IA no balão.
 - Balão: rasto de 3 bolinhas desenhado na foto, a apontar para a cabeça e a parar antes dela (encolhem ou desaparecem se não houver espaço); cor pastel (`colors.balloonTints`) estável por tradução (`tintFor(id)`), tocar no balão troca a cor.
 - Marca de água fixa em todas as imagens (canto inferior direito, pequena): "Feito com IA · PetBubble" (AI Act da UE + publicidade). Não se pode remover. Só não aparece no ecrã de espera, que mostra a foto original.

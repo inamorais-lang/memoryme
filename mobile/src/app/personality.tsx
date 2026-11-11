@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   View,
 } from "react-native";
@@ -30,11 +31,11 @@ import {
   CUSTOM_SCENE_MAX,
   CUSTOM_SCENE_MIN,
   type PersonalityInfo,
-  type SceneChoice,
   type SceneInfo,
+  type TranslationChoice,
 } from "@/features/backend";
 import { hasAiConsent } from "@/features/consent/aiConsent";
-import { useDraft } from "@/features/draft/DraftContext";
+import { type DraftChoice, useDraft } from "@/features/draft/DraftContext";
 import { currentLanguage, currentMarket } from "@/i18n";
 
 export default function PersonalityScreen() {
@@ -59,12 +60,17 @@ export default function PersonalityScreen() {
   }, []);
 
   const customText = draft.customScene.replace(/\s+/g, " ").trim();
-  const isCustom = draft.scene.kind === "custom";
-  const sceneReady = !isCustom || customText.length >= CUSTOM_SCENE_MIN;
+  const choice = draft.choice;
+  const isCustom = choice?.kind === "custom";
+  const choiceReady =
+    choice !== null && (!isCustom || customText.length >= CUSTOM_SCENE_MIN);
   const cost = isCustom ? 2 : 1;
+  const christmas = scenes.filter((s) => s.kind === "place" && s.category === "natal");
+  const places = scenes.filter((s) => s.kind === "place" && s.category !== "natal");
+  const comics = scenes.filter((s) => s.kind === "comic");
 
   const start = useCallback(async () => {
-    if (!draft.photo || !draft.personalityId) return;
+    if (!draft.photo || !choice) return;
     // The photo goes to third-party AI services: ask once, before anything is uploaded.
     if (backend.mode === "remote" && !(await hasAiConsent())) {
       waitingForConsent.current = true;
@@ -76,21 +82,17 @@ export default function PersonalityScreen() {
       router.push("/sign-in");
       return;
     }
-    if (!sceneReady) return;
-    const scene: SceneChoice = {
-      ...(draft.scene.kind === "preset"
-        ? { sceneId: draft.scene.id }
-        : draft.scene.kind === "custom"
-          ? { customScene: customText }
-          : {}),
-    };
+    if (!choiceReady) return;
+    const extra = draft.comicId ? { comicId: draft.comicId } : {};
+    const request: TranslationChoice =
+      choice.kind === "mode"
+        ? { personalityId: choice.id, ...extra }
+        : choice.kind === "scene"
+          ? { sceneId: choice.id, ...extra }
+          : { customScene: customText, ...extra };
     setStarting(true);
     try {
-      const id = await backend.createTranslation(
-        draft.photo,
-        draft.personalityId,
-        scene,
-      );
+      const id = await backend.createTranslation(draft.photo, request);
       router.push({ pathname: "/result", params: { id } });
     } catch (e) {
       const code = e instanceof BackendError ? e.code : "server_error";
@@ -105,15 +107,7 @@ export default function PersonalityScreen() {
       setStarting(false);
       auth.refreshCredits();
     }
-  }, [
-    draft.photo,
-    draft.personalityId,
-    draft.scene,
-    customText,
-    sceneReady,
-    auth,
-    t,
-  ]);
+  }, [draft.photo, choice, draft.comicId, customText, choiceReady, auth, t]);
 
   // Coming back from the AI consent screen: carry on only if the person accepted.
   useFocusEffect(
@@ -136,27 +130,56 @@ export default function PersonalityScreen() {
 
   if (!draft.photo) return <Redirect href="/" />;
 
-  function select(id: string) {
+  function select(next: DraftChoice) {
     if (Platform.OS !== "web") Haptics.selectionAsync();
-    draft.setPersonality(id);
+    draft.setChoice(next);
   }
+  const isScene = (id: string) => choice?.kind === "scene" && choice.id === id;
 
   return (
     <Screen
       footer={
-        <Button
-          testID="translate"
-          label={
-            !draft.personalityId
-              ? t("personality.pickFirst")
-              : !sceneReady
-                ? t("scene.tooShort")
-                : t("personality.translate", { count: cost })
-          }
-          disabled={!draft.personalityId || !sceneReady}
-          loading={starting}
-          onPress={start}
-        />
+        <View style={styles.footer}>
+          {choice && comics.length > 0 ? (
+            <View style={styles.comics}>
+              <AppText variant="smallStrong">{t("scene.comicTitle")}</AppText>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.comicRow}
+              >
+                <SceneChip
+                  testID="comic-none"
+                  label={t("scene.comicNone")}
+                  selected={draft.comicId === null}
+                  onPress={() => draft.setComic(null)}
+                />
+                {comics.map((s) => (
+                  <SceneChip
+                    key={s.id}
+                    testID={`comic-${s.id}`}
+                    label={s.name}
+                    selected={draft.comicId === s.id}
+                    onPress={() => draft.setComic(s.id)}
+                  />
+                ))}
+              </ScrollView>
+            </View>
+          ) : null}
+          <Button
+            testID="translate"
+            label={
+              !choice
+                ? t("personality.pickFirst")
+                : !choiceReady
+                  ? t("scene.tooShort")
+                  : t("personality.translate", { count: cost })
+            }
+            disabled={!choiceReady}
+            loading={starting}
+            onPress={start}
+          />
+        </View>
       }
     >
       <View style={styles.header}>
@@ -171,14 +194,76 @@ export default function PersonalityScreen() {
         </View>
       </View>
 
+      {christmas.length > 0 ? (
+        <View style={styles.group}>
+          <AppText variant="heading">{t("scene.christmas")}</AppText>
+          <View style={styles.chips}>
+            {christmas.map((s) => (
+              <SceneChip
+                key={s.id}
+                testID={`scene-${s.id}`}
+                label={s.name}
+                selected={isScene(s.id)}
+                onPress={() => select({ kind: "scene", id: s.id })}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
+
+      {scenes.length > 0 ? (
+        <View style={styles.group}>
+          <AppText variant="heading">{t("scene.places")}</AppText>
+          <View style={styles.chips}>
+            {places.map((s) => (
+              <SceneChip
+                key={s.id}
+                testID={`scene-${s.id}`}
+                label={s.name}
+                selected={isScene(s.id)}
+                onPress={() => select({ kind: "scene", id: s.id })}
+              />
+            ))}
+            <SceneChip
+              testID="scene-custom"
+              label={t("scene.custom")}
+              selected={isCustom}
+              onPress={() => select({ kind: "custom" })}
+            />
+          </View>
+          {isCustom ? (
+            <View style={styles.customScene}>
+              <AppText variant="small" color={colors.inkMuted}>
+                {t("scene.customHint")}
+              </AppText>
+              <TextField
+                testID="custom-scene"
+                value={draft.customScene}
+                onChangeText={draft.setCustomScene}
+                placeholder={t("scene.customPlaceholder")}
+                maxLength={CUSTOM_SCENE_MAX}
+                counterLabel={t("result.charsLeft", {
+                  count: CUSTOM_SCENE_MAX - draft.customScene.length,
+                })}
+                returnKeyType="done"
+                autoFocus
+              />
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+
       {list === null ? <ActivityIndicator color={colors.ink} /> : null}
       {list?.length === 0 ? (
         <AppText color={colors.inkMuted}>{t("result.network")}</AppText>
       ) : null}
 
-      <View style={styles.grid}>
+      <View style={styles.group}>
+        {scenes.length > 0 && (list?.length ?? 0) > 0 ? (
+          <AppText variant="heading">{t("scene.modes")}</AppText>
+        ) : null}
         {(list ?? []).map((p, index) => {
-          const selected = draft.personalityId === p.id;
+          const selected = choice?.kind === "mode" && choice.id === p.id;
           return (
             <Pressable
               key={p.id}
@@ -186,7 +271,7 @@ export default function PersonalityScreen() {
               accessibilityRole="radio"
               accessibilityState={{ selected }}
               accessibilityLabel={`${p.name}. ${p.tagline}`}
-              onPress={() => select(p.id)}
+              onPress={() => select({ kind: "mode", id: p.id })}
               style={({ pressed }) => [
                 styles.card,
                 {
@@ -212,83 +297,6 @@ export default function PersonalityScreen() {
           );
         })}
       </View>
-
-      {scenes.length > 0 ? (
-        <View style={styles.sceneSection}>
-          <View style={styles.headerText}>
-            <AppText variant="heading">{t("scene.title")}</AppText>
-            <AppText color={colors.inkMuted}>{t("scene.subtitle")}</AppText>
-          </View>
-          {scenes.some((s) => s.category === "natal") ? (
-            <View style={styles.sceneGroup}>
-              <AppText variant="bodyStrong">{t("scene.christmas")}</AppText>
-              <View style={styles.chips}>
-                {scenes
-                  .filter((s) => s.category === "natal")
-                  .map((s) => (
-                    <SceneChip
-                      key={s.id}
-                      testID={`scene-${s.id}`}
-                      label={s.name}
-                      selected={
-                        draft.scene.kind === "preset" && draft.scene.id === s.id
-                      }
-                      onPress={() =>
-                        draft.setScene({ kind: "preset", id: s.id })
-                      }
-                    />
-                  ))}
-              </View>
-            </View>
-          ) : null}
-          <View style={styles.chips}>
-            <SceneChip
-              testID="scene-mood"
-              label={t("scene.mood")}
-              selected={draft.scene.kind === "mood"}
-              onPress={() => draft.setScene({ kind: "mood" })}
-            />
-            {scenes
-              .filter((s) => !s.category)
-              .map((s) => (
-                <SceneChip
-                  key={s.id}
-                  testID={`scene-${s.id}`}
-                  label={s.name}
-                  selected={
-                    draft.scene.kind === "preset" && draft.scene.id === s.id
-                  }
-                  onPress={() => draft.setScene({ kind: "preset", id: s.id })}
-                />
-              ))}
-            <SceneChip
-              testID="scene-custom"
-              label={t("scene.custom")}
-              selected={isCustom}
-              onPress={() => draft.setScene({ kind: "custom" })}
-            />
-          </View>
-          {isCustom ? (
-            <View style={styles.customScene}>
-              <AppText variant="small" color={colors.inkMuted}>
-                {t("scene.customHint")}
-              </AppText>
-              <TextField
-                testID="custom-scene"
-                value={draft.customScene}
-                onChangeText={draft.setCustomScene}
-                placeholder={t("scene.customPlaceholder")}
-                maxLength={CUSTOM_SCENE_MAX}
-                counterLabel={t("result.charsLeft", {
-                  count: CUSTOM_SCENE_MAX - draft.customScene.length,
-                })}
-                returnKeyType="done"
-                autoFocus
-              />
-            </View>
-          ) : null}
-        </View>
-      ) : null}
     </Screen>
   );
 }
@@ -334,7 +342,10 @@ const styles = StyleSheet.create({
     boxShadow: shadow.md,
   },
   headerText: { flex: 1, gap: space.xs },
-  grid: { gap: space.md },
+  group: { gap: space.md },
+  footer: { gap: space.md },
+  comics: { gap: space.sm },
+  comicRow: { gap: space.sm, paddingVertical: space.xxs, paddingHorizontal: space.xxs },
   card: {
     padding: space.lg,
     gap: space.xs,
@@ -348,9 +359,7 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.02 }],
   },
   cardPressed: { opacity: 0.85 },
-  sceneSection: { gap: space.md, marginTop: space.lg },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
-  sceneGroup: { gap: space.sm },
   chip: {
     paddingHorizontal: space.md,
     paddingVertical: space.sm,

@@ -4,16 +4,23 @@ import type { PickedPhoto } from '@/lib/photos';
 
 export type PersonalityInfo = { id: string; name: string; tagline: string };
 
-/** Preset scene chosen on top of the mood (e.g. fake teeth, glasses). */
+/** Server scene: 'place' is chosen instead of a mode (Natal, beach…); 'comic' is the optional funny extra. */
 export type SceneInfo = {
   id: string;
   name: string;
+  kind: 'place' | 'comic';
   /** e.g. 'natal': shown as its own group at the top. */
   category?: string | null;
 };
 
-/** Scene for a new translation: a preset (1 credit) or one typed by the user (2 credits). */
-export type SceneChoice = { sceneId?: string; customScene?: string };
+/**
+ * What a new translation starts from: a mode, a place scene or a scene typed by the person
+ * (2 credits), plus an optional free funny extra.
+ */
+export type TranslationChoice =
+  | { personalityId: string; comicId?: string }
+  | { sceneId: string; comicId?: string }
+  | { customScene: string; comicId?: string };
 
 /** Limits of a scene typed by the user (also enforced in the database). */
 export const CUSTOM_SCENE_MIN = 3;
@@ -28,7 +35,8 @@ export type TranslationStatus = 'pending' | 'succeeded' | 'failed';
 export type TranslationView = {
   id: string;
   status: TranslationStatus;
-  personalityId: string;
+  /** Absent when a scene was chosen instead of a mode. */
+  personalityId?: string;
   imageUri?: string;
   /** Known for local photos; remote images report their size when loaded. */
   width?: number;
@@ -69,10 +77,10 @@ export class BackendError extends Error {
 export interface Backend {
   mode: 'local' | 'remote';
   listPersonalities(market: Market): Promise<PersonalityInfo[]>;
-  /** Preset scenes; empty when the app runs without the server. */
+  /** Server scenes; empty when the app runs without the server. */
   listScenes(language: AppLanguage): Promise<SceneInfo[]>;
   /** Spends credits (remote) and starts the translation. Returns its id. */
-  createTranslation(photo: PickedPhoto, personalityId: string, scene?: SceneChoice): Promise<string>;
+  createTranslation(photo: PickedPhoto, choice: TranslationChoice): Promise<string>;
   getTranslation(id: string): Promise<TranslationView | null>;
   newPhrase(id: string): Promise<string>;
   setBalloonSpot(id: string, x: number, y: number): Promise<void>;

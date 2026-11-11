@@ -1,5 +1,6 @@
-// POST { personalityId, originalPath, aiConsent: true, sceneId?, customScene?, spelling?: 'GB' | 'US' } → 202 { generationId }
-// customScene ("Cenário à medida", 3–80 chars) costs 2 credits instead of 1.
+// POST { originalPath, aiConsent: true, personalityId? | sceneId? | customScene?, comicId?, language?, spelling?: 'GB' | 'US' } → 202 { generationId }
+// One choice (a mode, a place scene or a custom scene) plus an optional funny extra (comicId, free).
+// customScene ("Criar cenário", 3–80 chars) costs 2 credits instead of 1.
 // Spends 1 credit on the server (atomic, rate limited), then makes the image
 // and the phrase in the background. The app polls the `generations` row.
 import { withSupabase } from 'npm:@supabase/server@1.9.2';
@@ -19,11 +20,9 @@ export default {
     if (!userId) return json({ code: 'unauthorized' }, 401);
 
     const body = await req.json().catch(() => null);
-    const personalityId = body?.personalityId;
+    const personalityId = typeof body?.personalityId === 'string' ? body.personalityId : undefined;
     const originalPath = body?.originalPath;
-    if (typeof personalityId !== 'string' || typeof originalPath !== 'string') {
-      return json({ code: 'bad_request' }, 400);
-    }
+    if (typeof originalPath !== 'string') return json({ code: 'bad_request' }, 400);
     const rawScene = body?.customScene;
     if (rawScene !== undefined && rawScene !== null && typeof rawScene !== 'string') {
       return json({ code: 'bad_request' }, 400);
@@ -31,6 +30,8 @@ export default {
     // The photo goes to third-party AI: never without the person's explicit consent.
     if (body?.aiConsent !== true) return json({ code: 'consent_required' }, 400);
     const sceneId = typeof body?.sceneId === 'string' ? body.sceneId : undefined;
+    const comicId = typeof body?.comicId === 'string' ? body.comicId : undefined;
+    const language = (['pt-PT', 'en', 'es', 'fr'] as const).find((l) => l === body?.language);
     const spelling = body?.spelling === 'US' || body?.spelling === 'GB' ? body.spelling : undefined;
     const customScene = typeof rawScene === 'string' ? rawScene.replace(/\s+/g, ' ').trim() || undefined : undefined;
 
@@ -46,10 +47,12 @@ export default {
 
     const { data: generationId, error } = await ctx.supabaseAdmin.rpc('start_generation', {
       p_user_id: userId,
-      p_personality_id: personalityId,
+      p_personality_id: personalityId ?? null,
       p_original_path: originalPath,
       p_custom_scene: customScene ?? null,
       p_scene_id: sceneId ?? null,
+      p_comic_id: comicId ?? null,
+      p_language: language ?? null,
     });
     if (error || typeof generationId !== 'string') {
       const { status, code } = httpErrorFor(error?.message ?? '');
@@ -68,7 +71,7 @@ export default {
     EdgeRuntime.waitUntil(
       runGeneration(
         { store: supabaseStore(ctx.supabaseAdmin), phrases, images, crop: (url, photo) => cropToPhoto(url, photo) },
-        { id: generationId, userId, personalityId, originalPath, sceneId, customScene, spelling },
+        { id: generationId, userId, personalityId, originalPath, sceneId, customScene, comicId, language, spelling },
       ),
     );
     return json({ generationId }, 202);

@@ -11,7 +11,7 @@ import { findPersonality, personalitiesForMarket } from '@/features/personalitie
 import { translatePhoto } from '@/features/translate/translate';
 import { persistPhoto } from '@/lib/photos';
 
-import type { Backend, TranslationView } from './types';
+import { BackendError, type Backend, type TranslationView } from './types';
 
 /** Phase 1 behaviour: local phrases, original photo, history on the device. */
 function toView(t: Translation): TranslationView {
@@ -42,7 +42,10 @@ export const localBackend: Backend = {
   async listScenes() {
     return [];
   },
-  async createTranslation(photo, personalityId) {
+  async createTranslation(photo, choice) {
+    // Without the server there are only modes.
+    if (!('personalityId' in choice)) throw new BackendError('server_error');
+    const { personalityId } = choice;
     const id = newId();
     const [{ phrase }, photoUri] = await Promise.all([
       translatePhoto({ photoUri: photo.uri, personalityId }),

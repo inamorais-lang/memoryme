@@ -4,7 +4,7 @@ import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { Platform } from 'react-native';
 
 import { newId } from '@/features/history/history';
-import { currentSpelling } from '@/i18n';
+import { currentLanguage, currentSpelling } from '@/i18n';
 import type { PickedPhoto } from '@/lib/photos';
 
 import { BackendError, type Backend, type BackendErrorCode, type TranslationView } from './types';
@@ -16,7 +16,7 @@ const COLUMNS =
 type Row = {
   id: string;
   status: TranslationView['status'];
-  personality_id: string;
+  personality_id: string | null;
   image_path: string | null;
   phrase: string | null;
   free_phrase_used: boolean;
@@ -77,7 +77,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
     return rows.map((r) => ({
       id: r.id,
       status: r.status,
-      personalityId: r.personality_id,
+      personalityId: r.personality_id ?? undefined,
       imageUri: r.image_path ? urls.get(r.image_path) : undefined,
       phrase: r.phrase ?? undefined,
       freePhraseUsed: r.free_phrase_used,
@@ -107,13 +107,13 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
     async listScenes(language) {
       const { data, error } = await supabase
         .from('scenes')
-        .select('id, name, category')
+        .select('id, name, kind, category')
         .eq('language', language)
         .order('sort_order');
       if (error) throw new BackendError('network');
       return data ?? [];
     },
-    async createTranslation(photo, personalityId, scene) {
+    async createTranslation(photo, choice) {
       const uid = await userId();
       const originalPath = `${uid}/${newId()}.jpg`;
       try {
@@ -126,7 +126,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
         throw new BackendError('network');
       }
       const { data, error } = await supabase.functions.invoke('generate', {
-        body: { personalityId, originalPath, sceneId: scene?.sceneId, customScene: scene?.customScene, aiConsent: true, spelling: currentSpelling() },
+        body: { ...choice, originalPath, aiConsent: true, language: currentLanguage(), spelling: currentSpelling() },
       });
       if (error) throw await toBackendError(error);
       return data.generationId as string;

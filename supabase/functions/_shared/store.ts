@@ -17,9 +17,20 @@ export function supabaseStore(admin: SupabaseClient): Store {
       return { language: data.language, voice: data.voice_prompt, style: data.image_prompt } as PersonalityPrompts;
     },
     async scene(id) {
-      const { data, error } = await admin.from('scenes').select('image_prompt, exaggerated').eq('id', id).single();
+      const { data, error } = await admin
+        .from('scenes')
+        .select('kind, language, image_prompt, exaggerated, voice_prompt, addon_prompt')
+        .eq('id', id)
+        .single();
       if (error || !data) throw new Error(`scene_${error?.message ?? 'missing'}`);
-      return { style: data.image_prompt, exaggerated: data.exaggerated === true };
+      return {
+        kind: data.kind === 'comic' ? 'comic' : 'place',
+        language: data.language,
+        style: data.image_prompt,
+        exaggerated: data.exaggerated === true,
+        voice: data.voice_prompt ?? undefined,
+        addon: data.addon_prompt ?? undefined,
+      };
     },
     async signedUrl(bucket, path) {
       const { data, error } = await admin.storage.from(bucket).createSignedUrl(path, 600);

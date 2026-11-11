@@ -107,7 +107,7 @@ select test.check((select credits = 3 from public.profiles where id = 'bbbbbbbb-
 -- Preset scenes cost 1 credit; unknown scenes or both kinds at once are refused.
 insert into cs select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/u.jpg', null, 'pt-sorriso');
 select test.check((select credits = 2 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'preset scene costs 1 credit');
-select test.check((select scene_id = 'pt-sorriso' and cost = 1 from public.generations g join cs on cs.id = g.id where g.scene_id is not null), 'preset scene saved');
+select test.check((select comic_id = 'pt-sorriso' and scene_id is null and cost = 1 from public.generations g join cs on cs.id = g.id where g.comic_id is not null), 'older apps: a funny one sent as the scene is saved as the extra');
 select test.expect_error(
   $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/v.jpg', null, 'nao-existe')$$,
   'unknown_scene');
@@ -116,6 +116,26 @@ select test.expect_error(
   $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/v.jpg', 'na praia', 'pt-sorriso')$$,
   'unknown_scene');
 select test.check(true, 'preset and custom scene cannot be mixed');
+
+-- Scenes instead of a mode, and the free funny extra.
+update public.generations set created_at = now() - interval '2 days' where user_id = 'bbbbbbbb-0000-0000-0000-000000000002';
+select public.grant_credits('bbbbbbbb-0000-0000-0000-000000000002', 3);
+create temp table pl (id uuid);
+grant all on pl to service_role, authenticated;
+insert into pl select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/w.jpg', null, 'pt-praia', 'pt-oculos');
+select test.check((select personality_id is null and scene_id = 'pt-praia' and comic_id = 'pt-oculos' and cost = 1 from public.generations where id = (select id from pl)), 'a place scene without a mode, plus a funny extra, costs 1 credit');
+insert into pl select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/x.jpg', 'no espaço', null, 'pt-narigudo', 'fr');
+select test.check((select count(*) = 1 from public.generations where custom_scene = 'no espaço' and comic_id = 'pt-narigudo' and language = 'fr' and cost = 2), 'a custom scene without a mode, plus a funny extra, costs 2 credits');
+-- 3 + 3 granted (one older pending test picture expired and was refunded), minus 1 and 2.
+select test.check((select credits = 3 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'the funny extra is free');
+select test.expect_error(
+  $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/y.jpg')$$,
+  'unknown_personality');
+select test.check(true, 'a mode, a scene or a custom scene is required');
+select test.expect_error(
+  $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/y.jpg', null, null, 'pt-praia')$$,
+  'unknown_scene');
+select test.check(true, 'only a funny one can be the extra');
 
 
 -- Stuck generations expire and are refunded.

@@ -75,6 +75,10 @@ export function phraseUserPrompt(args: {
   return lines.join('\n\n');
 }
 
+/** Phrase tone when the person typed their own scene: no mode to give one. */
+export const CUSTOM_SCENE_VOICE =
+  'A pet caught in the situation shown in the picture: reacts to it with pure animal logic, unimpressed and sarcastic, as if it had no say in any of this.';
+
 /** Wraps the moderated description of a user-typed scene ("Cenário à medida"). */
 export function customSceneStyle(description: string): string {
   return `${description} Change the whole setting to match; the pet is clearly doing this. Family-friendly.`;

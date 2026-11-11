@@ -8,7 +8,7 @@ Estado a 11 de novembro de 2026. ✅ feito · ⏳ por fazer (fase indicada) · �
 | Apagar conta dentro da app (5.1.1(v)) | ✅ Definições → Apagar conta: apaga conta, fotos, imagens e créditos |
 | Revogar o token do "Iniciar sessão com a Apple" ao apagar a conta | ⏳ Fase 3 (precisa das chaves da conta Apple Developer) |
 | Política de Privacidade dentro da app | ✅ Definições e ecrã de login → abre a página |
-| Política de Privacidade com link público (App Store Connect) | ❗ ligar o GitHub Pages (email já nas páginas: petbubble.ai@gmail.com) |
+| Política de Privacidade com link público (App Store Connect) | ❗ ligar o GitHub Pages (email já nas páginas: petbubble.ai@icloud.com) |
 | Termos e Condições (EULA próprio, inclui as cláusulas da Apple) | ✅ escritos em PT e EN (`docs/legal`), com o email de contacto |
 | Partilha de dados com IA de terceiros: avisar e pedir autorização explícita antes de enviar a foto (5.1.2(i)) | ✅ ecrã "A tua foto vai para a IA" antes da 1.ª imagem; o servidor recusa sem autorização e guarda a data; retirar nas Definições |
 | "Etiquetas de privacidade" no App Store Connect | ⏳ Fase 3: identificador do utilizador, email (opcional), fotos (conteúdo do utilizador), compras; sem rastreio, sem publicidade |

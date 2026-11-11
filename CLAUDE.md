@@ -52,6 +52,11 @@ npm test             # só os testes unitários (Jest)
 - Instalar pacotes nativos com `npx expo install <pacote>`. Sem rede para api.expo.dev, usar `EXPO_OFFLINE=1 npx expo install <pacote>`.
 - **Sem Mac:** não há Xcode nem simulador. Teste automático = versão web com Playwright em tamanho de iPhone. Teste manual = Expo Go no iPhone (Fases 1–2), builds EAS (Fase 3+).
 - Se o servidor web não refletir alterações, reiniciar com `npx expo start --web -c`.
+- **Testar no iPhone (Expo Go):** projeto Expo `@inamoraiss-team/petbubble`; a chave da Expo é injetada pelo proxy (`EXPO_TOKEN=proxy-injected`). Publicar com:
+  ```bash
+  cd mobile && set -a && . ./.env && set +a && EXPO_TOKEN=proxy-injected npx eas-cli@latest update --branch preview --environment preview --platform ios --message "..." --non-interactive
+  ```
+  O `.env` tem de ser carregado à mão (com `--environment` o EAS não o lê). `runtimeVersion` = `sdkVersion` (a Expo Go só abre `exposdk:58.0.0`). Link: `exp://u.expo.dev/<projectId>/group/<update group id>`; na Expo Go, entrar com a conta do dono.
 
 ## Servidor (Supabase)
 ```

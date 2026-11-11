@@ -154,6 +154,9 @@ const es: Strings = {
     },
   },
   settings: {
+    redeemCode: 'Tengo un código',
+    codeRedeemed_one: '¡Has recibido {{count}} crédito!',
+    codeRedeemed_other: '¡Has recibido {{count}} créditos!',
     buyCredits: 'Comprar créditos',
     screenTitle: 'Ajustes',
     credits: 'Créditos',

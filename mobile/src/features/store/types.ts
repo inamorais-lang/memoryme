@@ -27,4 +27,6 @@ export interface CreditStore {
    * to the server and finishes them. Returns the credits added.
    */
   restore(verify: VerifyPurchase): Promise<number>;
+  /** Opens Apple's sheet to redeem a voucher (offer code); its credits arrive through restore. */
+  redeemCode(): Promise<void>;
 }

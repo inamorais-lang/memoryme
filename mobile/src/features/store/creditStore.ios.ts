@@ -10,6 +10,8 @@ const inExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreCl
 type Iap = typeof import('expo-iap');
 let iap: Iap | null = null;
 let connected: Promise<unknown> | null = null;
+// While a purchase is on screen its own listener settles it; restore must not race it.
+let buying = false;
 
 async function store(): Promise<Iap> {
   if (!iap) iap = (await import('expo-iap')) as Iap;
@@ -45,11 +47,13 @@ export const creditStore: CreditStore = {
   async buy(productId, userId, verify) {
     if (inExpoGo) throw new Error('store_unavailable');
     const lib = await store();
+    buying = true;
     return new Promise<PurchaseOutcome>((resolve, reject) => {
       let done = false;
       const finish = (fn: () => void) => {
         if (done) return;
         done = true;
+        buying = false;
         okSub.remove();
         errSub.remove();
         fn();
@@ -75,7 +79,7 @@ export const creditStore: CreditStore = {
   },
 
   async restore(verify) {
-    if (inExpoGo) return 0;
+    if (inExpoGo || buying) return 0;
     const lib = await store();
     const purchases = await lib.getAvailablePurchases();
     let added = 0;
@@ -84,5 +88,11 @@ export const creditStore: CreditStore = {
       added += await settle(lib, p, verify).catch(() => 0);
     }
     return added;
+  },
+
+  async redeemCode() {
+    if (inExpoGo) throw new Error('store_unavailable');
+    const lib = await store();
+    await lib.openRedeemOfferCode();
   },
 };

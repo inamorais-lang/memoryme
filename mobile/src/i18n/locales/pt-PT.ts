@@ -152,6 +152,9 @@ const ptPT = {
     },
   },
   settings: {
+    redeemCode: 'Tenho um código',
+    codeRedeemed_one: 'Recebeste {{count}} crédito!',
+    codeRedeemed_other: 'Recebeste {{count}} créditos!',
     buyCredits: 'Comprar créditos',
     screenTitle: 'Definições',
     credits: 'Créditos',

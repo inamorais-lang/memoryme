@@ -15,6 +15,7 @@ import {
 import { LegalLinks } from "@/components/LegalLinks";
 import { useAuth } from "@/features/auth/AuthContext";
 import { hasAiConsent, setAiConsent } from "@/features/consent/aiConsent";
+import { creditStore } from "@/features/store/creditStore";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -30,6 +31,19 @@ export default function SettingsScreen() {
     await setAiConsent(false);
     setAiConsentState(false);
     Alert.alert(t("consent.withdrawn"));
+  }
+
+  // A voucher (Apple offer code) needs an account to receive the credits.
+  async function redeemCode() {
+    if (!auth.session) {
+      router.push("/sign-in");
+      return;
+    }
+    try {
+      await creditStore.redeemCode();
+    } catch {
+      Alert.alert(t("paywall.unavailable"));
+    }
   }
 
   function confirmDelete() {
@@ -68,6 +82,14 @@ export default function SettingsScreen() {
           label={t("settings.buyCredits")}
           onPress={() => router.push("/credits")}
         />
+        {creditStore.available ? (
+          <Button
+            testID="redeem-code"
+            variant="secondary"
+            label={t("settings.redeemCode")}
+            onPress={redeemCode}
+          />
+        ) : null}
       </View>
 
       <View style={styles.card}>

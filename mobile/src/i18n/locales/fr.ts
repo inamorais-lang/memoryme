@@ -154,6 +154,9 @@ const fr: Strings = {
     },
   },
   settings: {
+    redeemCode: 'J’ai un code',
+    codeRedeemed_one: 'Tu as reçu {{count}} crédit !',
+    codeRedeemed_other: 'Tu as reçu {{count}} crédits !',
     buyCredits: 'Acheter des crédits',
     screenTitle: 'Réglages',
     credits: 'Crédits',

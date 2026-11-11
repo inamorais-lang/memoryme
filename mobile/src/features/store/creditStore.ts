@@ -12,4 +12,7 @@ export const creditStore: CreditStore = {
   async restore() {
     return 0;
   },
+  async redeemCode() {
+    throw new Error('store_unavailable');
+  },
 };

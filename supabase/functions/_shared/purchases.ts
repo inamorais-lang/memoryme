@@ -11,6 +11,8 @@ export type AppleTransaction = {
   purchaseDate?: number;
   revocationDate?: number;
   environment?: string;
+  /** 3 = offer code (a voucher redeemed through Apple). */
+  offerType?: number;
 };
 
 export type CheckedPurchase = {
@@ -28,7 +30,12 @@ export function checkTransaction(tx: AppleTransaction, userId: string, bundleId:
   if (!tx.transactionId || !tx.productId || !tx.purchaseDate || !tx.environment) throw new Error('incomplete_transaction');
   if (tx.revocationDate) throw new Error('revoked');
   // The app sets appAccountToken to the user's id when buying: the purchase belongs to this account only.
-  if (!tx.appAccountToken || tx.appAccountToken.toLowerCase() !== userId.toLowerCase()) throw new Error('wrong_account');
+  // Vouchers (Apple offer codes) are redeemed outside our purchase call and carry no token:
+  // they go to the account signed in on the phone that redeemed them, once per transaction.
+  const voucher = tx.offerType === 3 && !tx.appAccountToken;
+  if (!voucher && (!tx.appAccountToken || tx.appAccountToken.toLowerCase() !== userId.toLowerCase())) {
+    throw new Error('wrong_account');
+  }
   return {
     transactionId: tx.transactionId,
     originalTransactionId: tx.originalTransactionId ?? tx.transactionId,

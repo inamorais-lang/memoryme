@@ -109,6 +109,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
         .from('credit_packs')
         .select('product_id, credits')
         .eq('active', true)
+        .eq('on_sale', true)
         .order('sort_order');
       if (error) throw new BackendError('network');
       return (data ?? []).map((p) => ({ productId: p.product_id as string, credits: p.credits as number }));

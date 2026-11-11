@@ -243,7 +243,8 @@ reset role;
 set role authenticated;
 select test.expect_error($$select * from public.grant_purchase('aaaaaaaa-0000-0000-0000-000000000001', 'tx-9', 'tx-9', 'app.petbubble.credits.30', 'Sandbox', now())$$, 'permission denied');
 select test.check(true, 'users cannot grant themselves purchases');
-select test.check((select count(*) = 4 from public.credit_packs), 'users can see the 4 packs');
+select test.check((select count(*) = 4 from public.credit_packs where on_sale), 'users can see the 4 packs on sale');
+select test.check((select credits = 2 and not on_sale from public.credit_packs where product_id = 'app.petbubble.credits.2'), 'the voucher pack (2 credits) is not on sale');
 reset role;
 reset role;
 

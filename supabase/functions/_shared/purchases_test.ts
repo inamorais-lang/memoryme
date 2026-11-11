@@ -32,3 +32,12 @@ Deno.test('purchase: refuses another app, another account, refunds and subscript
   assert.throws(() => checkTransaction({ ...ok, revocationDate: Date.now() }, user, 'app.petbubble'), /revoked/);
   assert.throws(() => checkTransaction({ ...ok, type: 'Auto-Renewable Subscription' }, user, 'app.petbubble'), /not_consumable/);
 });
+
+Deno.test('purchase: a voucher (Apple offer code) has no account token and still passes', () => {
+  const voucher = { ...ok, productId: 'app.petbubble.credits.2', appAccountToken: undefined, offerType: 3 };
+  assert.equal(checkTransaction(voucher, user, 'app.petbubble').productId, 'app.petbubble.credits.2');
+  // Without the offer-code mark, a missing token is still refused.
+  assert.throws(() => checkTransaction({ ...ok, appAccountToken: undefined }, user, 'app.petbubble'), /wrong_account/);
+  // A voucher bought for another account (token present) is still refused.
+  assert.throws(() => checkTransaction({ ...ok, offerType: 3, appAccountToken: 'someone-else' }, user, 'app.petbubble'), /wrong_account/);
+});

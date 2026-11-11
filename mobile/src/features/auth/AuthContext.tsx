@@ -1,7 +1,8 @@
 import type { Session } from '@supabase/supabase-js';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { Platform } from 'react-native';
+import i18n from 'i18next';
+import { Alert, AppState, Platform } from 'react-native';
 
 import { backend } from '@/features/backend';
 import { creditStore } from '@/features/store/creditStore';
@@ -45,15 +46,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCredits(data?.credits ?? 0);
   }, [session]);
 
-  // Purchases left unfinished (app closed mid-purchase, Ask to Buy approved later):
-  // hand them to the server once signed in. Each transaction adds credits only once.
+  // Purchases left unfinished (app closed mid-purchase, Ask to Buy approved later) and vouchers
+  // redeemed in Apple's sheet or in the App Store: hand them to the server whenever the app opens
+  // or comes back to the front. Each transaction adds credits only once.
   const userId = session?.user.id;
   useEffect(() => {
     if (!userId || !creditStore.available) return;
-    creditStore
-      .restore((signed) => backend.verifyPurchase(signed))
-      .then((added) => (added > 0 ? refreshCredits() : undefined))
-      .catch(() => {});
+    const collect = () =>
+      creditStore
+        .restore((signed) => backend.verifyPurchase(signed))
+        .then((added) => {
+          if (added <= 0) return;
+          refreshCredits();
+          Alert.alert(i18n.t('settings.codeRedeemed', { count: added }));
+        })
+        .catch(() => {});
+    collect();
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') collect();
+    });
+    return () => sub.remove();
     // Once per signed-in user, not on every credits refresh.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);

@@ -16,7 +16,8 @@
       "usesAppleSignIn": true,
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "bundleIdentifier": "app.petbubble"
     },
     "android": {
       "adaptiveIcon": {

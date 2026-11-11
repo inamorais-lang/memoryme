@@ -40,9 +40,9 @@ Cada fase começa com um plano curto, que tem de ser aprovado antes de executar.
 
 - Onboarding de 3 ecrãs com a galeria de exemplos
 - Produtos consumíveis no App Store Connect (0,99 € / 3,99 € / 7,99 € / 19,99 €)
-- Paywall Superwall + compra StoreKit
-- Tabela `purchases` e Edge Function `verify-purchase` (App Store Server API, uma transação = créditos só uma vez)
-- Notificações da App Store para reembolsos
+- Paywall feito por nós (decisão do dono do produto, sem Superwall) + compra StoreKit
+- Tabela `purchases` e Edge Function `verify-purchase` (transação assinada pela Apple, uma transação = créditos só uma vez) ✅ servidor
+- Notificações da App Store para reembolsos ✅ servidor (falta ligar o URL no App Store Connect)
 - Restaurar compras
 - Apagar conta: revogar também o token do Iniciar sessão com a Apple
 - Link da App Store em `mobile/src/config.ts` (`APP_STORE_URL`): passa a ir no texto ao partilhar; testar com WhatsApp e Mensagens

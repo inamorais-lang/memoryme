@@ -207,3 +207,23 @@ select test.expect_error($$select public.stale_originals(10)$$, 'permission deni
 select test.check(true, 'users cannot call the clean-up listing');
 reset role;
 
+-- Purchases: once per transaction, refunds remove credits (never below zero), records survive account deletion.
+set role service_role;
+select test.check((select credits_added = 5 from public.grant_purchase('aaaaaaaa-0000-0000-0000-000000000001', 'tx-1', 'tx-1', 'app.petbubble.credits.5', 'Sandbox', now())), 'a 5-pack adds 5 credits');
+select test.check((select credits_added = 0 from public.grant_purchase('aaaaaaaa-0000-0000-0000-000000000001', 'tx-1', 'tx-1', 'app.petbubble.credits.5', 'Sandbox', now())), 'the same transaction never adds credits twice');
+select test.expect_error($$select * from public.grant_purchase('aaaaaaaa-0000-0000-0000-000000000001', 'tx-2', 'tx-2', 'app.petbubble.free', 'Sandbox', now())$$, 'unknown_product');
+select test.check(true, 'unknown products are refused');
+create temp table bal (c int);
+grant all on bal to service_role;
+insert into bal select credits from public.profiles where id = 'aaaaaaaa-0000-0000-0000-000000000001';
+select test.check(public.revoke_purchase('tx-1'), 'refund revokes the purchase');
+select test.check(not public.revoke_purchase('tx-1'), 'a refund is applied only once');
+select test.check((select p.credits = greatest(b.c - 5, 0) from public.profiles p, bal b where p.id = 'aaaaaaaa-0000-0000-0000-000000000001'), 'refund removes the 5 credits');
+reset role;
+set role authenticated;
+select test.expect_error($$select * from public.grant_purchase('aaaaaaaa-0000-0000-0000-000000000001', 'tx-9', 'tx-9', 'app.petbubble.credits.30', 'Sandbox', now())$$, 'permission denied');
+select test.check(true, 'users cannot grant themselves purchases');
+select test.check((select count(*) = 4 from public.credit_packs), 'users can see the 4 packs');
+reset role;
+reset role;
+

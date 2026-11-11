@@ -71,11 +71,14 @@ supabase/
   functions/new-phrase        a frase grátis (1 por geração), sem gastar crédito
   functions/delete-account    apaga fotos + utilizador (linhas apagadas em cascata)
   functions/delete-image      apaga uma imagem do utilizador (ficheiro + linha); não apaga as que estão a ser criadas
+  functions/verify-purchase   compra StoreKit 2 (JWS da Apple, verificado até à Apple Root CA G3) → confere app, consumível e appAccountToken = id do utilizador → grant_purchase (uma vez por transação)
+  functions/apple-notifications  notificações da App Store (V2, assinadas): REFUND/REVOKE → revoke_purchase (retira créditos, nunca abaixo de 0). Sem login
   functions/cleanup-originals  de hora a hora (pg_cron): apaga fotos originais com mais de 23 h (RGPD: máx. 24 h). Sem chave: só apaga, nunca devolve dados
   functions/_shared           ai.ts (Claude, fal), pipeline.ts (lógica testável), store.ts, prompts.ts
   tests/                      testes SQL (Postgres simples) — `supabase/tests/run.sh`
 ```
 
+- Compras: `credit_packs` (app.petbubble.credits.1/5/10/30 → 1/5/10/30 créditos, configurável no servidor) e `purchases` (fica após apagar a conta, sem ligação à pessoa: registo fiscal). Bundle ID `app.petbubble`.
 - Créditos: só as funções SQL `start_generation`, `fail_generation`, `grant_credits`… mexem em saldos, e só o `service_role` as pode chamar. A app só lê.
 - Falhas devolvem sempre o crédito (`fail_generation` é idempotente). Gerações presas >5 min expiram e são reembolsadas.
 - Limites: 5/min, 100/dia, 2 em curso por utilizador (`private.limits()`).

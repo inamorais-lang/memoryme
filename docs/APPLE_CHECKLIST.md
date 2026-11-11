@@ -10,7 +10,7 @@ Estado a 11 de novembro de 2026. ✅ feito · ⏳ por fazer (fase indicada) · �
 | Política de Privacidade dentro da app | ✅ Definições e ecrã de login → abre a página |
 | Política de Privacidade com link público (App Store Connect) | ❗ ligar o GitHub Pages e pôr o email de contacto nas páginas |
 | Termos e Condições (EULA próprio, inclui as cláusulas da Apple) | ✅ escritos em PT e EN (`docs/legal`) · ❗ email por preencher |
-| Partilha de dados com IA de terceiros: avisar e pedir autorização explícita antes de enviar a foto (5.1.2(i)) | ❗ falta um ecrã de consentimento antes da primeira foto |
+| Partilha de dados com IA de terceiros: avisar e pedir autorização explícita antes de enviar a foto (5.1.2(i)) | ✅ ecrã "A tua foto vai para a IA" antes da 1.ª imagem; o servidor recusa sem autorização e guarda a data; retirar nas Definições |
 | "Etiquetas de privacidade" no App Store Connect | ⏳ Fase 3: identificador do utilizador, email (opcional), fotos (conteúdo do utilizador), compras; sem rastreio, sem publicidade |
 | RGPD: fotos originais apagadas em menos de 24 h | ✅ apagadas logo após a imagem + limpeza de hora a hora |
 

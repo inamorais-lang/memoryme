@@ -125,7 +125,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
         throw new BackendError('network');
       }
       const { data, error } = await supabase.functions.invoke('generate', {
-        body: { personalityId, originalPath, sceneId: scene?.sceneId, customScene: scene?.customScene },
+        body: { personalityId, originalPath, sceneId: scene?.sceneId, customScene: scene?.customScene, aiConsent: true },
       });
       if (error) throw await toBackendError(error);
       return data.generationId as string;

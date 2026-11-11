@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -33,6 +33,7 @@ import {
   type SceneChoice,
   type SceneInfo,
 } from "@/features/backend";
+import { hasAiConsent } from "@/features/consent/aiConsent";
 import { useDraft } from "@/features/draft/DraftContext";
 import { currentLanguage, currentMarket } from "@/i18n";
 
@@ -44,6 +45,7 @@ export default function PersonalityScreen() {
   const [scenes, setScenes] = useState<SceneInfo[]>([]);
   const [starting, setStarting] = useState(false);
   const waitingForSignIn = useRef(false);
+  const waitingForConsent = useRef(false);
 
   useEffect(() => {
     backend
@@ -63,6 +65,12 @@ export default function PersonalityScreen() {
 
   const start = useCallback(async () => {
     if (!draft.photo || !draft.personalityId) return;
+    // The photo goes to third-party AI services: ask once, before anything is uploaded.
+    if (backend.mode === "remote" && !(await hasAiConsent())) {
+      waitingForConsent.current = true;
+      router.push("/ai-consent");
+      return;
+    }
     if (backend.mode === "remote" && !auth.session) {
       waitingForSignIn.current = true;
       router.push("/sign-in");
@@ -106,6 +114,17 @@ export default function PersonalityScreen() {
     auth,
     t,
   ]);
+
+  // Coming back from the AI consent screen: carry on only if the person accepted.
+  useFocusEffect(
+    useCallback(() => {
+      if (!waitingForConsent.current) return;
+      waitingForConsent.current = false;
+      hasAiConsent().then((granted) => {
+        if (granted) start();
+      });
+    }, [start]),
+  );
 
   // Coming back from "Sign in with Apple": carry on with the translation.
   useEffect(() => {

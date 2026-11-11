@@ -76,6 +76,13 @@ export default function RootLayout() {
                 options={{ title: t("settings.screenTitle") }}
               />
               <Stack.Screen
+                name="ai-consent"
+                options={{
+                  title: t("consent.screenTitle"),
+                  presentation: "modal",
+                }}
+              />
+              <Stack.Screen
                 name="sign-in"
                 options={{
                   title: t("signIn.screenTitle"),

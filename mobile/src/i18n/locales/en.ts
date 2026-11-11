@@ -94,6 +94,16 @@ const en: Strings = {
     dailyLimit: "You've reached today's picture limit. Come back tomorrow.",
     network: 'No connection. Check your internet and try again.',
   },
+  consent: {
+    screenTitle: 'Before you start',
+    title: 'Your photo goes to the AI',
+    body: 'To create the picture, your photo is sent to artificial intelligence services (fal.ai and Anthropic, in the USA), which transform it and write the line.',
+    details: 'The original photo is deleted within 24 hours and is not used to train models. Please use photos of your pet: if people appear, they are sent too. You can withdraw this permission in Settings.',
+    accept: 'Accept and continue',
+    notNow: 'Not now',
+    withdraw: 'Withdraw AI permission',
+    withdrawn: 'Permission withdrawn. We will ask again before your next picture.',
+  },
   legal: {
     title: 'Terms and privacy',
     owner: 'PetBubble · Ana Abreu, Portugal',

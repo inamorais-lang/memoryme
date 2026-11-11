@@ -112,6 +112,8 @@ mobile/
 - Regras globais de imagem (`imageEditPrompt`): **nunca exemplos concretos de objetos** — o modelo copia-os para todas as cenas (ex.: "três hambúrgueres" apareceu na praia e no Natal; "confetti" em todo o lado).
 - Mudar a pose do animal (ex.: de barriga para cima) só resulta com a pose **no início** do prompt do cenário ("Change the pose: …").
 - Sem mãos humanas: se o animal segura ou toca em algo, usa as próprias patas (regra global em `imageEditPrompt`).
+- Autorização da IA (Apple 5.1.2(i) + RGPD): ecrã `ai-consent` antes da 1.ª imagem (guardado no dispositivo, `features/consent`); `generate` exige `aiConsent: true` e grava `profiles.ai_consent_at`; retirar nas Definições.
+- Termos e Privacidade: `docs/legal` (PT/EN, Ana Abreu), publicados no GitHub Pages; a app abre-os (`LegalLinks`, `legalUrl` em `src/config.ts`) nas Definições, no login e no ecrã da autorização. Lista da Apple: `docs/APPLE_CHECKLIST.md`.
 - Fotos originais: apagadas pelo pipeline assim que a imagem fica pronta (ou falha) e, por segurança, pela limpeza de hora a hora (máx. 24 h). As imagens criadas ficam até a pessoa apagar a conta.
 - Recorte: o "há animal?" devolve também onde está a fotografia dentro da imagem; se houver barras ou margens (capturas de ecrã), o servidor corta só isso — o conteúdo da foto nunca é cortado (pedido do dono do produto). Se o recorte falhar, usa a original.
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.

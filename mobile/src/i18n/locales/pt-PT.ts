@@ -92,6 +92,16 @@ const ptPT = {
     dailyLimit: 'Chegaste ao limite de imagens de hoje. Volta amanhã.',
     network: 'Sem ligação. Verifica a internet e tenta outra vez.',
   },
+  consent: {
+    screenTitle: 'Antes de começar',
+    title: 'A tua foto vai para a IA',
+    body: 'Para criar a imagem, a tua foto é enviada para serviços de inteligência artificial (fal.ai e Anthropic, nos EUA), que a transformam e escrevem a frase.',
+    details: 'A foto original é apagada em menos de 24 horas e não é usada para treinar modelos. Usa fotos do teu animal: se aparecerem pessoas, também são enviadas. Podes retirar esta autorização nas Definições.',
+    accept: 'Aceitar e continuar',
+    notNow: 'Agora não',
+    withdraw: 'Retirar autorização da IA',
+    withdrawn: 'Autorização retirada. Pedimos outra vez antes da próxima imagem.',
+  },
   legal: {
     title: 'Termos e privacidade',
     owner: 'PetBubble · Ana Abreu, Portugal',

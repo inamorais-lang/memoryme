@@ -1,4 +1,4 @@
-// POST { personalityId, originalPath, sceneId?, customScene? } → 202 { generationId }
+// POST { personalityId, originalPath, aiConsent: true, sceneId?, customScene? } → 202 { generationId }
 // customScene ("Cenário à medida", 3–80 chars) costs 2 credits instead of 1.
 // Spends 1 credit on the server (atomic, rate limited), then makes the image
 // and the phrase in the background. The app polls the `generations` row.
@@ -28,6 +28,8 @@ export default {
     if (rawScene !== undefined && rawScene !== null && typeof rawScene !== 'string') {
       return json({ code: 'bad_request' }, 400);
     }
+    // The photo goes to third-party AI: never without the person's explicit consent.
+    if (body?.aiConsent !== true) return json({ code: 'consent_required' }, 400);
     const sceneId = typeof body?.sceneId === 'string' ? body.sceneId : undefined;
     const customScene = typeof rawScene === 'string' ? rawScene.replace(/\s+/g, ' ').trim() || undefined : undefined;
 
@@ -53,6 +55,13 @@ export default {
       if (status === 500) console.error('start_generation', error);
       return json({ code }, status);
     }
+
+    // Proof of consent (first time only); never blocks the picture.
+    await ctx.supabaseAdmin
+      .from('profiles')
+      .update({ ai_consent_at: new Date().toISOString() })
+      .eq('id', userId)
+      .is('ai_consent_at', null);
 
     EdgeRuntime.waitUntil(
       runGeneration(

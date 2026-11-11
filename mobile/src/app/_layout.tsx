@@ -90,9 +90,9 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen
-                name="no-credits"
+                name="credits"
                 options={{
-                  title: t("noCredits.screenTitle"),
+                  title: t("paywall.screenTitle"),
                   presentation: "modal",
                 }}
               />

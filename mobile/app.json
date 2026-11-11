@@ -77,7 +77,9 @@
       "expo-sqlite",
       "expo-font",
       "expo-secure-store",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-iap",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -63,6 +63,11 @@ export default function SettingsScreen() {
           {t("settings.credits")}
         </AppText>
         <AppText variant="title">{auth.credits ?? 0}</AppText>
+        <Button
+          testID="buy-credits"
+          label={t("settings.buyCredits")}
+          onPress={() => router.push("/credits")}
+        />
       </View>
 
       <View style={styles.card}>

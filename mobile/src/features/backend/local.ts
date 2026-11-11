@@ -38,6 +38,13 @@ export const localBackend: Backend = {
   async listPersonalities(market) {
     return personalitiesForMarket(market).map(({ id, name, tagline }) => ({ id, name, tagline }));
   },
+  // Without the server there are no purchases.
+  async listPacks() {
+    return [];
+  },
+  async verifyPurchase() {
+    throw new BackendError('server_error');
+  },
   // Without the server there is no image model, so no scenes.
   async listScenes() {
     return [];

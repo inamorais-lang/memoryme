@@ -65,6 +65,7 @@ export type BackendErrorCode =
   | 'daily_limit'
   | 'no_free_phrase'
   | 'invalid_scene'
+  | 'purchase_rejected'
   | 'network'
   | 'server_error';
 
@@ -88,4 +89,8 @@ export interface Backend {
   listHistory(): Promise<TranslationView[]>;
   /** Deletes one picture (image, line, history entry). */
   deleteTranslation(id: string): Promise<void>;
+  /** Credit packs on sale (product id + credits), in display order; empty without the server. */
+  listPacks(): Promise<{ productId: string; credits: number }[]>;
+  /** Hands a signed App Store transaction to the server, which adds its credits once. */
+  verifyPurchase(signedTransaction: string): Promise<{ creditsAdded: number }>;
 }

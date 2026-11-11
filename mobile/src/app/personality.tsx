@@ -96,7 +96,7 @@ export default function PersonalityScreen() {
       router.push({ pathname: "/result", params: { id } });
     } catch (e) {
       const code = e instanceof BackendError ? e.code : "server_error";
-      if (code === "insufficient_credits") router.push("/no-credits");
+      if (code === "insufficient_credits") router.push("/credits");
       else if (code === "auth_required") router.push("/sign-in");
       else if (code === "rate_limited") Alert.alert(t("result.rateLimited"));
       else if (code === "daily_limit") Alert.alert(t("result.dailyLimit"));

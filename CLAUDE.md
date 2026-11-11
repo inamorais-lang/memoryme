@@ -25,6 +25,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Sem foto grátis; packs consumíveis de 0,99 € / 3,99 € / 7,99 € / 19,99 € (1/5/10/30) | Evita abuso e custos de IA sem receita |
 | 1 nova **frase** grátis por tradução (a imagem mantém-se); nova imagem gasta 1 crédito | A imagem é cara; a frase é quase grátis |
 | Login com a Apple só na primeira compra | Menos fricção no início |
+| Paywall feito por nós (`app/credits.tsx`): no topo 3 exemplos com o cão do dono (`assets/examples`, frases no i18n `paywall.examples`), título + "1 crédito = 1 imagem · frase nova grátis", 4 packs com preço da App Store, destaque "Mais popular" no de 10, sem preço por imagem; "Restaurar compras" | Decisão do dono do produto |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
 | Ecrã de escolha: no topo Natal (7, `category = 'natal'`; esconder em janeiro com `active = false`), depois Cenários (Dia de praia, Snowboard, "Criar cenário" 3–80 caracteres a 2 créditos) e por fim os 11 Modos; escolhe-se **um** destes. Cenários (`scenes.kind = 'place'`) têm tom de frase próprio (`voice_prompt`). Depois de escolher aparece o "Toque engraçado" opcional e grátis (`kind = 'comic'`: sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula; `addon_prompt` junta-se ao estilo; expressão exagerada só com ele) | Pedido do dono do produto; o criar cenário custa mais e é verificado pela IA |
@@ -109,6 +110,7 @@ mobile/
       auth/AuthContext.tsx     sessão, login com a Apple, créditos, terminar sessão, apagar conta
       translate/translate.ts   frases locais (só modo local)
       history/history.ts       histórico guardado no dispositivo
+      store/                   compras: creditStore.ios.ts (StoreKit 2 via expo-iap; desligado na Expo Go) e creditStore.ts (web: sem compras). Cada transação vai a `verify-purchase` antes de ser fechada; as que ficaram a meio são entregues ao abrir a app com sessão (AuthContext)
       draft/DraftContext.tsx   foto + escolha (modo | cenário | criar cenário) + toque engraçado, antes de criar a imagem
     components/                ThoughtBalloon, TranslationCanvas (vista exportada como PNG)
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)

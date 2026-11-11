@@ -104,6 +104,26 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       if (error) throw new BackendError('network');
       return data ?? [];
     },
+    async listPacks() {
+      const { data, error } = await supabase
+        .from('credit_packs')
+        .select('product_id, credits')
+        .eq('active', true)
+        .order('sort_order');
+      if (error) throw new BackendError('network');
+      return (data ?? []).map((p) => ({ productId: p.product_id as string, credits: p.credits as number }));
+    },
+    async verifyPurchase(signedTransaction) {
+      const { data, error } = await supabase.functions.invoke('verify-purchase', { body: { signedTransaction } });
+      if (error) {
+        // A refused transaction (wrong app, wrong account, refunded…) is not a network problem.
+        if (error instanceof FunctionsHttpError && (error.context as Response).status === 400) {
+          throw new BackendError('purchase_rejected');
+        }
+        throw await toBackendError(error);
+      }
+      return { creditsAdded: Number(data?.creditsAdded ?? 0) };
+    },
     async listScenes(language) {
       const { data, error } = await supabase
         .from('scenes')

@@ -66,6 +66,16 @@
     <label>Tema
       <input id="topic" maxlength="120" placeholder="Ex.: a tempestade que foi anunciada e não chegou">
     </label>
+    <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px">
+      <legend style="font-weight:600;font-size:14px;margin-bottom:6px">Países onde aparece</legend>
+      <div class="row" style="flex-wrap:wrap;justify-content:flex-start">
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="market" value="PT" style="width:auto"> Portugal</label>
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="market" value="ES" style="width:auto"> Espanha</label>
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="market" value="FR" style="width:auto"> França</label>
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="market" value="GB" style="width:auto"> Reino Unido</label>
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="market" value="US" style="width:auto"> EUA</label>
+      </div>
+    </fieldset>
     <button class="primary" id="publish">Publicar tema</button>
     <div id="trends"></div>
   </section>
@@ -141,7 +151,7 @@
       const box = $('trends'); box.innerHTML = '';
       for (const t of trends) {
         const row = document.createElement('div'); row.className = 'row';
-        const name = document.createElement('span'); name.textContent = t.name + (t.active ? '' : ' · terminado');
+        const name = document.createElement('span'); name.textContent = t.name + ' · ' + (t.markets ?? []).join(', ') + (t.active ? '' : ' · terminado');
         row.append(name);
         if (t.active) {
           const b = document.createElement('button'); b.className = 'secondary'; b.textContent = 'Terminar';
@@ -159,11 +169,13 @@
   $('publish').onclick = async () => {
     const topic = $('topic').value.trim();
     if (topic.length < 3) return say('Escreve o tema.', true);
+    const markets = [...document.querySelectorAll('input[name=market]:checked')].map((c) => c.value);
+    if (markets.length === 0) return say('Escolhe pelo menos um país.', true);
     $('publish').disabled = true; say('A preparar o tema com a IA…');
     try {
-      const { trend } = await call({ topic }, 'admin-trends');
+      const { trend } = await call({ topic, markets }, 'admin-trends');
       say(`Publicado: "${trend.names['pt-PT']}" · EN "${trend.names.en}" · ES "${trend.names.es}" · FR "${trend.names.fr}"`);
-      $('topic').value = ''; loadTrends();
+      $('topic').value = ''; document.querySelectorAll('input[name=market]').forEach((c) => (c.checked = false)); loadTrends();
     } catch (e) {
       say(e.message === 'topic_rejected' ? 'A IA recusou este tema (pessoas reais, marcas, política ou tragédias).' : 'Não foi possível publicar o tema.', true);
     } finally { $('publish').disabled = false; }

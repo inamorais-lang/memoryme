@@ -54,7 +54,7 @@ export default function PersonalityScreen() {
       .then(setList)
       .catch(() => setList([]));
     backend
-      .listScenes(currentLanguage())
+      .listScenes(currentLanguage(), currentMarket())
       .then(setScenes)
       .catch(() => setScenes([]));
   }, []);

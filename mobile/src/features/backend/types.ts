@@ -78,8 +78,8 @@ export class BackendError extends Error {
 export interface Backend {
   mode: 'local' | 'remote';
   listPersonalities(market: Market): Promise<PersonalityInfo[]>;
-  /** Server scenes; empty when the app runs without the server. */
-  listScenes(language: AppLanguage): Promise<SceneInfo[]>;
+  /** Server scenes for this language and country (trending topics differ by country); empty without the server. */
+  listScenes(language: AppLanguage, market: Market): Promise<SceneInfo[]>;
   /** Spends credits (remote) and starts the translation. Returns its id. */
   createTranslation(photo: PickedPhoto, choice: TranslationChoice): Promise<string>;
   getTranslation(id: string): Promise<TranslationView | null>;

@@ -125,11 +125,12 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       }
       return { creditsAdded: Number(data?.creditsAdded ?? 0) };
     },
-    async listScenes(language) {
+    async listScenes(language, market) {
       const { data, error } = await supabase
         .from('scenes')
         .select('id, name, kind, category')
         .eq('language', language)
+        .or(`markets.is.null,markets.cs.{${market}}`)
         .order('sort_order');
       if (error) throw new BackendError('network');
       return data ?? [];

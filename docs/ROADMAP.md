@@ -23,7 +23,7 @@ Cada fase começa com um plano curto, que tem de ser aprovado antes de executar.
 ## Fase 2 — Contas, base de dados, IA e sincronização
 **Objetivo:** frases reais da IA, protegidas por créditos no servidor.
 
-- Supabase: tabelas `profiles`, `credit_ledger`, `generations`, `personalities` e `purchases`, todas com RLS
+- Supabase: tabelas `profiles`, `credit_ledger`, `generations`, `personalities` e `scenes`, todas com RLS ✅
 - Iniciar sessão com a Apple
 - Supabase Storage para as fotos (pastas privadas por utilizador)
 - Edge Function `generate`: valida o crédito, desconta-o de forma atómica, aplica rate limiting, chama a IA de imagem e a IA de texto e devolve o crédito se falhar
@@ -32,7 +32,7 @@ Cada fase começa com um plano curto, que tem de ser aprovado antes de executar.
 - Escolha dos modelos de IA (imagem e texto), com testes de qualidade, fidelidade ao animal, tempo e custo
 - Personalidades vindas do servidor
 - Histórico sincronizado
-- Apagar conta (com revogação do token da Apple)
+- Apagar conta ✅ (a revogação do token da Apple passa para a Fase 3: precisa das chaves da Apple)
 - Créditos de teste atribuídos manualmente (ainda sem compras)
 
 ## Fase 3 — Onboarding, paywall e analytics → TestFlight
@@ -41,9 +41,10 @@ Cada fase começa com um plano curto, que tem de ser aprovado antes de executar.
 - Onboarding de 3 ecrãs com a galeria de exemplos
 - Produtos consumíveis no App Store Connect (0,99 € / 3,99 € / 7,99 € / 19,99 €)
 - Paywall Superwall + compra StoreKit
-- Edge Function `verify-purchase` (App Store Server API, uma transação = créditos só uma vez)
+- Tabela `purchases` e Edge Function `verify-purchase` (App Store Server API, uma transação = créditos só uma vez)
 - Notificações da App Store para reembolsos
 - Restaurar compras
+- Apagar conta: revogar também o token do Iniciar sessão com a Apple
 - Link da App Store em `mobile/src/config.ts` (`APP_STORE_URL`): passa a ir no texto ao partilhar; testar com WhatsApp e Mensagens
 - PostHog com todos os eventos do funil
 - Sentry na app e nas Edge Functions

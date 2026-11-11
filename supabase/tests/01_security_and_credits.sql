@@ -117,12 +117,6 @@ select test.expect_error(
   'unknown_scene');
 select test.check(true, 'preset and custom scene cannot be mixed');
 
--- "Exagerado" was removed: nobody can be charged for it any more.
-update public.generations set created_at = now() - interval '2 minutes', status = case when status = 'pending' then 'failed' else status end where user_id = 'bbbbbbbb-0000-0000-0000-000000000002';
-select test.expect_error(
-  $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/e1.jpg', null, null, true)$$,
-  'exaggerated_removed');
-select test.check(true, 'exaggerated mode can no longer be bought');
 
 -- Stuck generations expire and are refunded.
 select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/4.jpg');

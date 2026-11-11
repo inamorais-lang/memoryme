@@ -4,7 +4,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 
 - Produto: `docs/PRD.md`
 - Fases: `docs/ROADMAP.md`
-- Estado atual: **Fase 2 em curso**. Código do servidor e da app feito e testado localmente; falta ligar ao projeto Supabase real (contas e chaves do dono do produto).
+- Estado atual: **Fase 2 quase concluída**. Servidor no Supabase real (zuwfxzgbxhdpnmkyjdad), IA a funcionar, app testada no iPhone pela Expo Go. Ficam para a Fase 3: compras (tabela `purchases`) e revogar o token da Apple ao apagar a conta.
 
 ## Regras não negociáveis
 - Chaves secretas (IA, service role do Supabase) **só** em Supabase Edge Functions. Nunca no código da app nem em variáveis `EXPO_PUBLIC_*`.
@@ -27,10 +27,10 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Login com a Apple só na primeira compra | Menos fricção no início |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
-| Cenários além do feitio: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia e Snowboard a 1 crédito, expressão natural; 7 de Natal (`category = 'natal'`, grupo próprio no topo; esconder em janeiro com `active = false`); "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
+| Cenários além do modo: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia e Snowboard a 1 crédito, expressão natural; 7 de Natal (`category = 'natal'`, grupo próprio no topo; esconder em janeiro com `active = false`); "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
 | Sem modo "Exagerado" (testado e retirado: pilhas de objetos confusas). Em vez disso, todas as imagens têm cara mais cómica, 2–3 dos objetos da própria cena e cores vivas | Decisão do dono do produto |
 | Na app, "Feitio" chama-se **Modo** (pedido do dono do produto) | "Feitio" não soava bem; "Cenário" já é a 2.ª escolha |
-| Os animais falam como animais: 8 feitios universais (PT/EN), lógica de gato/cão, português neutro; personagens humanas inativas | Decisão do dono do produto: as piadas humanizadas não tinham graça |
+| Os animais falam como animais: 11 modos universais (PT/EN; no código e na BD chamam-se `personalities`), lógica de gato/cão, português neutro; personagens humanas inativas | Decisão do dono do produto: as piadas humanizadas não tinham graça |
 | Sem Mac: EAS Build na cloud + Expo Go/builds de teste no iPhone; testes automáticos na web | O dono do produto só tem iPhone |
 | Só modo claro na v1 | Identidade visual única; menos trabalho de design |
 | App em `mobile/`, site antigo na raiz | Não misturar com o site existente |
@@ -79,7 +79,7 @@ supabase/
 
 ### Comandos do servidor
 ```bash
-supabase/tests/run.sh                      # migrações + 31 testes SQL (precisa de PGHOST/PGPORT de um Postgres local)
+supabase/tests/run.sh                      # migrações + 56 testes SQL (precisa de PGHOST/PGPORT de um Postgres local)
 deno test supabase/functions/_shared       # testes do pipeline (IA falsa)
 deno check supabase/functions/*/index.ts   # tipos das Edge Functions
 npx supabase@2 ...                         # CLI fixada na v2 (a v3 mudou comportamentos)
@@ -92,16 +92,16 @@ mobile/
   app.json                     nome, permissões (PT), plugins, idiomas iOS
   locales/ios/*.json           textos das permissões por idioma
   src/
-    app/                       ecrãs (Expo Router): index → personality → (sign-in | no-credits) → result; history; settings
+    app/                       ecrãs (Expo Router): index → personality (modo + cenário) → (sign-in | no-credits) → result; history; settings
     design/                    design system: tokens.ts + AppText, Button, Screen
     i18n/                      i18next; locales/pt-PT.ts é a referência, en.ts igual em chaves
     features/
-      personalities/data.ts    8 feitios por língua (espelho do servidor; frases só para modo local)
+      personalities/data.ts    11 modos por língua (espelho do servidor; frases só para modo local)
       backend/                 ÚNICA porta para dados: local.ts (Fase 1) ou remote.ts (Supabase); os ecrãs só usam `backend`
       auth/AuthContext.tsx     sessão, login com a Apple, créditos, terminar sessão, apagar conta
       translate/translate.ts   frases locais (só modo local)
       history/history.ts       histórico guardado no dispositivo
-      draft/DraftContext.tsx   foto + personalidade escolhidas antes de traduzir
+      draft/DraftContext.tsx   foto + modo + cenário escolhidos antes de criar a imagem
     components/                ThoughtBalloon, TranslationCanvas (vista exportada como PNG)
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)
 ```
@@ -113,7 +113,7 @@ mobile/
 - Sem mãos humanas: se o animal segura ou toca em algo, usa as próprias patas (regra global em `imageEditPrompt`).
 - Recorte: o "há animal?" devolve também onde está a fotografia dentro da imagem; se houver barras ou margens (capturas de ecrã), o servidor corta só isso — o conteúdo da foto nunca é cortado (pedido do dono do produto). Se o recorte falhar, usa a original.
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
-- Cenários (`scenes`, no servidor, `image_prompt` escondido): escolhidos no ecrã do feitio; substituem o cenário do feitio. À medida: recusado (pessoas reais, marcas, impróprio…) → `scene_rejected`, 2 créditos devolvidos. No modo local não há cenários.
+- Cenários (`scenes`, no servidor, `image_prompt` escondido): escolhidos no ecrã do modo; substituem o cenário do modo. À medida: recusado (pessoas reais, marcas, impróprio…) → `scene_rejected`, 2 créditos devolvidos. No modo local não há cenários.
 - Frase própria: "Escrever a minha frase", máx. **45** caracteres (`CUSTOM_PHRASE_MAX` e `check` na BD), grátis, sem IA; `custom_phrase` substitui a frase da IA no balão.
 - Balão: rasto de 3 bolinhas desenhado na foto, a apontar para a cabeça e a parar antes dela (encolhem ou desaparecem se não houver espaço); cor pastel (`colors.balloonTints`) estável por tradução (`tintFor(id)`), tocar no balão troca a cor.
 - Marca de água fixa em todas as imagens (canto inferior direito, pequena): "Feito com IA · PetBubble" (AI Act da UE + publicidade). Não se pode remover. Só não aparece no ecrã de espera, que mostra a foto original.

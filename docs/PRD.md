@@ -1,11 +1,11 @@
-# PRD — Tradutor de Pensamentos de Animais
+# PRD — PetBubble: o que o teu animal está a pensar
 
 > Nome comercial: **PetBubble** (petbubble.app).
-> Versão 1.0 · 10 de novembro de 2026
+> Versão 1.1 · 11 de novembro de 2026 (revista depois dos testes no iPhone)
 
 ## 1. Resumo
 
-O utilizador tira ou carrega uma foto do seu gato ou cão, escolhe uma personalidade e a app devolve **o seu animal transformado no estilo dessa personalidade** (ex.: pérolas e óculos de sol para a Tia de Cascais), com um balão de pensamento engraçado e sarcástico, pronta a partilhar no Instagram, TikTok ou WhatsApp. É uma app **paga desde a primeira foto**, com pacotes de créditos consumíveis.
+O utilizador tira ou carrega uma foto do seu gato ou cão, escolhe um modo (e, se quiser, um cenário) e a app devolve **o seu animal transformado nesse estilo** (ex.: pérolas e óculos de coração no modo Diva), com um balão de pensamento engraçado e sarcástico, pronta a partilhar no Instagram, TikTok ou WhatsApp. É uma app **paga desde a primeira foto**, com pacotes de créditos consumíveis.
 
 ## 2. O problema
 
@@ -28,36 +28,39 @@ O utilizador tira ou carrega uma foto do seu gato ou cão, escolhe uma personali
 ## 4. Proposta de valor
 
 - **É sobre o TEU animal:** é isso que dá valor emocional.
-- **Fala como tu:** sotaques e personagens locais, não humor traduzido.
+- **Fala como um animal:** piadas com lógica de gato e de cão, inspiradas no que os donos dizem dos bichos.
 - **Pronta a partilhar:** um toque para enviar para o Instagram, TikTok ou WhatsApp.
 
 ## 5. Funcionalidades principais (v1)
 
-### 5.1 Criar uma "tradução"
-1. Tirar uma foto com a câmara ou escolher uma da galeria.
-2. Escolher uma personalidade (6 por língua, ver 5.2).
-3. Tocar em "Traduzir": a IA faz duas coisas:
-   - **transforma a imagem** no estilo da personalidade (acessórios, roupa, cenário), mantendo o animal reconhecível;
-   - **escreve uma frase** a partir da foto (expressão, pose, cenário).
-4. A app desenha o balão de pensamento por cima da imagem transformada. O texto nunca é escrito pela IA dentro da imagem, porque sai muitas vezes com erros.
-5. **1 nova frase grátis** por tradução: muda só o texto e mantém a imagem, por isso custa quase nada. Uma nova imagem gasta 1 crédito.
-6. A geração demora 10–30 segundos: ecrã de espera com frases divertidas e a foto original em fundo.
-7. Se a IA não detetar nenhum animal na foto, ou a geração falhar, o crédito **é devolvido** e o utilizador vê uma mensagem clara.
+### 5.1 Criar uma imagem
+1. Tirar uma foto com a câmara ou escolher uma da galeria. Capturas de ecrã são recortadas no servidor (só as barras e margens, nunca o conteúdo da foto).
+2. Escolher um **modo** (11 por língua, ver 5.2) e, se quiser, um **cenário** (ver "Cenários").
+3. Tocar em "Criar imagem · 1 crédito" (2 com cenário à medida): a IA faz duas coisas:
+   - **transforma a imagem** no estilo do modo ou do cenário (roupa, acessórios, cenário colorido), mantendo o animal reconhecível, com as próprias patas e sem pessoas;
+   - **escreve uma frase** a olhar para a imagem final.
+4. A app desenha o balão de pensamento por cima, longe da cara do animal e do objeto principal. O texto nunca é escrito pela IA dentro da imagem.
+5. **1 nova frase grátis** por imagem; "Escrever a minha frase" e "Sem balão" também são grátis. Uma nova imagem gasta 1 crédito.
+6. A geração demora 15–30 segundos: ecrã de espera com frases divertidas e a foto original em fundo (sem marca de água).
+7. Se a IA não detetar nenhum animal na foto, recusar o cenário à medida, ou a geração falhar, os créditos **são devolvidos** e o utilizador vê uma mensagem clara.
 
-### 5.2 Feitios (os animais falam como animais)
+### 5.2 Modos (os animais falam como animais)
 
-O animal fala **como animal**, com lógica de gato ou de cão (tigela vazia, aspirador, carteiro, copos na mesa, corridas às 3 da manhã), e nunca como uma pessoa mascarada. Em vez de personagens humanas, há **8 feitios universais**, iguais em todas as línguas. A IA vê se a foto é de um gato ou de um cão e adapta a piada. Português neutro, sem calão regional.
+O animal fala **como animal**, com lógica de gato ou de cão (tigela vazia, aspirador, carteiro, copos na mesa, corridas às 3 da manhã), e nunca como uma pessoa mascarada. Há **11 modos universais**, iguais em PT e EN. A IA vê se a foto é de um gato ou de um cão e adapta a piada. Português neutro, sem calão regional. Todas as imagens: cores vivas, cara cómica (mas animal real), 2–3 dos objetos da própria cena.
 
-| Feitio (PT / EN) | Atitude | Estilo visual |
+| Modo (PT / EN) | Atitude | Estilo visual |
 |---|---|---|
-| Diva / Diva | Exige ser admirado | Coroa, almofada de veludo, holofote |
-| Esfomeado / Always Hungry | Comeu há 5 minutos, está a definhar | Guardanapo ao pescoço, rodeado de comida |
-| Dramático / Dramatic | Cada banho é uma tragédia | Luz de cinema, lágrima, chuva na janela |
-| Vilão / Villain | Planeia dominar a casa | Capa, covil escuro, luz vermelha |
-| Preguiçoso / Lazy | Dormir é uma carreira | Pijama, manta, sofá |
-| Ciumento / Jealous | O telemóvel e o outro animal são inimigos | Deitado no portátil, olhar desconfiado |
-| Caótico / Chaos Gremlin | Corridas às 3 da manhã | Papel higiénico por todo o lado |
-| Crítico / The Critic | Avalia comida e serviço | Boina, mesa de restaurante fino |
+| Diva / Diva | Exige ser admirado | Colar de pérolas, estola rosa, óculos de coração, fundo rosa com balões |
+| Esfomeado / Always Hungry | Comeu há 5 minutos, está a definhar | Guardanapo e laço, restaurante retro, hambúrguer e batatas |
+| Dramático / Dramatic | Cada banho é uma tragédia | Gorro e casaco de inverno, rua com neve e casas coloridas |
+| Vilão / Villain | Planeia dominar a casa | Capa roxa e monóculo, trono verde, copo à beira da mesa |
+| Preguiçoso / Lazy | Dormir é uma carreira | Pijama de seda amarelo, cama com almofadas, tabuleiro de pequeno-almoço |
+| Ciumento / Jealous | O telemóvel e o outro animal são inimigos | Gabardina e chapéu, esplanada, telemóvel pousado na mesa |
+| Caótico / Chaos Gremlin | Corridas às 3 da manhã | Chapéu de festa, sala depois de uma festa |
+| Crítico / The Critic | Avalia comida e serviço | Boina e óculos, esplanada à beira-mar, prato gourmet |
+| Férias / Vacation Mode | Zero responsabilidades | Espreguiçadeira junto à piscina, cocktail (sem álcool) |
+| Domingo / Sunday Mode | Sofá e nenhum plano | Sofá com manta, comando, pipocas, sala com luz do dia |
+| Hora do Vinho / Wine Time | Um copo e muita classe | Esplanada sobre vinhas ao pôr do sol, copo de vinho e queijo |
 
 Frases: até **45 caracteres**, com um golpe seco no fim.
 
@@ -65,10 +68,10 @@ O animal tem de continuar reconhecível como **o mesmo animal** (raça, cor, pad
 
 **Regra:** nunca usar nomes, fotos ou citações de pessoas reais (regra 5.2 da App Store e direito de imagem nos EUA).
 
-As personalidades são **configuradas no servidor**, para podermos acrescentar ou afinar sem lançar uma nova versão.
+Os modos e os cenários são **configurados no servidor**, para podermos acrescentar ou afinar sem lançar uma nova versão.
 
-#### Cenários (além do feitio)
-Por defeito, a imagem usa o cenário do feitio. A pessoa pode escolher outro:
+#### Cenários (além do modo)
+Por defeito, a imagem usa o cenário do modo. A pessoa pode escolher outro:
 
 | Cenário | Custo | O que faz |
 |---|---|---|
@@ -86,10 +89,12 @@ Exemplos reais: `docs/screenshots/cenarios.jpg`.
 - Guardar no rolo da câmara.
 - Formato da imagem final: o da foto original, com opção de recorte 9:16 para stories.
 - A foto original fica guardada ao lado da transformada.
-- **Sem marca de água**: todas as fotos são pagas.
+- **Marca de água pequena e fixa** em todas as imagens: "Feito com IA · PetBubble" (AI Act da UE e publicidade).
+- **Sem balão** (grátis): partilhar ou guardar só a imagem.
+- Ao partilhar, vai também um texto com o link da App Store (a partir da Fase 3).
 
 ### 5.4 Histórico
-- Lista simples das traduções já feitas, para voltar a ver e a partilhar.
+- Lista simples das imagens já feitas, para voltar a ver e a partilhar.
 - Guardado na conta (sincroniza entre dispositivos a partir da Fase 2).
 
 ### 5.5 Créditos e pagamentos
@@ -122,13 +127,13 @@ Compras **consumíveis** através da Apple (StoreKit), com o paywall apresentado
 ## 6. O que fica de fora da v1
 
 - PT-BR, ES, FR e IT (a estrutura fica pronta, as traduções vêm depois).
-- Escolher vários estilos visuais para a mesma personalidade.
+- Escolher vários estilos visuais para o mesmo modo (em parte resolvido pelos cenários).
 - Vídeo ou fotos animadas.
 - Subscrições.
 - Outros logins (Google, email).
 - Android.
 - Feed social, gostos e perfis públicos.
-- Personalidades criadas pelo utilizador.
+- Modos criados pelo utilizador (o "cenário à medida" cobre o essencial).
 - Animais que não sejam cães ou gatos (a IA tenta, mas o tom não é afinado para eles).
 - Notificações push.
 
@@ -139,16 +144,16 @@ Compras **consumíveis** através da Apple (StoreKit), com o paywall apresentado
       │
 [2] Onboarding (3 ecrãs)
       ├─ "O teu animal tem muito para dizer" — o que a app faz
-      ├─ Galeria de exemplos com várias personalidades (sem custo de IA)
+      ├─ Galeria de exemplos com vários modos e cenários (sem custo de IA)
       └─ "Começar"
       │
-[3] Ecrã principal — "Traduz o teu bicho"
+[3] Ecrã principal — "O que está o teu bicho a pensar?"
       ├─ Tirar foto  → pedido de permissão da câmara (com justificação)
       └─ Escolher da galeria → pedido de permissão das fotos (com justificação)
       │
-[4] Pré-visualização da foto + escolher personalidade
+[4] Escolher o modo (+ cenário opcional)
       │
-[5] Tocar em "Traduzir"
+[5] Tocar em "Criar imagem · 1 crédito"
       │
       ├─ Tem créditos? ── Sim ──► [8] Geração
       │
@@ -233,7 +238,7 @@ Não enviamos fotos nem dados pessoais para o PostHog.
 | Backend | Supabase: Postgres com RLS, Auth, Storage, Edge Functions |
 | Login | Iniciar sessão com a Apple |
 | Pagamentos | Superwall (paywall) + StoreKit (consumíveis) + validação própria numa Edge Function (App Store Server API + notificações de reembolso) |
-| IA | Dois modelos, chamados só a partir de Edge Functions: um de **edição de imagem** (transforma a foto no estilo da personalidade) e um de **texto com visão** (escreve a frase) |
+| IA | Dois modelos, chamados só a partir de Edge Functions: um de **edição de imagem** (transforma a foto no estilo do modo ou do cenário) e um de **texto com visão** (escreve a frase) |
 | Analytics | PostHog |
 | Erros | Sentry |
 | Emails | Resend, a partir de Edge Functions (ex.: confirmação de conta apagada) |
@@ -244,6 +249,8 @@ Não enviamos fotos nem dados pessoais para o PostHog.
 
 ## 12. Perguntas em aberto
 
-- Nome comercial e ícone da app.
-- Fornecedores e modelos de IA finais (imagem e texto): escolhemos na Fase 2, com testes de qualidade, fidelidade ao animal, tempo e custo nas 12 personalidades.
+- Ícone da app (o nome já está decidido: PetBubble).
+- Modelos de IA: imagem = FLUX Kontext (fal.ai), texto = Claude. Decididos na Fase 2; o de imagem pode ser trocado sem nova versão. Pontos fracos conhecidos: muda mal a pose do animal e os cães ficam menos expressivos que os gatos.
+- Recorte 9:16 para stories (5.3): ainda por fazer.
+- Classificação etária da App Store com o modo "Hora do Vinho" (referência a álcool).
 - Texto exato da política de privacidade e dos termos (Fase 3).

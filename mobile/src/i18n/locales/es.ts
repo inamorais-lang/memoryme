@@ -59,7 +59,7 @@ const es: Strings = {
       'Preparando el escenario…',
       'Buscando el mejor ángulo…',
       'Adivinando lo que está pensando…',
-      'Interpretando esa mirada de desprecio…',
+      'Colocando el bocadillo en su sitio…',
     ],
     loadingHint: 'Puede tardar hasta un minuto.',
     notAPet_one: 'No hemos encontrado ningún gato ni perro en esta foto. Te hemos devuelto el crédito.',

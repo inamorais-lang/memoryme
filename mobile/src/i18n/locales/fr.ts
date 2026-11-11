@@ -59,7 +59,7 @@ const fr: Strings = {
       'On prépare le décor…',
       'On cherche le meilleur angle…',
       'On devine à quoi il pense…',
-      'On décode ce regard méprisant…',
+      'On place la bulle au bon endroit…',
     ],
     loadingHint: 'Cela peut prendre jusqu’à une minute.',
     notAPet_one: 'Nous n’avons trouvé ni chat ni chien sur cette photo. Ton crédit a été remboursé.',

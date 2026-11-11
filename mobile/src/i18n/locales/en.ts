@@ -59,7 +59,7 @@ const en: Strings = {
       'Setting the scene…',
       'Finding the best angle…',
       'Guessing what they are thinking…',
-      'Interpreting the look of disdain…',
+      'Putting the bubble in the right spot…',
     ],
     loadingHint: 'This can take up to a minute.',
     notAPet_one: "We couldn't find a cat or dog in this photo. Your credit was refunded.",

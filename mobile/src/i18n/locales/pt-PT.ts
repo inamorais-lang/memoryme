@@ -57,7 +57,7 @@ const ptPT = {
       'A preparar o cenário…',
       'A escolher o melhor ângulo…',
       'A adivinhar o que ele está a pensar…',
-      'A interpretar o olhar de desprezo…',
+      'A pôr o balão no sítio certo…',
     ],
     loadingHint: 'Isto pode demorar até 1 minuto.',
     notAPet_one: 'Não encontrámos nenhum gato ou cão nesta foto. O crédito foi devolvido.',

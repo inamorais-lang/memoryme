@@ -249,7 +249,7 @@ Não enviamos fotos nem dados pessoais para o PostHog.
 
 ## 12. Perguntas em aberto
 
-- Ícone da app (o nome já está decidido: PetBubble).
+- ~~Ícone da app~~ decidido: balão rosa com pata, fundo verde-lima.
 - Modelos de IA: imagem = FLUX Kontext (fal.ai), texto = Claude. Decididos na Fase 2; o de imagem pode ser trocado sem nova versão. Pontos fracos conhecidos: muda mal a pose do animal e os cães ficam menos expressivos que os gatos.
 - Recorte 9:16 para stories (5.3): ainda por fazer.
 - Classificação etária da App Store com o modo "Hora do Vinho" (referência a álcool).

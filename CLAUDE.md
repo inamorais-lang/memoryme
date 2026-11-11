@@ -38,6 +38,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | App em `mobile/`, site antigo na raiz | Não misturar com o site existente |
 | Design limpo e minimalista, cores vivas da moda (rosa choque, verde-lima, lilás); todos os botões com cor (primary/secondary/tertiary, sem botões só de texto); sem contornos, sombras suaves | Pedido do dono do produto: app jovem, com humor |
 | Nome da app: **PetBubble** (petbubble.app) | Curto, funciona em PT e EN, liga ao balão |
+| Logo: balão de pensamento rosa (#FF3D81) com pata branca e rasto de 2 bolinhas, fundo verde-lima (#C8F53A); ecrã de arranque verde-lima com o balão (`assets/images/*`, gerados por script a partir de SVG) | Escolha do dono do produto (proposta B) |
 | Fontes: Bricolage Grotesque (títulos e balão) + DM Sans (texto) | Moderna e irreverente, não parecer "feito por IA" |
 | Ordem: confirmar que há animal (Claude, barato) → imagem (fal) → frase escrita a olhar para a imagem final | Foto sem animal nunca chega ao modelo caro; a frase bate certo com o que está na imagem |
 | Imagem por fal.ai com modelo configurável | Uma só chave para comparar modelos; trocar sem nova versão |

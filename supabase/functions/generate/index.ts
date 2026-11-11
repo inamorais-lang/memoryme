@@ -1,4 +1,5 @@
-// POST { personalityId, originalPath } → 202 { generationId }
+// POST { personalityId, originalPath, sceneId?, customScene? } → 202 { generationId }
+// customScene ("Cenário à medida", 3–80 chars) costs 2 credits instead of 1.
 // Spends 1 credit on the server (atomic, rate limited), then makes the image
 // and the phrase in the background. The app polls the `generations` row.
 import { withSupabase } from 'npm:@supabase/server@1.9.2';
@@ -22,6 +23,12 @@ export default {
     if (typeof personalityId !== 'string' || typeof originalPath !== 'string') {
       return json({ code: 'bad_request' }, 400);
     }
+    const rawScene = body?.customScene;
+    if (rawScene !== undefined && rawScene !== null && typeof rawScene !== 'string') {
+      return json({ code: 'bad_request' }, 400);
+    }
+    const sceneId = typeof body?.sceneId === 'string' ? body.sceneId : undefined;
+    const customScene = typeof rawScene === 'string' ? rawScene.replace(/\s+/g, ' ').trim() || undefined : undefined;
 
     // Build the AI clients first: a missing secret must fail before a credit is spent.
     let phrases, images;
@@ -37,6 +44,8 @@ export default {
       p_user_id: userId,
       p_personality_id: personalityId,
       p_original_path: originalPath,
+      p_custom_scene: customScene ?? null,
+      p_scene_id: sceneId ?? null,
     });
     if (error || typeof generationId !== 'string') {
       const { status, code } = httpErrorFor(error?.message ?? '');
@@ -47,7 +56,7 @@ export default {
     EdgeRuntime.waitUntil(
       runGeneration(
         { store: supabaseStore(ctx.supabaseAdmin), phrases, images },
-        { id: generationId, userId, personalityId, originalPath },
+        { id: generationId, userId, personalityId, originalPath, sceneId, customScene },
       ),
     );
     return json({ generationId }, 202);

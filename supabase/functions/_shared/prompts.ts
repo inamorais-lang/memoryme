@@ -67,16 +67,25 @@ export function phraseUserPrompt(args: {
   return lines.join('\n\n');
 }
 
-export function imageEditPrompt(style: string): string {
+/** Wraps the moderated description of a user-typed scene ("Cenário à medida"). */
+export function customSceneStyle(description: string): string {
+  return `${description} Change the whole setting to match; the pet is clearly doing this. Family-friendly.`;
+}
+
+export function imageEditPrompt(style: string, exaggerated = false): string {
   return [
     'Edit this photo of a pet.',
     `Style: ${style}`,
     'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape.',
     'The pet stays the main subject, centred and photorealistic.',
-    'Give the pet a subtle, natural expression that fits the mood (relaxed half-closed eyes, a smug look, a slight head tilt). Small and believable: never cartoonish or human-like.',
+    exaggerated
+      ? 'This is a comedy photo: a big, exaggerated, funny expression is welcome (wide eyes, open mouth), but the animal stays photorealistic.'
+      : 'Give the pet a subtle, natural expression that fits the mood (relaxed half-closed eyes, a smug look, a slight head tilt). Small and believable: never cartoonish or human-like.',
     'Bright, cheerful and colourful: vivid saturated colours and plenty of light, like a playful editorial photo. Never dark, moody or gloomy.',
     'Frame the pet in the lower two thirds of the image and keep the top third as plain, empty background.',
     'Never draw speech bubbles, thought bubbles, clouds of thought, text, letters, numbers, captions, logos or watermarks.',
-    'Do not give the animal human facial features, human hands or fingers (it keeps its own paws), and never make it resemble a real person.',
+    exaggerated
+      ? 'Apart from the props asked for above, do not give the animal human features, hands or fingers (it keeps its own paws), and never make it resemble a real person.'
+      : 'Do not give the animal human facial features, human hands or fingers (it keeps its own paws), and never make it resemble a real person.',
   ].join(' ');
 }

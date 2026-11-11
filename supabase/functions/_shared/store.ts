@@ -16,6 +16,11 @@ export function supabaseStore(admin: SupabaseClient): Store {
       if (error || !data) throw new Error(`personality_${error?.message ?? 'missing'}`);
       return { language: data.language, voice: data.voice_prompt, style: data.image_prompt } as PersonalityPrompts;
     },
+    async scene(id) {
+      const { data, error } = await admin.from('scenes').select('image_prompt, exaggerated').eq('id', id).single();
+      if (error || !data) throw new Error(`scene_${error?.message ?? 'missing'}`);
+      return { style: data.image_prompt, exaggerated: data.exaggerated === true };
+    },
     async signedUrl(bucket, path) {
       const { data, error } = await admin.storage.from(bucket).createSignedUrl(path, 600);
       if (error || !data) throw new Error(`signed_url_${error?.message ?? 'missing'}`);

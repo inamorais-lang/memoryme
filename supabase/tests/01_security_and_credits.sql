@@ -84,6 +84,37 @@ select test.check(true, 'free phrase only once');
 select public.set_phrase((select id from ok), 'Frase 2');
 select test.check((select phrase = 'Frase 2' and shown_phrases = array['Frase 1', 'Frase 2'] from public.generations where id = (select id from ok)), 'new phrase saved and remembered');
 
+-- Custom scene: costs 2 credits and refunds 2.
+select public.grant_credits('bbbbbbbb-0000-0000-0000-000000000002', 3);
+create temp table cs (id uuid);
+grant all on cs to service_role, authenticated;
+insert into cs select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/s.jpg', 'a surfar uma onda gigante');
+select test.check((select credits = 1 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'custom scene costs 2 credits');
+select test.check((select delta = -2 from public.credit_ledger where generation_id = (select id from cs)), 'ledger records -2');
+select test.expect_error(
+  $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/t.jpg', 'astronauta na lua')$$,
+  'insufficient_credits');
+select test.check(true, 'custom scene needs 2 credits (1 is not enough)');
+select test.expect_error(
+  $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/t.jpg', repeat('x', 81))$$,
+  'invalid_scene');
+select test.check(true, 'custom scene is limited to 80 characters');
+select test.check(public.fail_generation((select id from cs), 'scene_rejected'), 'fail the custom scene');
+select test.check((select credits = 3 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'failed custom scene refunds 2 credits');
+
+-- Preset scenes cost 1 credit; unknown scenes or both kinds at once are refused.
+insert into cs select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/u.jpg', null, 'pt-sorriso');
+select test.check((select credits = 2 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'preset scene costs 1 credit');
+select test.check((select scene_id = 'pt-sorriso' and cost = 1 from public.generations g join cs on cs.id = g.id where g.scene_id is not null), 'preset scene saved');
+select test.expect_error(
+  $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/v.jpg', null, 'nao-existe')$$,
+  'unknown_scene');
+select test.check(true, 'unknown scene refused');
+select test.expect_error(
+  $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/v.jpg', 'na praia', 'pt-sorriso')$$,
+  'unknown_scene');
+select test.check(true, 'preset and custom scene cannot be mixed');
+
 -- Stuck generations expire and are refunded.
 select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/4.jpg');
 update public.generations set created_at = now() - interval '10 minutes' where status = 'pending';
@@ -101,6 +132,8 @@ select test.check((select count(*) = 0 from public.generations where user_id <> 
 select test.check((select count(*) = 22 from public.personalities), 'user sees the 22 active moods');
 
 select test.expect_error($$select image_prompt from public.personalities limit 1$$, 'permission denied');
+select test.expect_error($$select image_prompt from public.scenes limit 1$$, 'permission denied');
+select test.check((select count(*) = 6 from public.scenes where language = 'pt-PT'), 'users can list the scenes (names only)');
 select test.check(true, 'AI prompts are hidden from the app');
 
 select test.expect_error($$update public.profiles set credits = 999$$, 'permission denied');
@@ -135,7 +168,7 @@ select test.check(true, 'user cannot upload into other folders or fake AI result
 
 -- ───────── As user B ─────────
 set request.jwt.claim.sub = 'bbbbbbbb-0000-0000-0000-000000000002';
-select test.check((select count(*) = 0 from public.generations), 'user B cannot see user A''s generations');
+select test.check((select count(*) = 0 from public.generations where user_id <> auth.uid()), 'user B cannot see user A''s generations');
 update public.generations set balloon_position = 'top';
 update public.generations set custom_phrase = 'hacked';
 reset role;

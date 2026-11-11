@@ -9,6 +9,7 @@ function fakeStore() {
   const calls: string[] = [];
   const store: Store = {
     personality: async () => ({ language: 'pt-PT', voice: 'Tia de Cascais', style: 'pearls and a yacht' }),
+    scene: async () => ({ style: 'joke-shop fake teeth', exaggerated: true }),
     signedUrl: async (bucket, path) => `https://signed/${bucket}/${path}`,
     upload: async (bucket, path) => void calls.push(`upload ${bucket}/${path}`),
     finish: async (id, imagePath, phrase) => (calls.push(`finish ${id} ${imagePath} ${phrase}`), true),
@@ -19,8 +20,9 @@ function fakeStore() {
 
 const gen = { id: 'g1', userId: 'u1', personalityId: 'pt-tia-cascais', originalPath: 'u1/photo.jpg' };
 const quiet = () => {};
-const phrases = (result: { isPet: boolean; phrase: string }): PhraseWriter => ({
+const phrases = (result: { isPet: boolean; phrase: string }, sceneOk = true): PhraseWriter => ({
   isPet: async () => result.isPet,
+  describeScene: async (scene: string) => (sceneOk ? `A pet ${scene}.` : null),
   write: async () => result,
 });
 const images = (edit: ImageEditor['edit']): ImageEditor => ({ edit });
@@ -75,7 +77,7 @@ Deno.test('phrase model error: refunds the credit', async () => {
   const outcome = await runGeneration(
     {
       store,
-      phrases: { isPet: async () => true, write: async () => Promise.reject(new Error('phrase_refused')) },
+      phrases: { isPet: async () => true, describeScene: async (scene: string) => scene, write: async () => Promise.reject(new Error('phrase_refused')) },
       images: okImage,
       log: quiet,
     },
@@ -112,13 +114,62 @@ Deno.test('the line is written from the final picture, not the original photo', 
   await runGeneration(
     {
       store,
-      phrases: { isPet: async () => true, write: async (a) => ((seen = a.imageUrl), { isPet: true, phrase: 'x' }) },
+      phrases: { isPet: async () => true, describeScene: async (scene: string) => scene, write: async (a) => ((seen = a.imageUrl), { isPet: true, phrase: 'x' }) },
       images: okImage,
       log: quiet,
     },
     gen,
   );
   assert.equal(seen, 'https://signed/generated/u1/g1.jpg');
+});
+
+Deno.test('custom scene: a refused scene refunds and never reaches the image model', async () => {
+  const { store, calls } = fakeStore();
+  let imageCalled = false;
+  const outcome = await runGeneration(
+    {
+      store,
+      phrases: phrases({ isPet: true, phrase: 'x' }, false),
+      images: images(async () => ((imageCalled = true), { bytes: new Uint8Array(), contentType: 'image/jpeg' })),
+      log: quiet,
+    },
+    { ...gen, customScene: 'algo proibido' },
+  );
+  assert.equal(outcome, 'scene_rejected');
+  assert.equal(imageCalled, false);
+  assert.deepEqual(calls, ['fail g1 scene_rejected']);
+});
+
+Deno.test('custom scene replaces the mood scene in the image prompt', async () => {
+  const { store } = fakeStore();
+  let style = '';
+  await runGeneration(
+    {
+      store,
+      phrases: phrases({ isPet: true, phrase: 'x' }),
+      images: images(async (a) => ((style = a.style), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
+      log: quiet,
+    },
+    { ...gen, customScene: 'a surfar uma onda gigante' },
+  );
+  assert.match(style, /a surfar uma onda gigante/);
+  assert.doesNotMatch(style, /pearls and a yacht/);
+});
+
+Deno.test('preset scene replaces the mood scene and asks for an exaggerated expression', async () => {
+  const { store } = fakeStore();
+  let got: { style: string; exaggerated?: boolean } = { style: '' };
+  await runGeneration(
+    {
+      store,
+      phrases: phrases({ isPet: true, phrase: 'x' }),
+      images: images(async (a) => ((got = a), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
+      log: quiet,
+    },
+    { ...gen, sceneId: 'pt-sorriso' },
+  );
+  assert.equal(got.style, 'joke-shop fake teeth');
+  assert.equal(got.exaggerated, true);
 });
 
 Deno.test('falInput uses each model\'s field names', () => {
@@ -177,6 +228,7 @@ Deno.test('SQL errors map to app-friendly HTTP codes', () => {
   assert.deepEqual(httpErrorFor('rate_limited'), { status: 429, code: 'rate_limited' });
   assert.deepEqual(httpErrorFor('daily_limit'), { status: 429, code: 'daily_limit' });
   assert.deepEqual(httpErrorFor('invalid_path'), { status: 400, code: 'invalid_path' });
+  assert.deepEqual(httpErrorFor('invalid_scene'), { status: 400, code: 'invalid_scene' });
   assert.deepEqual(httpErrorFor('no_free_phrase'), { status: 409, code: 'no_free_phrase' });
   assert.deepEqual(httpErrorFor('something else'), { status: 500, code: 'server_error' });
 });

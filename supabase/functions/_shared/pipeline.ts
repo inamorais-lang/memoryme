@@ -1,12 +1,15 @@
 // Generation pipeline. Pure logic over small interfaces, so it can be tested
 // without Supabase, Claude or fal.
 import type { ImageEditor, PhraseWriter } from './ai.ts';
-import type { Language } from './prompts.ts';
+import { customSceneStyle, type Language } from './prompts.ts';
 
 export type PersonalityPrompts = { language: Language; voice: string; style: string };
 
+export type ScenePrompt = { style: string; exaggerated: boolean };
+
 export interface Store {
   personality(id: string): Promise<PersonalityPrompts>;
+  scene(id: string): Promise<ScenePrompt>;
   signedUrl(bucket: 'originals' | 'generated', path: string): Promise<string>;
   upload(bucket: 'generated', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
   finish(generationId: string, imagePath: string, phrase: string): Promise<boolean>;
@@ -18,9 +21,13 @@ export type Generation = {
   userId: string;
   personalityId: string;
   originalPath: string;
+  /** Preset scene (e.g. fake teeth, glasses); replaces the mood's scene. */
+  sceneId?: string;
+  /** Scene typed by the user ("Cenário à medida"); replaces the mood's scene. */
+  customScene?: string;
 };
 
-export type Outcome = 'succeeded' | 'not_a_pet' | 'failed';
+export type Outcome = 'succeeded' | 'not_a_pet' | 'scene_rejected' | 'failed';
 
 /**
  * Runs after the credit was spent. Any failure refunds it (store.fail).
@@ -41,7 +48,18 @@ export async function runGeneration(
       return 'not_a_pet';
     }
 
-    const image = await images.edit({ imageUrl: originalUrl, style: prompts.style });
+    let custom: string | null = null;
+    if (gen.customScene) {
+      custom = await phrases.describeScene(gen.customScene);
+      if (!custom) {
+        await store.fail(gen.id, 'scene_rejected');
+        return 'scene_rejected';
+      }
+    }
+    const preset = gen.sceneId ? await store.scene(gen.sceneId) : null;
+    const style = custom ? customSceneStyle(custom) : (preset?.style ?? prompts.style);
+
+    const image = await images.edit({ imageUrl: originalUrl, style, exaggerated: preset?.exaggerated ?? false });
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
     await store.upload('generated', imagePath, image.bytes, image.contentType);
@@ -51,7 +69,7 @@ export async function runGeneration(
       imageUrl: await store.signedUrl('generated', imagePath),
       language: prompts.language,
       voice: prompts.voice,
-      scene: prompts.style,
+      scene: style,
       exclude: [],
     });
     if (!phrase.phrase) throw new Error('phrase_empty');
@@ -79,7 +97,7 @@ export function safeReason(message: string): string {
 
 /** Maps errors raised by the SQL functions to HTTP responses for the app. */
 export function httpErrorFor(message: string): { status: number; code: string } {
-  for (const code of ['insufficient_credits', 'rate_limited', 'daily_limit', 'invalid_path', 'unknown_personality', 'no_free_phrase']) {
+  for (const code of ['insufficient_credits', 'rate_limited', 'daily_limit', 'invalid_path', 'invalid_scene', 'unknown_scene', 'unknown_personality', 'no_free_phrase']) {
     if (message.includes(code)) {
       const status =
         code === 'insufficient_credits' ? 402 : code === 'rate_limited' || code === 'daily_limit' ? 429 : code === 'no_free_phrase' ? 409 : 400;

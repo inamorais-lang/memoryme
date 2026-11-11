@@ -5,6 +5,7 @@
 import { withSupabase } from 'npm:@supabase/server@1.9.2';
 
 import { imageEditor, json, phraseWriter } from '../_shared/config.ts';
+import { cropAroundPet } from '../_shared/crop.ts';
 import { httpErrorFor, runGeneration } from '../_shared/pipeline.ts';
 import { supabaseStore } from '../_shared/store.ts';
 
@@ -55,7 +56,7 @@ export default {
 
     EdgeRuntime.waitUntil(
       runGeneration(
-        { store: supabaseStore(ctx.supabaseAdmin), phrases, images },
+        { store: supabaseStore(ctx.supabaseAdmin), phrases, images, crop: (url, pet) => cropAroundPet(url, pet) },
         { id: generationId, userId, personalityId, originalPath, sceneId, customScene },
       ),
     );

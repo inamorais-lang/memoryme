@@ -35,17 +35,35 @@ export type Outcome = 'succeeded' | 'not_a_pet' | 'scene_rejected' | 'failed';
  * expensive image model. The line is written last, from the final picture.
  */
 export async function runGeneration(
-  deps: { store: Store; phrases: PhraseWriter; images: ImageEditor; log?: (msg: string) => void },
+  deps: {
+    store: Store;
+    phrases: PhraseWriter;
+    images: ImageEditor;
+    log?: (msg: string) => void;
+    /** Cuts margins around the pet; returns a data URI, or null when not needed. */
+    crop?: (imageUrl: string, pet: HeadBox) => Promise<string | null>;
+  },
   gen: Generation,
 ): Promise<Outcome> {
-  const { store, phrases, images, log = console.log } = deps;
+  const { store, phrases, images, crop, log = console.log } = deps;
   try {
     const prompts = await store.personality(gen.personalityId);
     const originalUrl = await store.signedUrl('originals', gen.originalPath);
 
-    if (!(await phrases.isPet(originalUrl))) {
+    const check = await phrases.isPet(originalUrl);
+    if (!check.isPet) {
       await store.fail(gen.id, 'not_a_pet');
       return 'not_a_pet';
+    }
+
+    // Screenshots and photos with borders: keep only the pet and some room around it.
+    let sourceUrl = originalUrl;
+    if (crop && check.box) {
+      try {
+        sourceUrl = (await crop(originalUrl, check.box)) ?? originalUrl;
+      } catch (error) {
+        log(`crop skipped for ${gen.id}: ${error instanceof Error ? error.message : error}`);
+      }
     }
 
     let custom: string | null = null;
@@ -59,7 +77,7 @@ export async function runGeneration(
     const preset = gen.sceneId ? await store.scene(gen.sceneId) : null;
     const style = custom ? customSceneStyle(custom) : (preset?.style ?? prompts.style);
 
-    const image = await images.edit({ imageUrl: originalUrl, style, exaggerated: preset?.exaggerated ?? false });
+    const image = await images.edit({ imageUrl: sourceUrl, style, exaggerated: preset?.exaggerated ?? false });
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
     await store.upload('generated', imagePath, image.bytes, image.contentType);

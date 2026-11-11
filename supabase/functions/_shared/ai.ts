@@ -7,11 +7,14 @@ import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type
 /** Pet's head in the image: x, y, width, height as fractions (0..1). */
 export type HeadBox = [number, number, number, number];
 
+/** Is there a pet, and where (whole animal, fractions 0..1). */
+export type PetCheck = { isPet: boolean; box?: HeadBox };
+
 export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox };
 
 export interface PhraseWriter {
-  /** Cheap gate on the original photo, before any expensive image call. */
-  isPet(imageUrl: string): Promise<boolean>;
+  /** Cheap gate on the original photo, before any expensive image call; also says where the pet is. */
+  isPet(imageUrl: string): Promise<PetCheck>;
   /**
    * Moderates a scene typed by the user ("Cenário à medida") and turns it into a
    * concrete visual description for the image model. null = not allowed.
@@ -110,7 +113,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
     return data.allowed === true && description ? description : null;
   }
 
-  async isPet(imageUrl: string): Promise<boolean> {
+  async isPet(imageUrl: string): Promise<PetCheck> {
     const response = await this.client.beta.messages.create({
       model: this.model,
       max_tokens: 1000,
@@ -122,8 +125,16 @@ export class ClaudePhraseWriter implements PhraseWriter {
           type: 'json_schema',
           schema: {
             type: 'object',
-            properties: { is_pet: { type: 'boolean' } },
-            required: ['is_pet'],
+            properties: {
+              is_pet: { type: 'boolean' },
+              pet: {
+                type: 'object',
+                properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } },
+                required: ['x', 'y', 'w', 'h'],
+                additionalProperties: false,
+              },
+            },
+            required: ['is_pet', 'pet'],
             additionalProperties: false,
           },
         },
@@ -133,7 +144,13 @@ export class ClaudePhraseWriter implements PhraseWriter {
           role: 'user',
           content: [
             { type: 'image', source: { type: 'url', url: imageUrl } },
-            { type: 'text', text: 'Does this photo clearly show a real cat or dog? Answer in is_pet.' },
+            {
+              type: 'text',
+              text:
+                'Does this photo clearly show a real cat or dog? Answer in is_pet. ' +
+                'In "pet", give the box around the whole animal (ears, paws and tail included) as fractions of the image: ' +
+                'x and y of the top-left corner, then width and height, all between 0 and 1. Leave out screen bars, borders and margins.',
+            },
           ],
         },
       ],
@@ -141,7 +158,10 @@ export class ClaudePhraseWriter implements PhraseWriter {
     if (response.stop_reason === 'refusal') throw new Error('phrase_refused');
     const text = response.content.find((block) => block.type === 'text');
     if (!text || text.type !== 'text') throw new Error('phrase_empty');
-    return JSON.parse(text.text).is_pet === true;
+    const data = JSON.parse(text.text);
+    if (data.is_pet !== true) return { isPet: false };
+    const box = parseHead(data.pet);
+    return box ? { isPet: true, box } : { isPet: true };
   }
 
   async write(args: Parameters<PhraseWriter['write']>[0]): Promise<PhraseResult> {

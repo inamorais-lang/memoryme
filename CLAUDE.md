@@ -62,7 +62,7 @@ npm test             # só os testes unitários (Jest)
 ```
 supabase/
   migrations/                 esquema + RLS + funções de créditos; personalidades e prompts
-  functions/generate          gasta 1 crédito, ou 2 com cenário à medida (SQL atómico) → 202; em segundo plano: Claude ("há animal?") → [à medida: Claude verifica e descreve o cenário] → fal (imagem) → Storage → Claude (frase sobre a imagem final)
+  functions/generate          gasta 1 crédito, ou 2 com cenário à medida (SQL atómico) → 202; em segundo plano: Claude ("há animal?") → recorte à volta do animal se a foto tiver margens/barras (`crop.ts`, jpeg-js) → [à medida: Claude verifica e descreve o cenário] → fal (imagem) → Storage → Claude (frase sobre a imagem final)
   functions/new-phrase        a frase grátis (1 por geração), sem gastar crédito
   functions/delete-account    apaga fotos + utilizador (linhas apagadas em cascata)
   functions/_shared           ai.ts (Claude, fal), pipeline.ts (lógica testável), store.ts, prompts.ts
@@ -106,6 +106,8 @@ mobile/
 
 - Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos. Ao escrever a frase, a IA devolve a caixa da cabeça (`generations.head`, x/y/w/h 0..1); e do objeto principal da cena (`generations.prop`, ex.: comando, copo); sem posição escolhida, a app põe o balão no canto que menos tapa a cabeça e, depois, o objeto (`components/balloonLayout.ts`). Nunca tapa a marca de água.
 - "Sem balão · grátis" no resultado: esconde o balão e partilha/guarda só a imagem (com marca de água).
+- Sem mãos humanas: se o animal segura ou toca em algo, usa as próprias patas (regra global em `imageEditPrompt`).
+- Recorte: o "há animal?" devolve também a caixa do animal; se a foto tiver margens (capturas de ecrã), o servidor corta à volta dele (com folga, mín. 512 px) e envia a imagem recortada ao fal. Se o recorte falhar, usa a original.
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
 - Cenários (`scenes`, no servidor, `image_prompt` escondido): escolhidos no ecrã do feitio; substituem o cenário do feitio. À medida: recusado (pessoas reais, marcas, impróprio…) → `scene_rejected`, 2 créditos devolvidos. No modo local não há cenários.
 - Frase própria: "Escrever a minha frase", máx. **45** caracteres (`CUSTOM_PHRASE_MAX` e `check` na BD), grátis, sem IA; `custom_phrase` substitui a frase da IA no balão.

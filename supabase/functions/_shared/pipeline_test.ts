@@ -21,7 +21,7 @@ function fakeStore() {
 const gen = { id: 'g1', userId: 'u1', personalityId: 'pt-tia-cascais', originalPath: 'u1/photo.jpg' };
 const quiet = () => {};
 const phrases = (result: { isPet: boolean; phrase: string }, sceneOk = true): PhraseWriter => ({
-  isPet: async () => result.isPet,
+  isPet: async () => ({ isPet: result.isPet }),
   describeScene: async (scene: string) => (sceneOk ? `A pet ${scene}.` : null),
   write: async () => result,
 });
@@ -77,7 +77,7 @@ Deno.test('phrase model error: refunds the credit', async () => {
   const outcome = await runGeneration(
     {
       store,
-      phrases: { isPet: async () => true, describeScene: async (scene: string) => scene, write: async () => Promise.reject(new Error('phrase_refused')) },
+      phrases: { isPet: async () => ({ isPet: true }), describeScene: async (scene: string) => scene, write: async () => Promise.reject(new Error('phrase_refused')) },
       images: okImage,
       log: quiet,
     },
@@ -114,7 +114,7 @@ Deno.test('the line is written from the final picture, not the original photo', 
   await runGeneration(
     {
       store,
-      phrases: { isPet: async () => true, describeScene: async (scene: string) => scene, write: async (a) => ((seen = a.imageUrl), { isPet: true, phrase: 'x' }) },
+      phrases: { isPet: async () => ({ isPet: true }), describeScene: async (scene: string) => scene, write: async (a) => ((seen = a.imageUrl), { isPet: true, phrase: 'x' }) },
       images: okImage,
       log: quiet,
     },
@@ -187,6 +187,39 @@ Deno.test('head box: clamped into the image, dropped when invalid', () => {
   assert.deepEqual(withProp.prop, [0.5, 0.7, 0.3, 0.1]);
   const noProp = parsePhrase(JSON.stringify({ is_pet: true, phrases: ['Olá'], prop: { present: false, x: 0, y: 0, w: 0, h: 0 } }));
   assert.equal(noProp.prop, undefined);
+});
+
+Deno.test('crop: the image model gets the cropped photo when the pet box allows it', async () => {
+  const { store } = fakeStore();
+  let sent = '';
+  await runGeneration(
+    {
+      store,
+      phrases: { ...phrases({ isPet: true, phrase: 'x' }), isPet: async () => ({ isPet: true, box: [0.1, 0.3, 0.8, 0.4] }) },
+      images: images(async (a) => ((sent = a.imageUrl), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
+      crop: async () => 'data:image/jpeg;base64,AAAA',
+      log: quiet,
+    },
+    gen,
+  );
+  assert.equal(sent, 'data:image/jpeg;base64,AAAA');
+});
+
+Deno.test('crop: a failing crop falls back to the original photo', async () => {
+  const { store } = fakeStore();
+  let sent = '';
+  const outcome = await runGeneration(
+    {
+      store,
+      phrases: { ...phrases({ isPet: true, phrase: 'x' }), isPet: async () => ({ isPet: true, box: [0.1, 0.3, 0.8, 0.4] }) },
+      images: images(async (a) => ((sent = a.imageUrl), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
+      crop: () => Promise.reject(new Error('boom')),
+      log: quiet,
+    },
+    gen,
+  );
+  assert.equal(outcome, 'succeeded');
+  assert.equal(sent, 'https://signed/originals/u1/photo.jpg');
 });
 
 Deno.test('falInput uses each model\'s field names', () => {

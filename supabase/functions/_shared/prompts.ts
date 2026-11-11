@@ -87,7 +87,8 @@ export function imageEditPrompt(style: string, exaggerated = false): string {
     'Frame the pet in the lower two thirds of the image and keep the top third as plain, empty background.',
     'Never draw speech bubbles, thought bubbles, clouds of thought, text, letters, numbers, captions, logos or watermarks.',
     exaggerated
-      ? 'Apart from the props asked for above, do not give the animal human features, hands or fingers (it keeps its own paws), and never make it resemble a real person.'
-      : 'Do not give the animal human facial features, human hands or fingers (it keeps its own paws), and never make it resemble a real person.',
+      ? 'Apart from the props asked for above, do not give the animal human features, and never make it resemble a real person.'
+      : 'Do not give the animal human facial features, and never make it resemble a real person.',
+    'There are no people and no human hands or fingers anywhere in the picture. If the pet holds or touches something (a phone, a cup, a remote), it uses its own furry animal paws.',
   ].join(' ');
 }

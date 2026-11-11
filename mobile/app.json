@@ -56,16 +56,16 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "A câmara é usada para tirares uma foto ao teu animal e criares a tradução do que ele está a pensar.",
-          "photosPermission": "O acesso às fotos é usado para escolheres uma foto do teu animal e criares a tradução.",
+          "cameraPermission": "A câmara é usada para tirares uma foto ao teu animal e criares uma imagem com o que ele está a pensar.",
+          "photosPermission": "O acesso às fotos é usado para escolheres uma foto do teu animal e criares a imagem.",
           "microphonePermission": false
         }
       ],
       [
         "expo-media-library",
         {
-          "photosPermission": "O acesso às fotos é usado para escolheres uma foto do teu animal e criares a tradução.",
-          "savePhotosPermission": "O acesso às fotos é usado para guardares as tuas traduções no rolo da câmara.",
+          "photosPermission": "O acesso às fotos é usado para escolheres uma foto do teu animal e criares a imagem.",
+          "savePhotosPermission": "O acesso às fotos é usado para guardares as tuas imagens no rolo da câmara.",
           "isAccessMediaLocationEnabled": false
         }
       ],

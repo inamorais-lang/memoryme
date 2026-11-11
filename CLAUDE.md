@@ -133,4 +133,5 @@ mobile/
 - Ao partilhar, vai também um texto com o link da App Store (`APP_STORE_URL` em `src/config.ts`, vazio até à Fase 3; enquanto vazio, só a imagem). A marca de água fica "Feito com IA · PetBubble" (pedido do dono do produto: link da App Store, não domínio).
 - A imagem partilhada é a captura de `TranslationCanvas` (`react-native-view-shot`): foto original + balão desenhado pela app.
 - Ficheiros `*.web.ts` substituem os nativos na web (ex.: `kv.web.ts`).
+- Palavra para o animal: PT "patudo" (nunca "bicho"), ES "mascota", FR "compagnon", EN "pet" (pedido do dono do produto). Os textos legais ficam neutros ("animal").
 - Línguas: `pt*` → PT-PT, `es*` → espanhol (Espanha), `fr*` → francês (França), `en` com país ≠ EUA → inglês britânico, tudo o resto → inglês dos EUA (`locales/en-US.ts` só muda a ortografia, ex.: color). Conteúdo (modos/cenários/frases) por língua: `pt-PT`, `en` (partilhado GB/US; a frase segue `generations.spelling`), `es`, `fr`; mercados PT, ES, FR, GB, US. Natal adaptado: Nochebuena e Mañana de Reyes (ES), Réveillon com bûche (FR).

@@ -1,5 +1,5 @@
 {
-  "NSCameraUsageDescription": "L’appareil photo sert à prendre ton animal en photo et à créer une image de ce qu’il pense.",
-  "NSPhotoLibraryUsageDescription": "L’accès aux photos sert à choisir une photo de ton animal et à créer l’image.",
+  "NSCameraUsageDescription": "L’appareil photo sert à prendre ton compagnon en photo et à créer une image de ce qu’il pense.",
+  "NSPhotoLibraryUsageDescription": "L’accès aux photos sert à choisir une photo de ton compagnon et à créer l’image.",
   "NSPhotoLibraryAddUsageDescription": "L’accès aux photos sert à enregistrer tes images dans ta pellicule."
 }

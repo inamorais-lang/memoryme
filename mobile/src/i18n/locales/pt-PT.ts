@@ -6,8 +6,8 @@ const ptPT = {
     openSettings: 'Abrir Definições',
   },
   home: {
-    title: 'O que está o teu bicho a pensar?',
-    titleStart: 'O que está o teu bicho a ',
+    title: 'O que está o teu patudo a pensar?',
+    titleStart: 'O que está o teu patudo a ',
     titleHighlight: 'pensar',
     titleEnd: '?',
     subtitle: 'Tira uma foto ao teu gato ou cão e descobre, finalmente, a verdade.',
@@ -30,7 +30,7 @@ const ptPT = {
   },
   personality: {
     screenTitle: 'Modo',
-    title: 'Em que modo está o teu bicho hoje?',
+    title: 'Em que modo está o teu patudo hoje?',
     subtitle: 'Escolhe um cenário ou um modo.',
     translate_one: 'Criar imagem · 1 crédito',
     translate_other: 'Criar imagem · {{count}} créditos',
@@ -52,7 +52,7 @@ const ptPT = {
   result: {
     screenTitle: 'A tua imagem',
     loading: [
-      'A vestir o teu bicho a rigor…',
+      'A vestir o teu patudo a rigor…',
       'A preparar o cenário…',
       'A escolher o melhor ângulo…',
       'A adivinhar o que ele está a pensar…',
@@ -66,7 +66,7 @@ const ptPT = {
     sceneRejected: 'Esse cenário não é permitido (pessoas reais, marcas ou conteúdo impróprio). Os {{count}} créditos foram devolvidos.',
     slow: 'Está a demorar mais do que o normal. A imagem aparece no teu histórico quando ficar pronta.',
     share: 'Partilhar',
-    shareMessage: 'Descobre o que o teu bicho está a pensar com a PetBubble: {{url}}',
+    shareMessage: 'Descobre o que o teu patudo está a pensar com a PetBubble: {{url}}',
     free: 'grátis',
     save: 'Guardar',
     saved: 'Guardada',
@@ -77,7 +77,7 @@ const ptPT = {
     retryFree: 'Nova frase · grátis',
     watermark: 'Feito com IA · PetBubble',
     writeOwn: 'Escrever a minha frase · grátis',
-    writePlaceholder: 'O que está o teu bicho a pensar?',
+    writePlaceholder: 'O que está o teu patudo a pensar?',
     useMine: 'Usar esta frase',
     useAi: 'Voltar à frase da IA',
     charsLeft_one: '{{count}} carácter restante',

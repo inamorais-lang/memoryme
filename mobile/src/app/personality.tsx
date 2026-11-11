@@ -59,6 +59,14 @@ export default function PersonalityScreen() {
   const customText = draft.customScene.replace(/\s+/g, " ").trim();
   const isCustom = draft.scene.kind === "custom";
   const sceneReady = !isCustom || customText.length >= CUSTOM_SCENE_MIN;
+  // Comedy scenes are exaggerated already: no extra option (and no extra credit).
+  const selectedPreset =
+    draft.scene.kind === "preset"
+      ? scenes.find((s) => s.id === (draft.scene as { id: string }).id)
+      : undefined;
+  const canExaggerate = scenes.length > 0 && !selectedPreset?.exaggerated;
+  const exaggerated = canExaggerate && draft.exaggerated;
+  const cost = (isCustom ? 2 : 1) + (exaggerated ? 1 : 0);
 
   const start = useCallback(async () => {
     if (!draft.photo || !draft.personalityId) return;
@@ -68,12 +76,14 @@ export default function PersonalityScreen() {
       return;
     }
     if (!sceneReady) return;
-    const scene: SceneChoice =
-      draft.scene.kind === "preset"
+    const scene: SceneChoice = {
+      ...(draft.scene.kind === "preset"
         ? { sceneId: draft.scene.id }
         : draft.scene.kind === "custom"
           ? { customScene: customText }
-          : {};
+          : {}),
+      ...(exaggerated ? { exaggerated: true } : {}),
+    };
     setStarting(true);
     try {
       const id = await backend.createTranslation(
@@ -101,6 +111,7 @@ export default function PersonalityScreen() {
     draft.scene,
     customText,
     sceneReady,
+    exaggerated,
     auth,
     t,
   ]);
@@ -130,9 +141,7 @@ export default function PersonalityScreen() {
               ? t("personality.pickFirst")
               : !sceneReady
                 ? t("scene.tooShort")
-                : isCustom
-                  ? t("personality.translateCustom")
-                  : t("personality.translate")
+                : t("personality.translate", { count: cost })
           }
           disabled={!draft.personalityId || !sceneReady}
           loading={starting}
@@ -266,6 +275,21 @@ export default function PersonalityScreen() {
                 returnKeyType="done"
                 autoFocus
               />
+            </View>
+          ) : null}
+          {canExaggerate ? (
+            <View style={styles.customScene}>
+              <View style={styles.chips}>
+                <SceneChip
+                  testID="exaggerated"
+                  label={t("scene.exaggerated")}
+                  selected={exaggerated}
+                  onPress={() => draft.setExaggerated(!draft.exaggerated)}
+                />
+              </View>
+              <AppText variant="small" color={colors.inkMuted}>
+                {t("scene.exaggeratedHint")}
+              </AppText>
             </View>
           ) : null}
         </View>

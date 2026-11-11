@@ -1,4 +1,4 @@
-// POST { personalityId, originalPath, sceneId?, customScene? } → 202 { generationId }
+// POST { personalityId, originalPath, sceneId?, customScene?, exaggerated? } → 202 { generationId }
 // customScene ("Cenário à medida", 3–80 chars) costs 2 credits instead of 1.
 // Spends 1 credit on the server (atomic, rate limited), then makes the image
 // and the phrase in the background. The app polls the `generations` row.
@@ -29,6 +29,7 @@ export default {
       return json({ code: 'bad_request' }, 400);
     }
     const sceneId = typeof body?.sceneId === 'string' ? body.sceneId : undefined;
+    const wantsExaggerated = body?.exaggerated === true;
     const customScene = typeof rawScene === 'string' ? rawScene.replace(/\s+/g, ' ').trim() || undefined : undefined;
 
     // Build the AI clients first: a missing secret must fail before a credit is spent.
@@ -47,6 +48,7 @@ export default {
       p_original_path: originalPath,
       p_custom_scene: customScene ?? null,
       p_scene_id: sceneId ?? null,
+      p_exaggerated: wantsExaggerated,
     });
     if (error || typeof generationId !== 'string') {
       const { status, code } = httpErrorFor(error?.message ?? '');
@@ -57,7 +59,7 @@ export default {
     EdgeRuntime.waitUntil(
       runGeneration(
         { store: supabaseStore(ctx.supabaseAdmin), phrases, images, crop: (url, photo) => cropToPhoto(url, photo) },
-        { id: generationId, userId, personalityId, originalPath, sceneId, customScene },
+        { id: generationId, userId, personalityId, originalPath, sceneId, customScene, exaggerated: wantsExaggerated },
       ),
     );
     return json({ generationId }, 202);

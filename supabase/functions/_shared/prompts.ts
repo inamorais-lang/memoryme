@@ -69,6 +69,12 @@ export function phraseUserPrompt(args: {
   return lines.join('\n\n');
 }
 
+/** "Modo exagerado" (+1 credit): everything over the top. */
+export const OVER_THE_TOP =
+  'OVER THE TOP, absurd abundance: every prop of this scene is multiplied tenfold and piled into towering mountains higher than the pet ' +
+  '(twenty of each food, a mountain of presents, rows of drinks, heaps of toys), overflowing everywhere; no props from other scenes. ' +
+  'The pet has a huge, comic, wide-eyed, open-mouthed expression.';
+
 /** Wraps the moderated description of a user-typed scene ("Cenário à medida"). */
 export function customSceneStyle(description: string): string {
   return `${description} Change the whole setting to match; the pet is clearly doing this. Family-friendly.`;

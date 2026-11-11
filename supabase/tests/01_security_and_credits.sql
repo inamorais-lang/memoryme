@@ -117,6 +117,23 @@ select test.expect_error(
   'unknown_scene');
 select test.check(true, 'preset and custom scene cannot be mixed');
 
+-- Exaggerated mode: +1 credit; never on top of a comedy scene; custom + exaggerated = 3.
+select public.grant_credits('bbbbbbbb-0000-0000-0000-000000000002', 10);
+create temp table ex (id uuid, label text);
+-- Earlier test generations would trip the rate limits (5 per minute, 2 pending).
+update public.generations set created_at = now() - interval '2 minutes', status = case when status = 'pending' then 'failed' else status end where user_id = 'bbbbbbbb-0000-0000-0000-000000000002';
+grant all on ex to service_role, authenticated;
+insert into ex select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/e1.jpg', null, null, true), 'mood';
+update public.generations set status = 'failed' where id in (select id from ex);
+insert into ex select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/e2.jpg', null, 'pt-sorriso', true), 'comedy';
+update public.generations set status = 'failed' where id in (select id from ex);
+insert into ex select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/e3.jpg', 'a surfar no Havai', null, true), 'custom';
+select test.check((select cost = 2 and exaggerated from public.generations where id = (select id from ex where label = 'mood')), 'exaggerated mode costs 1 more');
+select test.check((select cost = 1 and not exaggerated from public.generations where id = (select id from ex where label = 'comedy')), 'comedy scenes are never charged for exaggerated');
+select test.check((select cost = 3 from public.generations where id = (select id from ex where label = 'custom')), 'custom scene + exaggerated costs 3');
+select test.check(public.fail_generation((select id from ex where label = 'custom'), 'x'), 'fail exaggerated custom');
+select test.check((select delta = 3 from public.credit_ledger where generation_id = (select id from ex where label = 'custom') and reason = 'refund'), 'refund gives back all 3');
+
 -- Stuck generations expire and are refunded.
 select public.start_generation('aaaaaaaa-0000-0000-0000-000000000001', 'pt-diva', 'aaaaaaaa-0000-0000-0000-000000000001/4.jpg');
 update public.generations set created_at = now() - interval '10 minutes' where status = 'pending';

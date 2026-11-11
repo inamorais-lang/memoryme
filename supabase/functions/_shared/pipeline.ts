@@ -1,7 +1,7 @@
 // Generation pipeline. Pure logic over small interfaces, so it can be tested
 // without Supabase, Claude or fal.
 import type { HeadBox, ImageEditor, PhraseWriter } from './ai.ts';
-import { customSceneStyle, type Language } from './prompts.ts';
+import { customSceneStyle, OVER_THE_TOP, type Language } from './prompts.ts';
 
 export type PersonalityPrompts = { language: Language; voice: string; style: string };
 
@@ -25,6 +25,8 @@ export type Generation = {
   sceneId?: string;
   /** Scene typed by the user ("Cenário à medida"); replaces the mood's scene. */
   customScene?: string;
+  /** "Modo exagerado" (+1 credit, already decided by the database). */
+  exaggerated?: boolean;
 };
 
 export type Outcome = 'succeeded' | 'not_a_pet' | 'scene_rejected' | 'failed';
@@ -75,9 +77,17 @@ export async function runGeneration(
       }
     }
     const preset = gen.sceneId ? await store.scene(gen.sceneId) : null;
-    const style = custom ? customSceneStyle(custom) : (preset?.style ?? prompts.style);
+    const baseStyle = custom ? customSceneStyle(custom) : (preset?.style ?? prompts.style);
+    // Comedy scenes are exaggerated already (and the database charged nothing extra for them).
+    const overTheTop = gen.exaggerated === true && !preset?.exaggerated;
+    // First in the prompt: the image model follows the start of the instructions most closely.
+    const style = overTheTop ? `${OVER_THE_TOP} ${baseStyle}` : baseStyle;
 
-    const image = await images.edit({ imageUrl: sourceUrl, style, exaggerated: preset?.exaggerated ?? false });
+    const image = await images.edit({
+      imageUrl: sourceUrl,
+      style,
+      exaggerated: (preset?.exaggerated ?? false) || overTheTop,
+    });
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
     await store.upload('generated', imagePath, image.bytes, image.contentType);

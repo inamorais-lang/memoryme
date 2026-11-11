@@ -174,7 +174,7 @@ export default function ResultScreen() {
         : status === 'slow'
           ? t('result.slow')
           : item?.failureReason === 'scene_rejected'
-            ? t('result.sceneRejected')
+            ? t('result.sceneRejected', { count: item.cost })
             : item?.failureReason === 'not_a_pet'
               ? t('result.notAPet', { count: item.cost })
               : t('result.failedRefunded', { count: item?.cost ?? 1 });

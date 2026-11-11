@@ -56,6 +56,7 @@ const ptPT = {
     saved: 'Guardada',
     moveBalloon: 'Mover balão',
     retryFree: 'Nova frase · grátis',
+    watermark: 'Feito com IA · PetBubble',
     writeOwn: 'Escrever a minha frase · grátis',
     writePlaceholder: 'O que está o teu bicho a pensar?',
     useMine: 'Usar esta frase',

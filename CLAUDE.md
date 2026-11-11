@@ -15,6 +15,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 - Sem nomes, fotos ou citações de pessoas reais nas personalidades.
 - Nada de "em breve" na app.
 - Antes de cada fase: plano curto, aprovado pelo dono do produto.
+- **Perguntar sempre antes de decidir** qualquer mudança de produto ou design.
 - Um commit por mudança que funcione, com mensagem clara.
 
 ## Decisões
@@ -31,6 +32,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Só modo claro na v1 | Identidade visual única; menos trabalho de design |
 | App em `mobile/`, site antigo na raiz | Não misturar com o site existente |
 | Design limpo e minimalista, cores vivas da moda (rosa choque, verde-lima, lilás); todos os botões com cor (primary/secondary/tertiary, sem botões só de texto); sem contornos, sombras suaves | Pedido do dono do produto: app jovem, com humor |
+| Nome da app: **PetBubble** (petbubble.app) | Curto, funciona em PT e EN, liga ao balão |
 | Fontes: Bricolage Grotesque (títulos e balão) + DM Sans (texto) | Moderna e irreverente, não parecer "feito por IA" |
 | Ordem: confirmar que há animal (Claude, barato) → imagem (fal) → frase escrita a olhar para a imagem final | Foto sem animal nunca chega ao modelo caro; a frase bate certo com o que está na imagem |
 | Imagem por fal.ai com modelo configurável | Uma só chave para comparar modelos; trocar sem nova versão |
@@ -100,6 +102,7 @@ mobile/
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
 - Frase própria: "Escrever a minha frase", máx. **45** caracteres (`CUSTOM_PHRASE_MAX` e `check` na BD), grátis, sem IA; `custom_phrase` substitui a frase da IA no balão.
 - Balão: rasto de 3 bolinhas a crescer até à bola do texto; cor pastel (`colors.balloonTints`) estável por tradução (`tintFor(id)`), tocar no balão troca a cor.
+- Marca de água fixa em todas as imagens (canto inferior direito, pequena): "Feito com IA · PetBubble" (AI Act da UE + publicidade). Não se pode remover.
 - A imagem partilhada é a captura de `TranslationCanvas` (`react-native-view-shot`): foto original + balão desenhado pela app.
 - Ficheiros `*.web.ts` substituem os nativos na web (ex.: `kv.web.ts`).
 - Língua: `pt*` no dispositivo → PT-PT; tudo o resto → EN.

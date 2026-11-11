@@ -58,6 +58,7 @@ const en: Strings = {
     saved: 'Saved',
     moveBalloon: 'Move bubble',
     retryFree: 'New line · free',
+    watermark: 'Made with AI · PetBubble',
     writeOwn: 'Write my own line · free',
     writePlaceholder: 'What is your pet thinking?',
     useMine: 'Use this line',

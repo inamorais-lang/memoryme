@@ -8,7 +8,9 @@ import {
   useTapGesture,
 } from "react-native-gesture-handler";
 
-import { colors, radius, shadow } from "@/design";
+import { useTranslation } from "react-i18next";
+
+import { AppText, colors, radius, shadow, space } from "@/design";
 
 import { ThoughtBalloon } from "./ThoughtBalloon";
 
@@ -58,6 +60,7 @@ export function TranslationCanvas({
   balloonTint,
   onBalloonPress,
 }: Props) {
+  const { t } = useTranslation();
   const [loaded, setLoaded] = useState<{
     width: number;
     height: number;
@@ -133,6 +136,12 @@ export function TranslationCanvas({
           setLoaded({ width: e.source.width, height: e.source.height })
         }
       />
+      {/* Always on the exported image: marks it as AI-generated (EU AI Act) and credits the app. */}
+      <View style={styles.watermark} pointerEvents="none" testID="watermark">
+        <AppText variant="small" color={colors.onPrimary} style={styles.watermarkText}>
+          {t("result.watermark")}
+        </AppText>
+      </View>
       {phrase ? (
         <GestureDetector gesture={gesture}>
           <View
@@ -173,6 +182,16 @@ function clamp(value: number, min: number, max: number) {
 }
 
 const styles = StyleSheet.create({
+  watermark: {
+    position: "absolute",
+    right: space.sm,
+    bottom: space.sm,
+    paddingHorizontal: space.sm,
+    paddingVertical: space.xxs,
+    borderRadius: radius.pill,
+    backgroundColor: colors.overlay,
+  },
+  watermarkText: { fontSize: 10, lineHeight: 14 },
   frame: {
     width: "100%",
     overflow: "hidden",

@@ -51,6 +51,8 @@ type Props = {
   /** Balloon colour (index into colors.balloonTints) and what tapping it does. */
   balloonTint?: number;
   onBalloonPress?: () => void;
+  /** false only while waiting, when the photo shown is still the original (not made with AI). */
+  watermark?: boolean;
 };
 
 type Size = { w: number; h: number };
@@ -69,6 +71,7 @@ export function TranslationCanvas({
   maxHeight,
   balloonTint,
   onBalloonPress,
+  watermark = true,
 }: Props) {
   const { t } = useTranslation();
   const [loaded, setLoaded] = useState<{
@@ -203,11 +206,13 @@ export function TranslationCanvas({
         </GestureDetector>
       ) : null}
       {/* Always on the exported image: marks it as AI-generated (EU AI Act) and credits the app. */}
-      <View style={styles.watermark} pointerEvents="none" testID="watermark">
-        <AppText variant="small" color={colors.onPrimary} style={styles.watermarkText}>
-          {t("result.watermark")}
-        </AppText>
-      </View>
+      {watermark ? (
+        <View style={styles.watermark} pointerEvents="none" testID="watermark">
+          <AppText variant="small" color={colors.onPrimary} style={styles.watermarkText}>
+            {t("result.watermark")}
+          </AppText>
+        </View>
+      ) : null}
     </View>
   );
 }

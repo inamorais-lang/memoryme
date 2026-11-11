@@ -197,6 +197,7 @@ export default function ResultScreen() {
               photoHeight={photo.height}
               balloonSpot={BALLOON_CORNERS[0]}
               maxHeight={canvasMaxHeight}
+              watermark={false}
             />
           </View>
         ) : null}

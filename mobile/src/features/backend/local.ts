@@ -1,4 +1,12 @@
-import { addTranslation, getTranslation, loadHistory, newId, updateTranslation, type Translation } from '@/features/history/history';
+import {
+  addTranslation,
+  getTranslation,
+  loadHistory,
+  newId,
+  removeTranslation,
+  updateTranslation,
+  type Translation,
+} from '@/features/history/history';
 import { findPersonality, personalitiesForMarket } from '@/features/personalities/data';
 import { translatePhoto } from '@/features/translate/translate';
 import { persistPhoto } from '@/lib/photos';
@@ -73,5 +81,8 @@ export const localBackend: Backend = {
   },
   async listHistory() {
     return (await loadHistory()).map(toView);
+  },
+  async deleteTranslation(id) {
+    await removeTranslation(id);
   },
 };

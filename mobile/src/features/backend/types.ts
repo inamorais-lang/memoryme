@@ -78,4 +78,6 @@ export interface Backend {
   setBalloonSpot(id: string, x: number, y: number): Promise<void>;
   setCustomPhrase(id: string, text: string | null): Promise<void>;
   listHistory(): Promise<TranslationView[]>;
+  /** Deletes one picture (image, line, history entry). */
+  deleteTranslation(id: string): Promise<void>;
 }

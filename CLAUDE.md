@@ -29,6 +29,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
 | Cenários além do modo: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; Dia de praia e Snowboard a 1 crédito, expressão natural; 7 de Natal (`category = 'natal'`, grupo próprio no topo; esconder em janeiro com `active = false`); "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
 | Sem modo "Exagerado" (testado e retirado: pilhas de objetos confusas). Em vez disso, todas as imagens têm cara mais cómica, 2–3 dos objetos da própria cena e cores vivas | Decisão do dono do produto |
+| Idade mínima 16 anos (consentimento RGPD para a IA sem pais em PT, ES, FR, Reino Unido; acima dos 13 dos EUA) | Decisão do dono do produto |
 | 5 línguas: PT-PT, ES, FR, EN-GB, EN-US (os dois ingleses só diferem na ortografia); Termos e Privacidade nas 4 línguas | Pedido do dono do produto |
 | Na app, "Feitio" chama-se **Modo** (pedido do dono do produto) | "Feitio" não soava bem; "Cenário" já é a 2.ª escolha |
 | Os animais falam como animais: 11 modos universais (PT/EN; no código e na BD chamam-se `personalities`), lógica de gato/cão, português neutro; personagens humanas inativas | Decisão do dono do produto: as piadas humanizadas não tinham graça |
@@ -68,6 +69,7 @@ supabase/
   functions/generate          gasta 1 crédito, ou 2 com cenário à medida (SQL atómico) → 202; em segundo plano: Claude ("há animal?") → recorte das barras/margens se a foto for uma captura de ecrã (`crop.ts`, jpeg-js) → [à medida: Claude verifica e descreve o cenário] → fal (imagem) → Storage → Claude (frase sobre a imagem final)
   functions/new-phrase        a frase grátis (1 por geração), sem gastar crédito
   functions/delete-account    apaga fotos + utilizador (linhas apagadas em cascata)
+  functions/delete-image      apaga uma imagem do utilizador (ficheiro + linha); não apaga as que estão a ser criadas
   functions/cleanup-originals  de hora a hora (pg_cron): apaga fotos originais com mais de 23 h (RGPD: máx. 24 h). Sem chave: só apaga, nunca devolve dados
   functions/_shared           ai.ts (Claude, fal), pipeline.ts (lógica testável), store.ts, prompts.ts
   tests/                      testes SQL (Postgres simples) — `supabase/tests/run.sh`

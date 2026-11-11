@@ -6,6 +6,7 @@ Estado a 11 de novembro de 2026. ✅ feito · ⏳ por fazer (fase indicada) · �
 | Requisito | Estado |
 |---|---|
 | Apagar conta dentro da app (5.1.1(v)) | ✅ Definições → Apagar conta: apaga conta, fotos, imagens e créditos |
+| Apagar uma imagem | ✅ "Apagar imagem" no ecrã da imagem (função `delete-image`) |
 | Revogar o token do "Iniciar sessão com a Apple" ao apagar a conta | ⏳ Fase 3 (precisa das chaves da conta Apple Developer) |
 | Política de Privacidade dentro da app | ✅ Definições e ecrã de login → abre a página |
 | Política de Privacidade com link público (App Store Connect) | ❗ ligar o GitHub Pages (email já nas páginas: petbubble.ai@icloud.com) |
@@ -33,7 +34,7 @@ Estado a 11 de novembro de 2026. ✅ feito · ⏳ por fazer (fase indicada) · �
 | Marca "Feito com IA" nas imagens | ✅ fixa, não se pode remover |
 | Filtro de pedidos impróprios (cenário à medida) | ✅ a IA recusa pessoas reais, marcas, conteúdo sexual, violência, etc. |
 | Sem pessoas reais nem marcas nos modos | ✅ |
-| Classificação etária | ❗ responder ao questionário: "Hora do Vinho" tem referências ligeiras a álcool → provavelmente 13+ (igual à idade dos Termos) |
+| Classificação etária | ❗ responder ao questionário: "Hora do Vinho" tem referências ligeiras a álcool. Idade mínima nos Termos: **16 anos** (consentimento RGPD sem pais em todos os países) → escolher 16+ |
 
 ## App completa (2.1, 2.3, 4.2)
 | Requisito | Estado |

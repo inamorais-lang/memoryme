@@ -48,6 +48,11 @@ export async function updateTranslation(id: string, patch: Partial<Translation>)
   await saveHistory(items.map((i) => (i.id === id ? { ...i, ...patch } : i)));
 }
 
+export async function removeTranslation(id: string) {
+  const items = await loadHistory();
+  await saveHistory(items.filter((i) => i.id !== id));
+}
+
 export async function getTranslation(id: string) {
   return (await loadHistory()).find((i) => i.id === id);
 }

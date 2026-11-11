@@ -150,6 +150,10 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       const { error } = await supabase.from('generations').update({ custom_phrase: text }).eq('id', id);
       if (error) throw new BackendError('network');
     },
+    async deleteTranslation(id) {
+      const { error } = await supabase.functions.invoke('delete-image', { body: { generationId: id } });
+      if (error) throw await toBackendError(error);
+    },
     async listHistory() {
       const { data, error } = await supabase
         .from('generations')

@@ -162,6 +162,25 @@ export default function ResultScreen() {
     }
   }
 
+  function confirmDelete() {
+    if (!item) return;
+    Alert.alert(t('result.deleteTitle'), t('result.deleteBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('result.deleteConfirm'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await backend.deleteTranslation(item.id);
+            newPhoto();
+          } catch {
+            Alert.alert(t('result.deleteError'));
+          }
+        },
+      },
+    ]);
+  }
+
   function newPhoto() {
     draft.reset();
     router.dismissAll();
@@ -291,6 +310,7 @@ export default function ResultScreen() {
           />
         ) : null}
         <Button testID="new-photo" variant="tertiary" label={t('result.newPhoto')} onPress={newPhoto} />
+        <Button testID="delete-image" variant="tertiary" label={t('result.deleteImage')} onPress={confirmDelete} />
       </View>
     </>
   );

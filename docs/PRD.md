@@ -67,6 +67,16 @@ O animal tem de continuar reconhecível como **o mesmo animal** (raça, cor, pad
 
 As personalidades são **configuradas no servidor**, para podermos acrescentar ou afinar sem lançar uma nova versão.
 
+#### Cenários (além do feitio)
+Por defeito, a imagem usa o cenário do feitio. A pessoa pode escolher outro:
+
+| Cenário | Custo | O que faz |
+|---|---|---|
+| Sorriso com dentes, Olhos arregalados, Óculos, Cabelo novo, Narigudo, Pose ridícula | 1 crédito | Fotos engraçadas, fundo pastel; só nestes a expressão pode ser exagerada |
+| À medida | 2 créditos | A pessoa descreve o cenário (3–80 caracteres). A IA verifica e recusa pessoas reais, marcas, personagens com direitos, conteúdo sexual, violência, drogas, ódio ou maus-tratos a animais; se recusar, os 2 créditos são devolvidos |
+
+Exemplos reais: `docs/screenshots/cenarios.jpg`.
+
 ### 5.3 Partilhar e guardar
 - Folha de partilha nativa do iOS: Instagram, TikTok, WhatsApp, Mensagens, etc.
 - Guardar no rolo da câmara.

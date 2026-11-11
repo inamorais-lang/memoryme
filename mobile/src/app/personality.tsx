@@ -5,17 +5,26 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 
-import { AppText, border, Button, colors, radius, Screen, shadow, space } from '@/design';
+import { AppText, border, Button, colors, radius, Screen, shadow, space, TextField } from '@/design';
 import { useAuth } from '@/features/auth/AuthContext';
-import { backend, BackendError, type PersonalityInfo } from '@/features/backend';
+import {
+  backend,
+  BackendError,
+  CUSTOM_SCENE_MAX,
+  CUSTOM_SCENE_MIN,
+  type PersonalityInfo,
+  type SceneChoice,
+  type SceneInfo,
+} from '@/features/backend';
 import { useDraft } from '@/features/draft/DraftContext';
-import { currentMarket } from '@/i18n';
+import { currentLanguage, currentMarket } from '@/i18n';
 
 export default function PersonalityScreen() {
   const { t } = useTranslation();
   const draft = useDraft();
   const auth = useAuth();
   const [list, setList] = useState<PersonalityInfo[] | null>(null);
+  const [scenes, setScenes] = useState<SceneInfo[]>([]);
   const [starting, setStarting] = useState(false);
   const waitingForSignIn = useRef(false);
 
@@ -24,7 +33,15 @@ export default function PersonalityScreen() {
       .listPersonalities(currentMarket())
       .then(setList)
       .catch(() => setList([]));
+    backend
+      .listScenes(currentLanguage())
+      .then(setScenes)
+      .catch(() => setScenes([]));
   }, []);
+
+  const customText = draft.customScene.replace(/\s+/g, ' ').trim();
+  const isCustom = draft.scene.kind === 'custom';
+  const sceneReady = !isCustom || customText.length >= CUSTOM_SCENE_MIN;
 
   const start = useCallback(async () => {
     if (!draft.photo || !draft.personalityId) return;
@@ -33,9 +50,16 @@ export default function PersonalityScreen() {
       router.push('/sign-in');
       return;
     }
+    if (!sceneReady) return;
+    const scene: SceneChoice =
+      draft.scene.kind === 'preset'
+        ? { sceneId: draft.scene.id }
+        : draft.scene.kind === 'custom'
+          ? { customScene: customText }
+          : {};
     setStarting(true);
     try {
-      const id = await backend.createTranslation(draft.photo, draft.personalityId);
+      const id = await backend.createTranslation(draft.photo, draft.personalityId, scene);
       router.push({ pathname: '/result', params: { id } });
     } catch (e) {
       const code = e instanceof BackendError ? e.code : 'server_error';
@@ -44,12 +68,13 @@ export default function PersonalityScreen() {
       else if (code === 'rate_limited') Alert.alert(t('result.rateLimited'));
       else if (code === 'daily_limit') Alert.alert(t('result.dailyLimit'));
       else if (code === 'network') Alert.alert(t('result.network'));
+      else if (code === 'invalid_scene') Alert.alert(t('scene.invalid'));
       else Alert.alert(t('result.errorTitle'), t('result.errorBody'));
     } finally {
       setStarting(false);
       auth.refreshCredits();
     }
-  }, [draft.photo, draft.personalityId, auth, t]);
+  }, [draft.photo, draft.personalityId, draft.scene, customText, sceneReady, auth, t]);
 
   // Coming back from "Sign in with Apple": carry on with the translation.
   useEffect(() => {
@@ -71,8 +96,16 @@ export default function PersonalityScreen() {
       footer={
         <Button
           testID="translate"
-          label={draft.personalityId ? t('personality.translate') : t('personality.pickFirst')}
-          disabled={!draft.personalityId}
+          label={
+            !draft.personalityId
+              ? t('personality.pickFirst')
+              : !sceneReady
+                ? t('scene.tooShort')
+                : isCustom
+                  ? t('personality.translateCustom')
+                  : t('personality.translate')
+          }
+          disabled={!draft.personalityId || !sceneReady}
           loading={starting}
           onPress={start}
         />
@@ -120,7 +153,74 @@ export default function PersonalityScreen() {
           );
         })}
       </View>
+
+      {scenes.length > 0 ? (
+        <View style={styles.sceneSection}>
+          <View style={styles.headerText}>
+            <AppText variant="heading">{t('scene.title')}</AppText>
+            <AppText color={colors.inkMuted}>{t('scene.subtitle')}</AppText>
+          </View>
+          <View style={styles.chips}>
+            <SceneChip
+              testID="scene-mood"
+              label={t('scene.mood')}
+              selected={draft.scene.kind === 'mood'}
+              onPress={() => draft.setScene({ kind: 'mood' })}
+            />
+            {scenes.map((s) => (
+              <SceneChip
+                key={s.id}
+                testID={`scene-${s.id}`}
+                label={s.name}
+                selected={draft.scene.kind === 'preset' && draft.scene.id === s.id}
+                onPress={() => draft.setScene({ kind: 'preset', id: s.id })}
+              />
+            ))}
+            <SceneChip
+              testID="scene-custom"
+              label={t('scene.custom')}
+              selected={isCustom}
+              onPress={() => draft.setScene({ kind: 'custom' })}
+            />
+          </View>
+          {isCustom ? (
+            <View style={styles.customScene}>
+              <AppText variant="small" color={colors.inkMuted}>
+                {t('scene.customHint')}
+              </AppText>
+              <TextField
+                testID="custom-scene"
+                value={draft.customScene}
+                onChangeText={draft.setCustomScene}
+                placeholder={t('scene.customPlaceholder')}
+                maxLength={CUSTOM_SCENE_MAX}
+                counterLabel={t('result.charsLeft', { count: CUSTOM_SCENE_MAX - draft.customScene.length })}
+                returnKeyType="done"
+                autoFocus
+              />
+            </View>
+          ) : null}
+        </View>
+      ) : null}
     </Screen>
+  );
+}
+
+function SceneChip(props: { label: string; selected: boolean; onPress: () => void; testID: string }) {
+  return (
+    <Pressable
+      testID={props.testID}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: props.selected }}
+      onPress={() => {
+        if (Platform.OS !== 'web') Haptics.selectionAsync();
+        props.onPress();
+      }}
+      style={({ pressed }) => [styles.chip, props.selected && styles.chipSelected, pressed && styles.cardPressed]}>
+      <AppText variant="smallStrong" color={props.selected ? colors.onPrimary : colors.ink}>
+        {props.label}
+      </AppText>
+    </Pressable>
   );
 }
 
@@ -148,6 +248,17 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.02 }],
   },
   cardPressed: { opacity: 0.85 },
+  sceneSection: { gap: space.md, marginTop: space.lg },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  chip: {
+    paddingHorizontal: space.md,
+    paddingVertical: space.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    boxShadow: shadow.sm,
+  },
+  chipSelected: { backgroundColor: colors.primary },
+  customScene: { gap: space.sm },
   badge: {
     alignSelf: 'flex-start',
     marginTop: space.xs,

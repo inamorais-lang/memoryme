@@ -169,9 +169,11 @@ export default function ResultScreen() {
         ? t('result.notFound')
         : status === 'slow'
           ? t('result.slow')
-          : item?.failureReason === 'not_a_pet'
-            ? t('result.notAPet')
-            : t('result.failedRefunded');
+          : item?.failureReason === 'scene_rejected'
+            ? t('result.sceneRejected')
+            : item?.failureReason === 'not_a_pet'
+              ? t('result.notAPet', { count: item.cost })
+              : t('result.failedRefunded', { count: item?.cost ?? 1 });
     return (
       <Screen footer={<Button testID="new-photo" label={t('result.newPhoto')} onPress={newPhoto} />}>
         <AppText variant="heading" testID="result-message">

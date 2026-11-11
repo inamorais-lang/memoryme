@@ -10,7 +10,7 @@ import { BackendError, type Backend, type BackendErrorCode, type TranslationView
 
 const MAX_SIDE = 1536;
 const COLUMNS =
-  'id, status, personality_id, image_path, phrase, custom_phrase, free_phrase_used, balloon_position, balloon_x, balloon_y, failure_reason, created_at';
+  'id, status, personality_id, image_path, phrase, custom_phrase, free_phrase_used, balloon_position, balloon_x, balloon_y, failure_reason, cost, created_at';
 
 type Row = {
   id: string;
@@ -24,10 +24,11 @@ type Row = {
   balloon_x: number | null;
   balloon_y: number | null;
   failure_reason: string | null;
+  cost: number;
   created_at: string;
 };
 
-const KNOWN_CODES: BackendErrorCode[] = ['insufficient_credits', 'rate_limited', 'daily_limit', 'no_free_phrase'];
+const KNOWN_CODES: BackendErrorCode[] = ['insufficient_credits', 'rate_limited', 'daily_limit', 'no_free_phrase', 'invalid_scene'];
 
 /** Turns an Edge Function error into a code the screens understand. */
 async function toBackendError(error: unknown): Promise<BackendError> {
@@ -82,6 +83,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       balloonX: r.balloon_x ?? undefined,
       balloonY: r.balloon_y ?? undefined,
       failureReason: r.failure_reason ?? undefined,
+      cost: r.cost ?? 1,
       createdAt: Date.parse(r.created_at),
     }));
   }
@@ -97,7 +99,16 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       if (error) throw new BackendError('network');
       return data ?? [];
     },
-    async createTranslation(photo, personalityId) {
+    async listScenes(language) {
+      const { data, error } = await supabase
+        .from('scenes')
+        .select('id, name')
+        .eq('language', language)
+        .order('sort_order');
+      if (error) throw new BackendError('network');
+      return data ?? [];
+    },
+    async createTranslation(photo, personalityId, scene) {
       const uid = await userId();
       const originalPath = `${uid}/${newId()}.jpg`;
       try {
@@ -110,7 +121,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
         throw new BackendError('network');
       }
       const { data, error } = await supabase.functions.invoke('generate', {
-        body: { personalityId, originalPath },
+        body: { personalityId, originalPath, sceneId: scene?.sceneId, customScene: scene?.customScene },
       });
       if (error) throw await toBackendError(error);
       return data.generationId as string;

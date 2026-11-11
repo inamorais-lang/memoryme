@@ -1,8 +1,18 @@
 import type { BalloonPosition } from '@/features/history/history';
-import type { Market } from '@/i18n';
+import type { AppLanguage, Market } from '@/i18n';
 import type { PickedPhoto } from '@/lib/photos';
 
 export type PersonalityInfo = { id: string; name: string; tagline: string };
+
+/** Preset scene chosen on top of the mood (e.g. fake teeth, glasses). */
+export type SceneInfo = { id: string; name: string };
+
+/** Scene for a new translation: a preset (1 credit) or one typed by the user (2 credits). */
+export type SceneChoice = { sceneId?: string; customScene?: string };
+
+/** Limits of a scene typed by the user (also enforced in the database). */
+export const CUSTOM_SCENE_MIN = 3;
+export const CUSTOM_SCENE_MAX = 80;
 
 /** Max length of a line written by the user (also enforced in the database). */
 export const CUSTOM_PHRASE_MAX = 45;
@@ -26,6 +36,8 @@ export type TranslationView = {
   balloonX?: number;
   balloonY?: number;
   failureReason?: string;
+  /** Credits spent (1, or 2 for a scene typed by the user). */
+  cost: number;
   createdAt: number;
 };
 
@@ -35,6 +47,7 @@ export type BackendErrorCode =
   | 'rate_limited'
   | 'daily_limit'
   | 'no_free_phrase'
+  | 'invalid_scene'
   | 'network'
   | 'server_error';
 
@@ -47,8 +60,10 @@ export class BackendError extends Error {
 export interface Backend {
   mode: 'local' | 'remote';
   listPersonalities(market: Market): Promise<PersonalityInfo[]>;
-  /** Spends a credit (remote) and starts the translation. Returns its id. */
-  createTranslation(photo: PickedPhoto, personalityId: string): Promise<string>;
+  /** Preset scenes; empty when the app runs without the server. */
+  listScenes(language: AppLanguage): Promise<SceneInfo[]>;
+  /** Spends credits (remote) and starts the translation. Returns its id. */
+  createTranslation(photo: PickedPhoto, personalityId: string, scene?: SceneChoice): Promise<string>;
   getTranslation(id: string): Promise<TranslationView | null>;
   newPhrase(id: string): Promise<string>;
   setBalloonSpot(id: string, x: number, y: number): Promise<void>;

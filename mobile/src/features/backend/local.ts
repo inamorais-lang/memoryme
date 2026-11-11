@@ -21,6 +21,7 @@ function toView(t: Translation): TranslationView {
     balloonX: t.balloonX,
     balloonY: t.balloonY,
     createdAt: t.createdAt,
+    cost: 1,
   };
 }
 
@@ -28,6 +29,10 @@ export const localBackend: Backend = {
   mode: 'local',
   async listPersonalities(market) {
     return personalitiesForMarket(market).map(({ id, name, tagline }) => ({ id, name, tagline }));
+  },
+  // Without the server there is no image model, so no scenes.
+  async listScenes() {
+    return [];
   },
   async createTranslation(photo, personalityId) {
     const id = newId();

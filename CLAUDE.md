@@ -27,6 +27,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Login com a Apple só na primeira compra | Menos fricção no início |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
+| Cenários além do feitio: 6 engraçados (sorriso com dentes, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula) a 1 crédito, com expressão exagerada só nestes; "À medida" (texto 3–80) a 2 créditos | Pedido do dono do produto; o à medida custa mais e é verificado pela IA |
 | Os animais falam como animais: 8 feitios universais (PT/EN), lógica de gato/cão, português neutro; personagens humanas inativas | Decisão do dono do produto: as piadas humanizadas não tinham graça |
 | Sem Mac: EAS Build na cloud + Expo Go/builds de teste no iPhone; testes automáticos na web | O dono do produto só tem iPhone |
 | Só modo claro na v1 | Identidade visual única; menos trabalho de design |
@@ -56,7 +57,7 @@ npm test             # só os testes unitários (Jest)
 ```
 supabase/
   migrations/                 esquema + RLS + funções de créditos; personalidades e prompts
-  functions/generate          gasta 1 crédito (SQL atómico) → 202; em segundo plano: Claude ("há animal?") → fal (imagem) → Storage → Claude (frase sobre a imagem final)
+  functions/generate          gasta 1 crédito, ou 2 com cenário à medida (SQL atómico) → 202; em segundo plano: Claude ("há animal?") → [à medida: Claude verifica e descreve o cenário] → fal (imagem) → Storage → Claude (frase sobre a imagem final)
   functions/new-phrase        a frase grátis (1 por geração), sem gastar crédito
   functions/delete-account    apaga fotos + utilizador (linhas apagadas em cascata)
   functions/_shared           ai.ts (Claude, fal), pipeline.ts (lógica testável), store.ts, prompts.ts
@@ -100,6 +101,7 @@ mobile/
 
 - Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos; a IA deixa o terço de cima da imagem livre.
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
+- Cenários (`scenes`, no servidor, `image_prompt` escondido): escolhidos no ecrã do feitio; substituem o cenário do feitio. À medida: recusado (pessoas reais, marcas, impróprio…) → `scene_rejected`, 2 créditos devolvidos. No modo local não há cenários.
 - Frase própria: "Escrever a minha frase", máx. **45** caracteres (`CUSTOM_PHRASE_MAX` e `check` na BD), grátis, sem IA; `custom_phrase` substitui a frase da IA no balão.
 - Balão: rasto de 3 bolinhas a crescer até à bola do texto; cor pastel (`colors.balloonTints`) estável por tradução (`tintFor(id)`), tocar no balão troca a cor.
 - Marca de água fixa em todas as imagens (canto inferior direito, pequena): "Feito com IA · PetBubble" (AI Act da UE + publicidade). Não se pode remover.

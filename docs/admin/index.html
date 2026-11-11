@@ -31,20 +31,17 @@
 <body>
 <main>
   <h1>PetBubble · Admin</h1>
-  <p class="muted">Dar créditos a uma conta pelo código que aparece nas Definições da app.</p>
+  <p class="muted">Dar créditos a uma conta pelo código que aparece nas Definições da app. Entras com um link enviado para o teu email.</p>
 
   <section class="card" id="step-email">
     <label>O teu email de administradora
       <input id="email" type="email" autocomplete="email" inputmode="email">
     </label>
-    <button class="primary" id="send">Enviar código</button>
+    <button class="primary" id="send">Enviar link de entrada</button>
   </section>
 
   <section class="card" id="step-code" hidden>
-    <label>Código que recebeste por email
-      <input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
-    </label>
-    <button class="primary" id="verify">Entrar</button>
+    <p style="margin:0">Abre o email <strong>“Your sign-in link”</strong> neste telemóvel e toca em <strong>Sign in</strong>. Voltas a esta página já com sessão iniciada.</p>
   </section>
 
   <section class="card" id="step-grant" hidden>
@@ -106,14 +103,7 @@
     $('send').disabled = false;
     if (error) return say('Não foi possível enviar o código. Espera um pouco e tenta outra vez.', true);
     show('step-code');
-    say('Enviámos um código para o teu email.');
-  };
-
-  $('verify').onclick = async () => {
-    const { data, error } = await sb.auth.verifyOtp({ email: $('email').value.trim(), token: $('otp').value.trim(), type: 'email' });
-    if (error || !data.session) return say('Código errado ou expirado.', true);
-    $('msg').hidden = true;
-    enter(data.session);
+    say('Enviámos um link de entrada para o teu email.');
   };
 
   $('grant').onclick = async () => {
@@ -133,7 +123,11 @@
 
   $('logout').onclick = async () => { await sb.auth.signOut(); show('step-email'); $('msg').hidden = true; };
 
-  sb.auth.getSession().then(({ data }) => { if (data.session) enter(data.session); });
+  // Coming back from the email link, the session arrives in the address.
+  let entered = false;
+  sb.auth.onAuthStateChange((_event, session) => {
+    if (session && !entered) { entered = true; $('msg').hidden = true; enter(session); }
+  });
 </script>
 </body>
 </html>

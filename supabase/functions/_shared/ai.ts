@@ -8,7 +8,12 @@ import { imageEditPrompt, PHRASE_MAX, phraseSystemPrompt, phraseUserPrompt, type
 export type HeadBox = [number, number, number, number];
 
 /** Is there a pet; and where the photograph is inside the image (without screen bars or borders). */
-export type PetCheck = { isPet: boolean; photo?: HeadBox };
+export type PetCheck = {
+  isPet: boolean;
+  photo?: HeadBox;
+  /** Short description of the animal's look (coat colours, markings), so the image model keeps them. */
+  appearance?: string;
+};
 
 export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox };
 
@@ -34,7 +39,7 @@ export interface PhraseWriter {
 
 export interface ImageEditor {
   /** Returns the bytes of the restyled image. */
-  edit(args: { imageUrl: string; style: string; exaggerated?: boolean }): Promise<{ bytes: Uint8Array; contentType: string }>;
+  edit(args: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string }): Promise<{ bytes: Uint8Array; contentType: string }>;
 }
 
 // ───────────────────────── Claude (phrase + "is there a pet?") ─────────────────────────
@@ -129,6 +134,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
             type: 'object',
             properties: {
               is_pet: { type: 'boolean' },
+              appearance: { type: 'string' },
               photo: {
                 type: 'object',
                 properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } },
@@ -136,7 +142,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 additionalProperties: false,
               },
             },
-            required: ['is_pet', 'photo'],
+            required: ['is_pet', 'appearance', 'photo'],
             additionalProperties: false,
           },
         },
@@ -152,7 +158,9 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 'Does this photo clearly show a real cat or dog? Answer in is_pet. ' +
                 'In "photo", give the box of the actual photograph inside the image, as fractions: x and y of the top-left corner, ' +
                 'then width and height, all between 0 and 1. If the image is a screenshot or has borders, margins, app bars or text ' +
-                'around the photograph, return only the photograph. Never cut into the photograph itself. Otherwise return 0, 0, 1, 1.',
+                'around the photograph, return only the photograph. Never cut into the photograph itself. Otherwise return 0, 0, 1, 1. ' +
+                'In "appearance", describe the animal in one English sentence (max 40 words) for an image editor that must keep it identical: ' +
+                'species, breed if clear, coat colours, and every distinctive marking with its exact place (face, nose, chest, paws, tail), eye colour.',
             },
           ],
         },
@@ -164,7 +172,8 @@ export class ClaudePhraseWriter implements PhraseWriter {
     const data = JSON.parse(text.text);
     if (data.is_pet !== true) return { isPet: false };
     const photo = parseHead(data.photo);
-    return photo ? { isPet: true, photo } : { isPet: true };
+    const appearance = typeof data.appearance === 'string' ? data.appearance.replace(/\s+/g, ' ').trim().slice(0, 300) : '';
+    return { isPet: true, ...(photo ? { photo } : {}), ...(appearance ? { appearance } : {}) };
   }
 
   async write(args: Parameters<PhraseWriter['write']>[0]): Promise<PhraseResult> {
@@ -273,7 +282,7 @@ export class FalImageEditor implements ImageEditor {
     private fetchFn: typeof fetch = fetch,
   ) {}
 
-  async edit({ imageUrl, style, exaggerated = false }: { imageUrl: string; style: string; exaggerated?: boolean }) {
+  async edit({ imageUrl, style, exaggerated = false, appearance }: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string }) {
     const response = await this.fetchFn(`https://fal.run/${this.model}`, {
       method: 'POST',
       headers: {
@@ -283,7 +292,7 @@ export class FalImageEditor implements ImageEditor {
         'X-Fal-Store-IO': '0',
         'X-Fal-Object-Lifecycle-Preference': JSON.stringify({ expiration_duration_seconds: 3600 }),
       },
-      body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated), imageUrl)),
+      body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated, appearance), imageUrl)),
       signal: AbortSignal.timeout(110_000),
     });
     if (!response.ok) {

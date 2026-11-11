@@ -80,11 +80,13 @@ export function customSceneStyle(description: string): string {
   return `${description} Change the whole setting to match; the pet is clearly doing this. Family-friendly.`;
 }
 
-export function imageEditPrompt(style: string, exaggerated = false): string {
+export function imageEditPrompt(style: string, exaggerated = false, appearance?: string): string {
   return [
     'Edit this photo of a pet.',
     `Style: ${style}`,
     'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape.',
+    // Described from the original photo: the model tends to "clean up" small markings otherwise.
+    ...(appearance ? [`This animal: ${appearance} Reproduce every one of these colours and markings exactly, in the same places, and add none.`] : []),
     'The pet stays the main subject, centred and photorealistic.',
     exaggerated
       ? 'This is a comedy photo: a big, exaggerated, funny expression is welcome (wide eyes, open mouth), but the animal stays photorealistic.'

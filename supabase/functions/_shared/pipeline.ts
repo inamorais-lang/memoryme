@@ -85,6 +85,7 @@ export async function runGeneration(
       imageUrl: sourceUrl,
       style,
       exaggerated: preset?.exaggerated ?? false,
+      appearance: check.appearance,
     });
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;

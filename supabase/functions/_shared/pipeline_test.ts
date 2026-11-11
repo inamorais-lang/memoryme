@@ -231,6 +231,23 @@ Deno.test('phrase prompt: Spanish, French and the two Englishes', () => {
   assert.doesNotMatch(phraseSystemPrompt('pt-PT', 'US'), /spelling/);
 });
 
+Deno.test('the pet description from the original photo reaches the image model', async () => {
+  const { store } = fakeStore();
+  let got: { appearance?: string } = {};
+  await runGeneration(
+    {
+      store,
+      phrases: { ...phrases({ isPet: true, phrase: 'x' }), isPet: async () => ({ isPet: true, appearance: 'Black cat, white stripe on the nose.' }) },
+      images: images(async (a) => ((got = a), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
+      log: quiet,
+    },
+    gen,
+  );
+  assert.equal(got.appearance, 'Black cat, white stripe on the nose.');
+  assert.match(imageEditPrompt('x', false, 'Black cat, white stripe on the nose.'), /white stripe on the nose\. Reproduce every one/);
+  assert.doesNotMatch(imageEditPrompt('x'), /This animal:/);
+});
+
 Deno.test('falInput uses each model\'s field names', () => {
   assert.deepEqual(falInput('fal-ai/flux-pro/kontext', 'p', 'u').image_url, 'u');
   assert.deepEqual(falInput('google/nano-banana-2.1/edit', 'p', 'u').image_urls, ['u']);

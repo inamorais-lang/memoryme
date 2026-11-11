@@ -83,10 +83,11 @@ export function customSceneStyle(description: string): string {
 export function imageEditPrompt(style: string, exaggerated = false, appearance?: string): string {
   return [
     'Edit this photo of a pet.',
+    // First, so the model weighs it most: it tends to "clean up" small markings as if they were dirt.
+    ...(appearance ? [`This animal: ${appearance} Small dark spots and smudges on its face are real fur markings, not dirt: keep every one, same size and same place.`] : []),
     `Style: ${style}`,
     'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape. Keep its real anatomy: a cat keeps a short cat muzzle and cat teeth, never a dog-like snout or grin.',
-    // Described from the original photo: the model tends to "clean up" small markings otherwise.
-    ...(appearance ? [`This animal: ${appearance} Reproduce every one of these colours and markings exactly, in the same places, and add none.`] : []),
+    ...(appearance ? ['Reproduce every colour and marking described above exactly, in the same places, keeping any asymmetry, and add none.'] : []),
     'The pet stays the main subject, centred and photorealistic.',
     exaggerated
       ? 'This is a comedy photo: a big, exaggerated, funny expression is welcome (wide eyes, open mouth), but the animal stays photorealistic.'

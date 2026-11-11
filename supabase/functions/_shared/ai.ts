@@ -159,8 +159,10 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 'In "photo", give the box of the actual photograph inside the image, as fractions: x and y of the top-left corner, ' +
                 'then width and height, all between 0 and 1. If the image is a screenshot or has borders, margins, app bars or text ' +
                 'around the photograph, return only the photograph. Never cut into the photograph itself. Otherwise return 0, 0, 1, 1. ' +
-                'In "appearance", describe the animal in one English sentence (max 40 words) for an image editor that must keep it identical: ' +
-                'species, breed if clear, coat colours, and every distinctive marking with its exact place (face, nose, chest, paws, tail), eye colour.',
+                'In "appearance", describe the animal in English (max 70 words) for an image editor that must keep it identical: ' +
+                'species, breed if clear, coat colours, eye colour, and every marking with its exact place. Look closely at the face: ' +
+                'small spots or patches on the nose, lips, muzzle or chin, and whether they are on the animal\'s left or right side. ' +
+                'Markings are often asymmetric: say so. Then chest, paws, tail.',
             },
           ],
         },
@@ -172,7 +174,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
     const data = JSON.parse(text.text);
     if (data.is_pet !== true) return { isPet: false };
     const photo = parseHead(data.photo);
-    const appearance = typeof data.appearance === 'string' ? data.appearance.replace(/\s+/g, ' ').trim().slice(0, 300) : '';
+    const appearance = typeof data.appearance === 'string' ? data.appearance.replace(/\s+/g, ' ').trim().slice(0, 500) : '';
     return { isPet: true, ...(photo ? { photo } : {}), ...(appearance ? { appearance } : {}) };
   }
 

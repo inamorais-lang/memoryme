@@ -98,7 +98,9 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
     exaggerated
       ? 'This is a comedy photo: a big, exaggerated, funny expression is welcome (wide eyes, open mouth), but the animal stays photorealistic.'
       : 'Give the pet a lively, funny expression that fits the mood, natural for its species: a cat shows attitude with its eyes, ears, whiskers and posture (smug half-closed eyes, a side-eye, wide eyes), with its mouth closed or barely open and never a wide toothy grin; a dog may smile with an open mouth and tongue out. Expressive and comic, but still a real animal, never a cartoon.',
-    'Bright and colourful: vivid saturated colours and strong cheerful light, like a playful editorial photo. Never dark, moody or gloomy.',
+    'Bright and colourful: vivid saturated colours and strong cheerful light on the scene, outfit and props, like a playful editorial photo. Never dark, moody or gloomy.',
+    // The breed name and the vivid-colour rule used to turn a pale cream golden into a yellow one.
+    'The fur keeps exactly the same shade and tone as in the photo: do not warm, darken, lighten or saturate it, even under coloured lights, and never change it towards the usual colour of the breed.',
     // No concrete examples here: the image model copies them into every scene.
     'Generous but clear: show two or three of the objects already named in the style above instead of one, neatly arranged so each is easy to recognise. Add no other objects and no cluttered piles.',
     'Frame the pet in the lower two thirds of the image and keep the top third as plain, empty background.',

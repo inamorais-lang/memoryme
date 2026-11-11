@@ -19,7 +19,7 @@ export function supabaseStore(admin: SupabaseClient): Store {
     async scene(id) {
       const { data, error } = await admin
         .from('scenes')
-        .select('kind, language, image_prompt, exaggerated, voice_prompt, addon_prompt')
+        .select('kind, language, image_prompt, exaggerated, voice_prompt, addon_prompt, faithful')
         .eq('id', id)
         .single();
       if (error || !data) throw new Error(`scene_${error?.message ?? 'missing'}`);
@@ -30,6 +30,7 @@ export function supabaseStore(admin: SupabaseClient): Store {
         exaggerated: data.exaggerated === true,
         voice: data.voice_prompt ?? undefined,
         addon: data.addon_prompt ?? undefined,
+        faithful: data.faithful === true,
       };
     },
     async signedUrl(bucket, path) {

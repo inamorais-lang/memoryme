@@ -60,7 +60,7 @@ const fr: Strings = {
       'On devine à quoi il pense…',
       'On décode ce regard méprisant…',
     ],
-    loadingHint: 'Cela peut prendre jusqu’à 30 secondes.',
+    loadingHint: 'Cela peut prendre jusqu’à une minute.',
     notAPet_one: 'Nous n’avons trouvé ni chat ni chien sur cette photo. Ton crédit a été remboursé.',
     notAPet_other: 'Nous n’avons trouvé ni chat ni chien sur cette photo. Tes {{count}} crédits ont été remboursés.',
     failedRefunded_one: 'Nous n’avons pas pu créer l’image. Ton crédit a été remboursé.',

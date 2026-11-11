@@ -348,3 +348,52 @@ Deno.test('SQL errors map to app-friendly HTTP codes', () => {
   assert.deepEqual(httpErrorFor('no_free_phrase'), { status: 409, code: 'no_free_phrase' });
   assert.deepEqual(httpErrorFor('something else'), { status: 500, code: 'server_error' });
 });
+
+function modelRun(
+  genOver: Record<string, unknown>,
+  check: { smallMarkings?: boolean } = {},
+  faithfulFails = false,
+  sceneFaithful = false,
+) {
+  const { store } = fakeStore();
+  const base = store.scene;
+  store.scene = async (id) => ({ ...(await base(id)), faithful: sceneFaithful && id.endsWith('sorriso') });
+  const used: string[] = [];
+  const editor = (name: string, fail = false): ImageEditor => ({
+    edit: async () => {
+      used.push(name);
+      if (fail) throw new Error('image_failed_504');
+      return { bytes: new Uint8Array([1]), contentType: 'image/jpeg' };
+    },
+  });
+  return runGeneration(
+    {
+      store,
+      phrases: {
+        isPet: async () => ({ isPet: true, ...check }),
+        describeScene: async (scene: string) => `A pet ${scene}.`,
+        write: async () => ({ isPet: true, phrase: 'x' }),
+      },
+      images: editor('fast'),
+      faithfulImages: editor('faithful', faithfulFails),
+      log: quiet,
+    },
+    { ...gen, ...genOver },
+  ).then((outcome) => ({ outcome, used }));
+}
+
+Deno.test('image model: the fast one by default', async () => {
+  assert.deepEqual((await modelRun({})).used, ['fast']);
+});
+
+Deno.test('image model: the faithful one for small markings, custom scenes and pose changes', async () => {
+  assert.deepEqual((await modelRun({}, { smallMarkings: true })).used, ['faithful']);
+  assert.deepEqual((await modelRun({ personalityId: undefined, customScene: 'no espaço' })).used, ['faithful']);
+  assert.deepEqual((await modelRun({ comicId: 'pt-sorriso' }, {}, false, true)).used, ['faithful']);
+});
+
+Deno.test('image model: if the faithful one fails, the fast one still makes the picture', async () => {
+  const { outcome, used } = await modelRun({}, { smallMarkings: true }, true);
+  assert.equal(outcome, 'succeeded');
+  assert.deepEqual(used, ['faithful', 'fast']);
+});

@@ -13,6 +13,8 @@ export type PetCheck = {
   photo?: HeadBox;
   /** Short description of the animal's look (coat colours, markings), so the image model keeps them. */
   appearance?: string;
+  /** Small facial spots the fast image model tends to drop: use the faithful one. */
+  smallMarkings?: boolean;
 };
 
 export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox };
@@ -135,6 +137,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
             properties: {
               is_pet: { type: 'boolean' },
               appearance: { type: 'string' },
+              small_markings: { type: 'boolean' },
               photo: {
                 type: 'object',
                 properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } },
@@ -142,7 +145,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 additionalProperties: false,
               },
             },
-            required: ['is_pet', 'appearance', 'photo'],
+            required: ['is_pet', 'appearance', 'small_markings', 'photo'],
             additionalProperties: false,
           },
         },
@@ -162,7 +165,9 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 'In "appearance", describe the animal in English (max 70 words) for an image editor that must keep it identical: ' +
                 'species, breed if clear, coat colours, eye colour, and every marking with its exact place. Look closely at the face: ' +
                 'small spots or patches on the nose, lips, muzzle or chin, and whether they are on the animal\'s left or right side. ' +
-                'Markings are often asymmetric: say so. Then chest, paws, tail.',
+                'Markings are often asymmetric: say so. Then chest, paws, tail. ' +
+                'Set "small_markings" to true only if the face has a small spot, smudge or patch (on the nose, lips, muzzle or chin) ' +
+                'that an image editor could easily drop; false for plain faces and for simple symmetric patterns.',
             },
           ],
         },
@@ -175,7 +180,12 @@ export class ClaudePhraseWriter implements PhraseWriter {
     if (data.is_pet !== true) return { isPet: false };
     const photo = parseHead(data.photo);
     const appearance = typeof data.appearance === 'string' ? data.appearance.replace(/\s+/g, ' ').trim().slice(0, 500) : '';
-    return { isPet: true, ...(photo ? { photo } : {}), ...(appearance ? { appearance } : {}) };
+    return {
+      isPet: true,
+      ...(photo ? { photo } : {}),
+      ...(appearance ? { appearance } : {}),
+      smallMarkings: data.small_markings === true,
+    };
   }
 
   async write(args: Parameters<PhraseWriter['write']>[0]): Promise<PhraseResult> {
@@ -282,6 +292,8 @@ export class FalImageEditor implements ImageEditor {
     private apiKey: string,
     private model: string,
     private fetchFn: typeof fetch = fetch,
+    /** How long to wait for the model. */
+    private timeoutMs = 110_000,
   ) {}
 
   async edit({ imageUrl, style, exaggerated = false, appearance }: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string }) {
@@ -295,7 +307,7 @@ export class FalImageEditor implements ImageEditor {
         'X-Fal-Object-Lifecycle-Preference': JSON.stringify({ expiration_duration_seconds: 3600 }),
       },
       body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated, appearance), imageUrl)),
-      signal: AbortSignal.timeout(110_000),
+      signal: AbortSignal.timeout(this.timeoutMs),
     });
     if (!response.ok) {
       throw new Error(`image_failed_${response.status}: ${(await response.text()).slice(0, 200)}`);

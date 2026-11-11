@@ -60,7 +60,7 @@ const en: Strings = {
       'Guessing what they are thinking…',
       'Interpreting the look of disdain…',
     ],
-    loadingHint: 'This can take up to 30 seconds.',
+    loadingHint: 'This can take up to a minute.',
     notAPet_one: "We couldn't find a cat or dog in this photo. Your credit was refunded.",
     notAPet_other: "We couldn't find a cat or dog in this photo. Your {{count}} credits were refunded.",
     failedRefunded_one: "We couldn't create the picture. Your credit was refunded.",

@@ -13,6 +13,8 @@ export type ScenePrompt = {
   exaggerated: boolean;
   voice?: string;
   addon?: string;
+  /** Needs the faithful image model (e.g. a pose change the fast one ignores). */
+  faithful?: boolean;
 };
 
 export interface Store {
@@ -57,7 +59,7 @@ export type Choice = {
 export async function resolvePrompts(
   store: Store,
   choice: Choice,
-): Promise<{ language: Language; voice: string; style: string; exaggerated: boolean }> {
+): Promise<{ language: Language; voice: string; style: string; exaggerated: boolean; faithful: boolean }> {
   let scene = choice.sceneId ? await store.scene(choice.sceneId) : null;
   let comic = choice.comicId ? await store.scene(choice.comicId) : null;
   // Older app versions sent the funny ones as the scene.
@@ -81,6 +83,8 @@ export async function resolvePrompts(
     ...base,
     style: addon ? `${base.style} ${addon}` : base.style,
     exaggerated: Boolean(comic),
+    // Custom scenes and pose changes come out much better with the faithful model.
+    faithful: Boolean(choice.customStyle) || Boolean(scene?.faithful) || Boolean(comic?.faithful),
   };
 }
 
@@ -96,13 +100,15 @@ export async function runGeneration(
     store: Store;
     phrases: PhraseWriter;
     images: ImageEditor;
+    /** Slower model that keeps small markings, poses and custom scenes; falls back to `images`. */
+    faithfulImages?: ImageEditor;
     log?: (msg: string) => void;
     /** Cuts screen bars and borders around the photograph; returns a data URI, or null when not needed. */
     crop?: (imageUrl: string, photo: HeadBox) => Promise<string | null>;
   },
   gen: Generation,
 ): Promise<Outcome> {
-  const { store, phrases, images, crop, log = console.log } = deps;
+  const { store, phrases, images, faithfulImages, crop, log = console.log } = deps;
   try {
     const originalUrl = await store.signedUrl('originals', gen.originalPath);
 
@@ -139,12 +145,22 @@ export async function runGeneration(
     });
     const style = prompts.style;
 
-    const image = await images.edit({
+    const request = {
       imageUrl: sourceUrl,
       style,
       exaggerated: prompts.exaggerated,
       appearance: check.appearance,
-    });
+    };
+    let image;
+    if (faithfulImages && (prompts.faithful || check.smallMarkings)) {
+      try {
+        image = await faithfulImages.edit(request);
+      } catch (error) {
+        // Too slow or failed: the fast model still gives the person a picture.
+        log(`faithful model failed for ${gen.id}: ${error instanceof Error ? error.message.slice(0, 80) : error}`);
+      }
+    }
+    image ??= await images.edit(request);
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
     await store.upload('generated', imagePath, image.bytes, image.contentType);

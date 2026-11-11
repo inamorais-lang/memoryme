@@ -58,7 +58,7 @@ const ptPT = {
       'A adivinhar o que ele está a pensar…',
       'A interpretar o olhar de desprezo…',
     ],
-    loadingHint: 'Isto pode demorar até 30 segundos.',
+    loadingHint: 'Isto pode demorar até 1 minuto.',
     notAPet_one: 'Não encontrámos nenhum gato ou cão nesta foto. O crédito foi devolvido.',
     notAPet_other: 'Não encontrámos nenhum gato ou cão nesta foto. Os {{count}} créditos foram devolvidos.',
     failedRefunded_one: 'Não conseguimos criar a imagem. O crédito foi devolvido.',

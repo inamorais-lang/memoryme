@@ -43,6 +43,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Fontes: Bricolage Grotesque (títulos e balão) + DM Sans (texto) | Moderna e irreverente, não parecer "feito por IA" |
 | Ordem: confirmar que há animal (Claude, barato) → imagem (fal) → frase escrita a olhar para a imagem final | Foto sem animal nunca chega ao modelo caro; a frase bate certo com o que está na imagem |
 | Imagem por fal.ai com modelo configurável | Uma só chave para comparar modelos; trocar sem nova versão |
+| Dois modelos de imagem, escolhidos sozinhos pelo servidor: rápido (`IMAGE_MODEL`, FLUX Kontext Pro, ~20 s, 0,04 $) por defeito; fiel (`IMAGE_MODEL_FAITHFUL`, GPT Image 2, ~40–60 s) quando o "há animal?" vê manchas pequenas na cara (`small_markings`), no Criar cenário e nos cenários com `scenes.faithful` (Pose ridícula). Se o fiel falhar ou passar de 90 s, usa o rápido. Espera na app: "até 1 minuto" | Decisão do dono do produto ("automático por caso"): o rápido apagava manchas pequenas e ignorava poses |
 | Login com a Apple testável na Expo Go (client ID `host.exp.Exponent`) | Conta Apple Developer só é precisa na Fase 3 |
 
 ## Comandos
@@ -83,7 +84,7 @@ supabase/
 - Créditos: só as funções SQL `start_generation`, `fail_generation`, `grant_credits`… mexem em saldos, e só o `service_role` as pode chamar. A app só lê.
 - Falhas devolvem sempre o crédito (`fail_generation` é idempotente). Gerações presas >5 min expiram e são reembolsadas.
 - Limites: 5/min, 100/dia, 2 em curso por utilizador (`private.limits()`).
-- Segredos (Edge Function secrets): `ANTHROPIC_API_KEY`, `FAL_KEY`; opcionais `TEXT_MODEL` (padrão `claude-opus-5-5`), `IMAGE_MODEL` (padrão `fal-ai/flux-pro/kontext`, escolhido por comparação: animal grande e fiel, 0,04 $, ~9 s).
+- Segredos (Edge Function secrets): `ANTHROPIC_API_KEY`, `FAL_KEY`; opcionais `TEXT_MODEL` (padrão `claude-opus-5-5`), `IMAGE_MODEL` (padrão `fal-ai/flux-pro/kontext`, 0,04 $, ~20 s), `IMAGE_MODEL_FAITHFUL` (padrão `openai/gpt-image-2/edit`).
 - A app fica em **modo local** (Fase 1, sem servidor) se `mobile/.env` não tiver `EXPO_PUBLIC_SUPABASE_URL`/`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 
 ### Comandos do servidor
@@ -120,7 +121,7 @@ mobile/
 - "Sem balão · grátis" no resultado: esconde o balão e partilha/guarda só a imagem (com marca de água).
 - Regras globais de imagem (`imageEditPrompt`): **nunca exemplos concretos de objetos** — o modelo copia-os para todas as cenas (ex.: "três hambúrgueres" apareceu na praia e no Natal; "confetti" em todo o lado).
 - Mudar a pose do animal (ex.: de barriga para cima) só resulta com a pose **no início** do prompt do cenário ("Change the pose: …").
-- Fidelidade: o "há animal?" devolve também `appearance` (vai no início do prompt; manchas pequenas são "pelo, não sujidade"; mesmo assim o FLUX Kontext apaga manchas muito pequenas, ex.: a do lábio do gato) (cores e marcas, com o sítio de cada uma), que entra no prompt da imagem como obrigatória ("reproduz todas, no mesmo sítio, não acrescentes nenhuma"). Sem isto o modelo às vezes apagava marcas pequenas (ex.: risca branca no focinho).
+- Fidelidade: o "há animal?" devolve também `appearance` (vai no início do prompt; manchas pequenas são "pelo, não sujidade"; o FLUX Kontext apaga manchas muito pequenas, ex.: a do lábio do gato, por isso essas fotos vão para o modelo fiel) (cores e marcas, com o sítio de cada uma), que entra no prompt da imagem como obrigatória ("reproduz todas, no mesmo sítio, não acrescentes nenhuma"). Sem isto o modelo às vezes apagava marcas pequenas (ex.: risca branca no focinho).
 - Expressão por espécie: gatos mostram atitude com olhos/orelhas/postura, boca fechada ou entreaberta, nunca sorriso de dentes (ficavam com "focinho de cão"); cães podem sorrir de boca aberta.
 - Sem mãos humanas: se o animal segura ou toca em algo, usa as próprias patas (regra global em `imageEditPrompt`).
 - Autorização da IA (Apple 5.1.2(i) + RGPD): ecrã `ai-consent` antes da 1.ª imagem (guardado no dispositivo, `features/consent`); `generate` exige `aiConsent: true` e grava `profiles.ai_consent_at`; retirar nas Definições.

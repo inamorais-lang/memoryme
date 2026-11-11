@@ -60,7 +60,7 @@ const es: Strings = {
       'Adivinando lo que está pensando…',
       'Interpretando esa mirada de desprecio…',
     ],
-    loadingHint: 'Puede tardar hasta 30 segundos.',
+    loadingHint: 'Puede tardar hasta un minuto.',
     notAPet_one: 'No hemos encontrado ningún gato ni perro en esta foto. Te hemos devuelto el crédito.',
     notAPet_other: 'No hemos encontrado ningún gato ni perro en esta foto. Te hemos devuelto los {{count}} créditos.',
     failedRefunded_one: 'No hemos podido crear la imagen. Te hemos devuelto el crédito.',

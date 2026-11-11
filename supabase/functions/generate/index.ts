@@ -5,7 +5,7 @@
 // and the phrase in the background. The app polls the `generations` row.
 import { withSupabase } from 'npm:@supabase/server@1.9.2';
 
-import { imageEditor, json, phraseWriter } from '../_shared/config.ts';
+import { faithfulImageEditor, imageEditor, json, phraseWriter } from '../_shared/config.ts';
 import { cropToPhoto } from '../_shared/crop.ts';
 import { httpErrorFor, runGeneration } from '../_shared/pipeline.ts';
 import { supabaseStore } from '../_shared/store.ts';
@@ -36,10 +36,11 @@ export default {
     const customScene = typeof rawScene === 'string' ? rawScene.replace(/\s+/g, ' ').trim() || undefined : undefined;
 
     // Build the AI clients first: a missing secret must fail before a credit is spent.
-    let phrases, images;
+    let phrases, images, faithfulImages;
     try {
       phrases = phraseWriter();
       images = imageEditor();
+      faithfulImages = faithfulImageEditor();
     } catch (error) {
       console.error(error);
       return json({ code: 'server_error' }, 500);
@@ -70,7 +71,7 @@ export default {
 
     EdgeRuntime.waitUntil(
       runGeneration(
-        { store: supabaseStore(ctx.supabaseAdmin), phrases, images, crop: (url, photo) => cropToPhoto(url, photo) },
+        { store: supabaseStore(ctx.supabaseAdmin), phrases, images, faithfulImages, crop: (url, photo) => cropToPhoto(url, photo) },
         { id: generationId, userId, personalityId, originalPath, sceneId, customScene, comicId, language, spelling },
       ),
     );

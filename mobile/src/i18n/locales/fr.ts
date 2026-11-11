@@ -103,7 +103,7 @@ const fr: Strings = {
     screenTitle: 'Avant de commencer',
     title: 'Ta photo part à l’IA',
     body: 'Pour créer l’image, ta photo est envoyée à des services d’intelligence artificielle (fal.ai et Anthropic, aux États-Unis), qui la transforment et écrivent la phrase.',
-    details: 'La photo originale est supprimée en moins de 24 heures et n’est pas utilisée pour entraîner des modèles. Utilise des photos de ton animal : si des personnes apparaissent, elles sont aussi envoyées. Tu peux retirer cette autorisation dans les Réglages.',
+    details: 'La photo originale est supprimée de nos serveurs en moins de 24 heures. Anthropic ne peut pas l’utiliser pour entraîner des modèles ; fal.ai ne l’utilise que pour créer l’image. Utilise des photos de ton animal : si des personnes apparaissent, elles sont aussi envoyées. Tu peux retirer cette autorisation dans les Réglages.',
     accept: 'Accepter et continuer',
     notNow: 'Pas maintenant',
     withdraw: 'Retirer l’autorisation de l’IA',
@@ -114,7 +114,7 @@ const fr: Strings = {
     owner: 'PetBubble · Ana Abreu, Portugal',
     terms: 'Conditions générales',
     privacy: 'Politique de confidentialité',
-    accept: 'En continuant, tu acceptes les Conditions générales et la Politique de confidentialité.',
+    accept: 'En continuant, tu confirmes avoir au moins 16 ans et tu acceptes les Conditions générales et la Politique de confidentialité.',
   },
   signIn: {
     screenTitle: 'Connexion',

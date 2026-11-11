@@ -103,7 +103,7 @@ const en: Strings = {
     screenTitle: 'Before you start',
     title: 'Your photo goes to the AI',
     body: 'To create the picture, your photo is sent to artificial intelligence services (fal.ai and Anthropic, in the USA), which transform it and write the line.',
-    details: 'The original photo is deleted within 24 hours and is not used to train models. Please use photos of your pet: if people appear, they are sent too. You can withdraw this permission in Settings.',
+    details: 'The original photo is deleted from our servers within 24 hours. Anthropic may not use it to train models; fal.ai uses it only to create the picture. Please use photos of your pet: if people appear, they are sent too. You can withdraw this permission in Settings.',
     accept: 'Accept and continue',
     notNow: 'Not now',
     withdraw: 'Withdraw AI permission',
@@ -114,7 +114,7 @@ const en: Strings = {
     owner: 'PetBubble · Ana Abreu, Portugal',
     terms: 'Terms and conditions',
     privacy: 'Privacy policy',
-    accept: 'By continuing, you accept the Terms and conditions and the Privacy policy.',
+    accept: 'By continuing, you confirm you are at least 16 and accept the Terms and conditions and the Privacy policy.',
   },
   signIn: {
     screenTitle: 'Sign in',

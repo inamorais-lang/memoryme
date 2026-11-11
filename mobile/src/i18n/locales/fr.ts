@@ -126,6 +126,13 @@ const fr: Strings = {
     error: 'Impossible de se connecter. Réessaie.',
   },
   paywall: {
+    packCredits_one: '{{count}} crédit',
+    packCredits_other: '{{count}} crédits',
+    packWhat_one: '{{count}} image de ton compagnon avec une phrase',
+    packWhat_other: '{{count}} images de ton compagnon avec une phrase',
+    step1: 'Tu achètes des crédits. Ils n’expirent pas.',
+    step2: 'Chaque nouvelle image utilise 1 crédit (Créer un décor en utilise 2).',
+    step3: 'Une autre phrase ou écrire la tienne, c’est gratuit.',
     screenTitle: 'Crédits',
     title: 'Plus d’images de ton compagnon',
     subtitle: '1 crédit = 1 image · nouvelle phrase offerte',

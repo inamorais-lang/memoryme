@@ -217,7 +217,18 @@ export default function CreditsScreen() {
         <AppText variant="title" testID="paywall-title">
           {t("paywall.title")}
         </AppText>
-        <AppText color={colors.inkMuted}>{t("paywall.subtitle")}</AppText>
+        <View style={styles.steps}>
+          {(["step1", "step2", "step3"] as const).map((key, i) => (
+            <View key={key} style={styles.step}>
+              <View style={styles.stepNumber}>
+                <AppText variant="smallStrong" color={colors.onPrimary}>
+                  {i + 1}
+                </AppText>
+              </View>
+              <AppText style={styles.stepText}>{t(`paywall.${key}`)}</AppText>
+            </View>
+          ))}
+        </View>
         {auth.session && auth.credits !== null ? (
           <AppText variant="smallStrong" testID="balance">
             {t("paywall.balance", { count: auth.credits })}
@@ -260,7 +271,10 @@ export default function CreditsScreen() {
                   </View>
                 ) : null}
                 <AppText variant="heading">
-                  {t("paywall.pack", { count: p.credits })}
+                  {t("paywall.packCredits", { count: p.credits })}
+                </AppText>
+                <AppText variant="small" color={colors.ink}>
+                  {t("paywall.packWhat", { count: p.credits })}
                 </AppText>
               </View>
               {p.price ? <AppText variant="heading">{p.price}</AppText> : null}
@@ -305,7 +319,18 @@ const styles = StyleSheet.create({
     transformOrigin: "top left",
     transform: [{ scale: EXAMPLE_SCALE }],
   },
-  headerText: { gap: space.xs },
+  headerText: { gap: space.sm },
+  steps: { gap: space.sm, marginTop: space.xs },
+  step: { flexDirection: "row", alignItems: "center", gap: space.sm },
+  stepNumber: {
+    width: space.xl,
+    height: space.xl,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepText: { flex: 1 },
   packs: { gap: space.md },
   pack: {
     flexDirection: "row",

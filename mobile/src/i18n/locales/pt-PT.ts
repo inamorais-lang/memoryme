@@ -124,6 +124,13 @@ const ptPT = {
     error: 'Não foi possível iniciar sessão. Tenta outra vez.',
   },
   paywall: {
+    packCredits_one: '{{count}} crédito',
+    packCredits_other: '{{count}} créditos',
+    packWhat_one: '{{count}} imagem do teu patudo com frase',
+    packWhat_other: '{{count}} imagens do teu patudo com frase',
+    step1: 'Compras créditos. Não expiram.',
+    step2: 'Cada imagem nova gasta 1 crédito (o Criar cenário gasta 2).',
+    step3: 'Pedir outra frase ou escrever a tua é grátis.',
     screenTitle: 'Créditos',
     title: 'Mais imagens para o teu patudo',
     subtitle: '1 crédito = 1 imagem · frase nova grátis',

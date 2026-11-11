@@ -126,6 +126,13 @@ const es: Strings = {
     error: 'No se ha podido iniciar sesión. Inténtalo de nuevo.',
   },
   paywall: {
+    packCredits_one: '{{count}} crédito',
+    packCredits_other: '{{count}} créditos',
+    packWhat_one: '{{count}} imagen de tu mascota con frase',
+    packWhat_other: '{{count}} imágenes de tu mascota con frase',
+    step1: 'Compras créditos. No caducan.',
+    step2: 'Cada imagen nueva gasta 1 crédito (Crear escenario gasta 2).',
+    step3: 'Pedir otra frase o escribir la tuya es gratis.',
     screenTitle: 'Créditos',
     title: 'Más imágenes de tu mascota',
     subtitle: '1 crédito = 1 imagen · frase nueva gratis',

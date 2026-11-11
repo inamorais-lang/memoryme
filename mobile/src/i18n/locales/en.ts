@@ -126,6 +126,13 @@ const en: Strings = {
     error: "Couldn't sign in. Please try again.",
   },
   paywall: {
+    packCredits_one: '{{count}} credit',
+    packCredits_other: '{{count}} credits',
+    packWhat_one: '{{count}} picture of your pet with a line',
+    packWhat_other: '{{count}} pictures of your pet with a line',
+    step1: 'Buy credits. They never expire.',
+    step2: 'Each new picture uses 1 credit (Create a scene uses 2).',
+    step3: 'A new line or writing your own is free.',
     screenTitle: 'Credits',
     title: 'More pictures of your pet',
     subtitle: '1 credit = 1 picture · new line free',

@@ -224,8 +224,9 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 'In "photo", give the box of the actual photograph inside the image, as fractions: x and y of the top-left corner, ' +
                 'then width and height, all between 0 and 1. If the image is a screenshot or has borders, margins, app bars or text ' +
                 'around the photograph, return only the photograph. Never cut into the photograph itself. Otherwise return 0, 0, 1, 1. ' +
-                'In "appearance", describe the animal in English (max 70 words) for an image editor that must keep it identical: ' +
-                'species, breed if clear, coat colours, eye colour, and every marking with its exact place. Look closely at the face: ' +
+                'In "appearance", describe the animal in English (max 80 words) for an image editor that must keep it identical: ' +
+                'species, breed if clear, size and build (small, medium, large or giant; slim or sturdy), age (puppy, adult or senior), ' +
+                'coat colours, eye colour, and every marking with its exact place. Look closely at the face: ' +
                 'small spots or patches on the nose, lips, muzzle or chin, and whether they are on the animal\'s left or right side. ' +
                 'Markings are often asymmetric: say so. Then chest, paws, tail. ' +
                 'Set "small_markings" to true only if the face has a small spot, smudge or patch (on the nose, lips, muzzle or chin) ' +

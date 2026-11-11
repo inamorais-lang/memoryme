@@ -87,10 +87,12 @@ export function customSceneStyle(description: string): string {
 export function imageEditPrompt(style: string, exaggerated = false, appearance?: string): string {
   return [
     'Edit this photo of a pet.',
+    // First: the fast model keeps the photo's clothes (e.g. a branded hoodie) unless told early.
+    'First take off any clothes the pet wears in the photo; dress it only in the outfit described in the style. Never show brand logos, brand stripes or lettering on any clothing.',
     // First, so the model weighs it most: it tends to "clean up" small markings as if they were dirt.
     ...(appearance ? [`This animal: ${appearance} Small dark spots and smudges on its face are real fur markings, not dirt: keep every one, same size and same place.`] : []),
     `Style: ${style}`,
-    'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape. Keep its real anatomy: a cat keeps a short cat muzzle and cat teeth, never a dog-like snout or grin.',
+    'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape. Keep its real anatomy: a cat keeps a short cat muzzle and cat teeth, never a dog-like snout or grin. Keep its real size, build and age: a large adult dog stays a big, sturdy adult dog, clearly large next to the furniture and props, never puppy-sized or miniature.',
     ...(appearance ? ['Reproduce every colour and marking described above exactly, in the same places, keeping any asymmetry, and add none.'] : []),
     'The pet stays the main subject, centred and photorealistic.',
     exaggerated

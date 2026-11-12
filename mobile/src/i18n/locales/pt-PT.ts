@@ -43,8 +43,8 @@ const ptPT = {
     trendTagline: '🔥 Tema do momento',
     custom: '✏️ Criar o teu modo',
     customTagline: 'Escreves o que quiseres',
-    recipientLabel: 'Para quem são os parabéns? (opcional)',
-    recipientPlaceholder: 'Ex.: Rita',
+    recipientLabel: 'A tua mensagem de parabéns (opcional). Sem mensagem, o teu patudo escreve uma.',
+    recipientPlaceholder: 'Ex.: Parabéns, Mariana! 🎉',
   },
   pet: {
     male: '♂ Macho',

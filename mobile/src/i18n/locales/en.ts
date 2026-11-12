@@ -45,8 +45,8 @@ const en: Strings = {
     trendTagline: '🔥 Trending now',
     custom: '✏️ Create your own',
     customTagline: 'Write anything you like',
-    recipientLabel: 'Who is the birthday for? (optional)',
-    recipientPlaceholder: 'E.g. Emma',
+    recipientLabel: 'Your birthday message (optional). Leave it empty and your pet writes one.',
+    recipientPlaceholder: 'E.g. Happy birthday, Emma! 🎉',
   },
   pet: {
     male: '♂ Male',

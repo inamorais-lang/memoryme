@@ -29,6 +29,7 @@ import { useAuth } from "@/features/auth/AuthContext";
 import {
   backend,
   BackendError,
+  CUSTOM_PHRASE_MAX,
   CUSTOM_SCENE_MAX,
   CUSTOM_SCENE_MIN,
   type PersonalityInfo,
@@ -46,8 +47,8 @@ import {
 } from "@/features/pet/petProfile";
 import { currentLanguage, currentMarket } from "@/i18n";
 
-/** Birthday person's name: same limit as on the server. */
-const RECIPIENT_MAX = 20;
+/** The person's own birthday message: same limit as the balloon. */
+const RECIPIENT_MAX = CUSTOM_PHRASE_MAX;
 const isBirthday = (id: string) => id.endsWith("-aniversario");
 
 type Card = {
@@ -196,7 +197,7 @@ export default function PersonalityScreen() {
       ...(picked.kind === "scene" ? { sceneId: picked.id } : {}),
       ...(picked.kind === "custom" ? { customScene: customText } : {}),
       ...(picked.kind === "scene" && isBirthday(picked.id) && recipient
-        ? { recipientName: recipient }
+        ? { customPhrase: recipient }
         : {}),
       ...(draft.comicId ? { comicId: draft.comicId } : {}),
       ...(pet.sex ? { petSex: pet.sex } : {}),
@@ -394,6 +395,9 @@ export default function PersonalityScreen() {
                         onChangeText={draft.setRecipient}
                         placeholder={t("personality.recipientPlaceholder")}
                         maxLength={RECIPIENT_MAX}
+                        counterLabel={t("result.charsLeft", {
+                          count: RECIPIENT_MAX - draft.recipient.length,
+                        })}
                         returnKeyType="done"
                       />
                     </View>

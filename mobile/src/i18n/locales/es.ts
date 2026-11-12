@@ -45,8 +45,8 @@ const es: Strings = {
     trendTagline: '🔥 Tendencia',
     custom: '✏️ Crea tu modo',
     customTagline: 'Escribe lo que quieras',
-    recipientLabel: '¿Para quién es la felicitación? (opcional)',
-    recipientPlaceholder: 'Ej.: Lucía',
+    recipientLabel: 'Tu mensaje de felicitación (opcional). Si lo dejas vacío, tu mascota escribe uno.',
+    recipientPlaceholder: 'Ej.: ¡Feliz cumpleaños, Lucía! 🎉',
   },
   pet: {
     male: '♂ Macho',

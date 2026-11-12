@@ -45,8 +45,8 @@ const fr: Strings = {
     trendTagline: '🔥 Tendance',
     custom: '✏️ Crée ton humeur',
     customTagline: 'Écris ce que tu veux',
-    recipientLabel: 'Pour qui sont les vœux ? (facultatif)',
-    recipientPlaceholder: 'Ex. : Léa',
+    recipientLabel: 'Ton message d’anniversaire (facultatif). Sans message, ton compagnon en écrit un.',
+    recipientPlaceholder: 'Ex. : Joyeux anniversaire, Léa ! 🎉',
   },
   pet: {
     male: '♂ Mâle',

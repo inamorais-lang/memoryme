@@ -27,8 +27,10 @@ export type TranslationChoice = {
   comicId?: string;
   /** Optional, from the owner, for the line only. */
   petSex?: 'male' | 'female';
-  /** Aniversário: who the pet wishes a happy birthday to (optional). */
+  /** Aniversário: who the pet wishes a happy birthday to (optional, older versions). */
   recipientName?: string;
+  /** The person's own line (Aniversário), shown in the balloon instead of the AI line. */
+  customPhrase?: string;
 };
 
 /** Limits of a scene typed by the user (also enforced in the database). */

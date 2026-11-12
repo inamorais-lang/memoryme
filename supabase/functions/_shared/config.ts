@@ -1,6 +1,11 @@
 // Secrets and settings, read from Edge Function secrets
 // (`supabase secrets set ...`). Never shipped in the app.
-import { ClaudePhraseWriter, FalImageEditor } from './ai.ts';
+import { type Aspect, ClaudePhraseWriter, FalImageEditor } from './ai.ts';
+
+function aspect(): Aspect {
+  const value = Deno.env.get('IMAGE_ASPECT');
+  return value === '4:5' || value === '2:3' || value === '9:16' ? value : '3:4';
+}
 
 function required(name: string): string {
   // Keys pasted in a dashboard often carry stray spaces or line breaks.
@@ -15,7 +20,7 @@ export function phraseWriter() {
 
 /** Fast model (~20 s), used by default. */
 export function imageEditor() {
-  return new FalImageEditor(required('FAL_KEY'), Deno.env.get('IMAGE_MODEL') ?? 'fal-ai/flux-pro/kontext');
+  return new FalImageEditor(required('FAL_KEY'), Deno.env.get('IMAGE_MODEL') ?? 'fal-ai/flux-pro/kontext', fetch, 110_000, aspect());
 }
 
 /**
@@ -28,6 +33,7 @@ export function faithfulImageEditor() {
     Deno.env.get('IMAGE_MODEL_FAITHFUL') ?? 'openai/gpt-image-2/edit',
     fetch,
     90_000,
+    aspect(),
   );
 }
 

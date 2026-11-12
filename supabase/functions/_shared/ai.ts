@@ -348,11 +348,20 @@ export function parseHead(raw: unknown): HeadBox | undefined {
 // ───────────────────────── fal.ai (image restyle) ─────────────────────────
 
 /** Each fal model names its inputs slightly differently. */
-export function falInput(model: string, prompt: string, imageUrl: string): Record<string, unknown> {
-  // Pictures are shared at 4:5 (Instagram feed, whole in a WhatsApp chat): ask for portrait output.
+/** Output shape of the pictures (IMAGE_ASPECT secret); the app shows them at the same shape. */
+export type Aspect = '4:5' | '3:4' | '2:3' | '9:16';
+
+const GPT_SIZES: Record<Aspect, { width: number; height: number }> = {
+  '4:5': { width: 1024, height: 1280 },
+  '3:4': { width: 1008, height: 1344 },
+  '2:3': { width: 1024, height: 1536 },
+  '9:16': { width: 864, height: 1536 },
+};
+
+export function falInput(model: string, prompt: string, imageUrl: string, aspect: Aspect = '3:4'): Record<string, unknown> {
+  // Pictures are portrait, sized for sharing; Kontext has no 4:5 (3:4 is the closest).
   if (model.startsWith('fal-ai/flux-pro/kontext')) {
-    // No 4:5 here; 3:4 is the closest and the app trims the rest around the head.
-    return { prompt, image_url: imageUrl, num_images: 1, output_format: 'jpeg', aspect_ratio: '3:4' };
+    return { prompt, image_url: imageUrl, num_images: 1, output_format: 'jpeg', aspect_ratio: aspect === '4:5' ? '3:4' : aspect };
   }
   if (model.startsWith('openai/gpt-image')) {
     return {
@@ -361,7 +370,7 @@ export function falInput(model: string, prompt: string, imageUrl: string): Recor
       num_images: 1,
       output_format: 'jpeg',
       quality: 'medium',
-      image_size: { width: 1024, height: 1280 },
+      image_size: GPT_SIZES[aspect],
     };
   }
   // Nano Banana family (default).
@@ -375,6 +384,7 @@ export class FalImageEditor implements ImageEditor {
     private fetchFn: typeof fetch = fetch,
     /** How long to wait for the model. */
     private timeoutMs = 110_000,
+    private aspect: Aspect = '3:4',
   ) {}
 
   async edit({ imageUrl, style, exaggerated = false, appearance }: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string }) {
@@ -387,7 +397,7 @@ export class FalImageEditor implements ImageEditor {
         'X-Fal-Store-IO': '0',
         'X-Fal-Object-Lifecycle-Preference': JSON.stringify({ expiration_duration_seconds: 3600 }),
       },
-      body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated, appearance), imageUrl)),
+      body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated, appearance), imageUrl, this.aspect)),
       signal: AbortSignal.timeout(this.timeoutMs),
     });
     if (!response.ok) {

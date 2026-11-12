@@ -93,7 +93,7 @@ const en: Strings = {
       },
       jokes: {
         checking: ["Counting the whiskers…", "Making sure it really is a pet…", "Asking your pet for permission…"],
-        painting: ["Your pet is refusing the hat. Negotiating…", "Picking the outfit. It’s very fussy…", "Brushing the fur for the photo…", "Setting the scene. It wants more light…", "Trying to make it sit still for two seconds…"],
+        painting: ["Your pet is refusing the hat. Negotiating…", "Picking the outfit. It’s very fussy…", "Brushing the fur for the photo…", "Setting the scene. It wants more light…", "Trying to make it sit still for two seconds…", "It asked for 3 biscuits to wear the outfit. Deal…", "Your pet’s agent wants to review the contract…", "Negotiating the fee. It wants to be paid in belly rubs…"],
         writing: ["It has a lot to say. Picking the best bit…", "Translating meows and woofs…", "Cutting out the swear words…"],
       },
       hint: "Takes up to 1 minute. You can leave: the picture will be in “Your pictures”.",

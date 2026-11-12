@@ -91,7 +91,7 @@ const ptPT = {
       },
       jokes: {
         checking: ["A contar os bigodes…", "A confirmar que é mesmo um patudo…", "A pedir licença ao teu patudo…"],
-        painting: ["O teu patudo está a recusar o chapéu. A negociar…", "A escolher a roupa. Ele é exigente…", "A pentear o pelo para a foto…", "A montar o cenário. Ele quer mais luz…", "A tentar que fique quieto dois segundos…"],
+        painting: ["O teu patudo está a recusar o chapéu. A negociar…", "A escolher a roupa. Ele é exigente…", "A pentear o pelo para a foto…", "A montar o cenário. Ele quer mais luz…", "A tentar que fique quieto dois segundos…", "Ele pediu 3 biscoitos para usar a roupa. Aceitámos…", "O agente do teu patudo quer rever o contrato…", "A negociar o cachet. Ele quer ser pago em festinhas…"],
         writing: ["Ele tem muito a dizer. A escolher a melhor…", "A traduzir miaus e latidos…", "A cortar os palavrões…"],
       },
       hint: "Demora até 1 minuto. Podes sair: a imagem aparece em «As tuas imagens».",

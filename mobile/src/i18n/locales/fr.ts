@@ -93,7 +93,7 @@ const fr: Strings = {
       },
       jokes: {
         checking: ["On compte les moustaches…", "On vérifie que c’est bien un compagnon…", "On demande la permission à ton compagnon…"],
-        painting: ["Ton compagnon refuse le chapeau. On négocie…", "On choisit la tenue. Il est très exigeant…", "On brosse le poil pour la photo…", "On installe le décor. Il veut plus de lumière…", "On essaie qu’il reste tranquille deux secondes…"],
+        painting: ["Ton compagnon refuse le chapeau. On négocie…", "On choisit la tenue. Il est très exigeant…", "On brosse le poil pour la photo…", "On installe le décor. Il veut plus de lumière…", "On essaie qu’il reste tranquille deux secondes…", "Il a demandé 3 biscuits pour porter la tenue. Accepté…", "L’agent de ton compagnon veut relire le contrat…", "On négocie le cachet. Il veut être payé en câlins…"],
         writing: ["Il a beaucoup à dire. On garde le meilleur…", "On traduit les miaous et les ouafs…", "On coupe les gros mots…"],
       },
       hint: "Ça prend jusqu’à 1 minute. Tu peux partir : l’image sera dans « Tes images ».",

@@ -93,7 +93,7 @@ const es: Strings = {
       },
       jokes: {
         checking: ["Contando los bigotes…", "Comprobando que es una mascota…", "Pidiendo permiso a tu mascota…"],
-        painting: ["Tu mascota rechaza el sombrero. Negociando…", "Eligiendo la ropa. Es muy exigente…", "Peinando el pelo para la foto…", "Montando el escenario. Quiere más luz…", "Intentando que se quede quieta dos segundos…"],
+        painting: ["Tu mascota rechaza el sombrero. Negociando…", "Eligiendo la ropa. Es muy exigente…", "Peinando el pelo para la foto…", "Montando el escenario. Quiere más luz…", "Intentando que se quede quieta dos segundos…", "Pidió 3 galletas por ponerse la ropa. Aceptado…", "El agente de tu mascota quiere revisar el contrato…", "Negociando el caché. Quiere cobrar en caricias…"],
         writing: ["Tiene mucho que decir. Eligiendo lo mejor…", "Traduciendo maullidos y ladridos…", "Quitando las palabrotas…"],
       },
       hint: "Tarda hasta 1 minuto. Puedes salir: la imagen aparecerá en «Tus imágenes».",

@@ -51,7 +51,9 @@ export function phraseSystemPrompt(language: Language, spelling?: Spelling): str
     ...(language === 'en' && spelling ? [`- Use ${spelling === 'US' ? 'American' : 'British'} spelling (e.g. ${spelling === 'US' ? '"color", "favorite"' : '"colour", "favourite"'}).`] : []),
     '',
     'Your first idea is usually the obvious joke everyone would make. Think of it, then throw it away.',
-    `Write 3 different, less obvious options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,
+    `Write 3 different options in "phrases", each within ${PHRASE_MAX} characters: the first two are less obvious jokes, the funniest first.`,
+    // Product owner: the picture is already the funny part; a dry line can be even funnier than a joke.
+    'The third option is NOT a joke: a short, dry, deadpan statement in the pet\'s voice that simply states the moment or the mode, with total seriousness, like a calm caption (e.g. a party → "Hoje é dia de festa.", an office → "Sou o chefe.", a beach → "Estou de férias."). Vary the wording: do not always start with "Hoje" / "Today". Max 30 characters, no twist.',
     'Set is_pet to true when a cat or dog is visible (it normally is).',
     'In "head", give the box around the pet\'s whole head (ears included) as fractions of the image: x and y of the top-left corner, then width and height, all between 0 and 1. The app uses it to keep the thought bubble off the face, so be accurate.',
     'In "body", give the box around the pet\'s whole body as it appears (head, outfit, paws and tail included), same format. The bubble avoids it after the face.',

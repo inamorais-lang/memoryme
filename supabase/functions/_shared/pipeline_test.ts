@@ -522,3 +522,11 @@ Deno.test('birthday: the line wishes a happy birthday to the name the owner type
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [], recipient: 'Rita' }), /happy birthday to <name>Rita<\/name>/);
   assert.doesNotMatch(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /happy birthday to/);
 });
+
+Deno.test('dry line: sometimes the third, deadpan option is used instead of a joke', () => {
+  const raw = JSON.stringify({ is_pet: true, phrases: ['Piada um.', 'Piada dois.', 'Hoje é dia de festa.'] });
+  assert.equal(parsePhrase(raw).phrase, 'Piada um.');
+  assert.equal(parsePhrase(raw, true).phrase, 'Hoje é dia de festa.');
+  assert.equal(parsePhrase(JSON.stringify({ is_pet: true, phrases: ['Só uma.'] }), true).phrase, 'Só uma.');
+  assert.match(phraseSystemPrompt('pt-PT'), /The third option is NOT a joke/);
+});

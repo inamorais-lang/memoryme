@@ -324,12 +324,16 @@ export class ClaudePhraseWriter implements PhraseWriter {
     if (response.stop_reason === 'max_tokens') throw new Error('phrase_too_long');
     const text = response.content.find((block) => block.type === 'text');
     if (!text || text.type !== 'text') throw new Error('phrase_empty');
-    return parsePhrase(text.text);
+    // About 1 picture in 3 gets the dry, deadpan line (product owner: often funnier than a joke).
+    return parsePhrase(text.text, Math.random() < DEADPAN_SHARE);
   }
 }
 
 /** Picks the first (funniest) option that fits the balloon; never returns more than PHRASE_MAX. */
-export function parsePhrase(raw: string): PhraseResult {
+/** Share of pictures whose line is the dry, deadpan option (the third one). */
+export const DEADPAN_SHARE = 1 / 3;
+
+export function parsePhrase(raw: string, deadpan = false): PhraseResult {
   const data = JSON.parse(raw);
   const isPet = data.is_pet === true;
   const options: string[] = (Array.isArray(data.phrases) ? data.phrases : [data.phrase])
@@ -343,7 +347,8 @@ export function parsePhrase(raw: string): PhraseResult {
     )
     .filter((p: string) => p.length > 0);
   if (!isPet) return { isPet: false, phrase: '' };
-  const fitting = options.find((p) => p.length <= PHRASE_MAX);
+  const dry = deadpan && options.length >= 3 && options[2].length <= PHRASE_MAX ? options[2] : undefined;
+  const fitting = dry ?? options.find((p) => p.length <= PHRASE_MAX);
   if (!fitting) throw new Error(options.length ? 'phrase_too_long' : 'phrase_empty');
   const result: PhraseResult = { isPet: true, phrase: fitting };
   const head = parseHead(data.head);

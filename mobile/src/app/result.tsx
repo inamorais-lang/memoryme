@@ -7,6 +7,7 @@ import {
   AppState,
   Linking,
   Platform,
+  Pressable,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -472,6 +473,18 @@ export default function ResultScreen() {
           onPress={confirmDelete}
         />
       </View>
+      {/* Product owner: required by the App Store, but with no emphasis, on the very last line. */}
+      <Pressable
+        testID="report-image"
+        accessibilityRole="button"
+        onPress={confirmReport}
+        hitSlop={space.sm}
+        style={({ pressed }) => [styles.report, pressed && styles.dimmed]}
+      >
+        <AppText variant="small" color={colors.inkMuted} align="center">
+          {t("result.report")}
+        </AppText>
+      </Pressable>
     </>
   );
 
@@ -497,14 +510,6 @@ export default function ResultScreen() {
           maxHeight={canvasRoom > 0 ? canvasRoom : canvasMaxHeight}
           balloonTint={tintFor(item.id) + tintShift}
           onBalloonPress={() => setTintShift((n) => n + 1)}
-          below={
-            <Button
-              testID="report-image"
-              variant="mini"
-              label={t("result.report")}
-              onPress={confirmReport}
-            />
-          }
         />
       </View>
       <AppText variant="small" color={colors.inkMuted} align="center">
@@ -527,6 +532,7 @@ const styles = StyleSheet.create({
   loading: { alignItems: "center", gap: space.md, paddingTop: space.xl },
   row: { flexDirection: "row", gap: space.sm },
   flex: { flex: 1 },
+  report: { alignSelf: "center", paddingTop: space.xs },
   secondary: {
     flexDirection: "row",
     justifyContent: "center",

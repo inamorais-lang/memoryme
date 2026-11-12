@@ -36,11 +36,8 @@ import {
   type TranslationChoice,
 } from "@/features/backend";
 import { hasAiConsent } from "@/features/consent/aiConsent";
-import {
-  pickRandom,
-  type StyleChoice,
-  useDraft,
-} from "@/features/draft/DraftContext";
+import { type StyleChoice, useDraft } from "@/features/draft/DraftContext";
+import { pickFresh } from "@/features/draft/noRepeat";
 import {
   loadPetProfile,
   type PetProfile,
@@ -172,14 +169,26 @@ export default function PersonalityScreen() {
     }
     // "Surpreende-me" and "Natal" are settled now, so the result shows what came out.
     let picked: StyleChoice = choice;
+    // Random picks never repeat for this person until every option was used.
     if (picked.kind === "surprise") {
-      const options = cards
-        .map((c) => c.choice)
-        .filter((c) => c.kind !== "surprise" && c.kind !== "custom");
-      picked = pickRandom(options) ?? { kind: "mode", id: list![0].id };
+      const options = cards.filter(
+        (c) => c.choice.kind !== "surprise" && c.choice.kind !== "custom",
+      );
+      const key = await pickFresh(
+        "surprise",
+        options.map((c) => c.key),
+      );
+      picked = options.find((c) => c.key === key)?.choice ?? {
+        kind: "mode",
+        id: list![0].id,
+      };
     }
     if (picked.kind === "natal") {
-      picked = { kind: "scene", id: pickRandom(christmas)!.id };
+      const id = await pickFresh(
+        "natal",
+        christmas.map((s) => s.id),
+      );
+      picked = { kind: "scene", id: id ?? christmas[0].id };
     }
     const recipient = draft.recipient.replace(/\s+/g, " ").trim();
     const request: TranslationChoice = {

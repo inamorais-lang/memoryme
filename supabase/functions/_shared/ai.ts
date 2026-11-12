@@ -96,6 +96,8 @@ export class ClaudePhraseWriter implements PhraseWriter {
   constructor(
     apiKey: string,
     private model: string,
+    /** Lighter model for the quick "is there a pet?" check on the photo (saves a few seconds). */
+    private checkModel: string = model,
   ) {
     this.client = new Anthropic({ apiKey, timeout: 60_000, maxRetries: 1 });
   }
@@ -200,7 +202,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
 
   async isPet(imageUrl: string): Promise<PetCheck> {
     const response = await this.client.beta.messages.create({
-      model: this.model,
+      model: this.checkModel,
       max_tokens: 1000,
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
@@ -377,7 +379,7 @@ const GPT_SIZES: Record<Aspect, { width: number; height: number }> = {
   '9:16': { width: 864, height: 1536 },
 };
 
-export function falInput(model: string, prompt: string, imageUrl: string, aspect: Aspect = '2:3'): Record<string, unknown> {
+export function falInput(model: string, prompt: string, imageUrl: string, aspect: Aspect = '2:3', quality: 'low' | 'medium' | 'high' = 'medium'): Record<string, unknown> {
   // Pictures are portrait, sized for sharing; Kontext has no 4:5 (3:4 is the closest).
   if (model.startsWith('fal-ai/flux-pro/kontext')) {
     return { prompt, image_url: imageUrl, num_images: 1, output_format: 'jpeg', aspect_ratio: aspect === '4:5' ? '3:4' : aspect };
@@ -388,7 +390,7 @@ export function falInput(model: string, prompt: string, imageUrl: string, aspect
       image_urls: [imageUrl],
       num_images: 1,
       output_format: 'jpeg',
-      quality: 'medium',
+      quality,
       image_size: GPT_SIZES[aspect],
     };
   }
@@ -404,6 +406,8 @@ export class FalImageEditor implements ImageEditor {
     /** How long to wait for the model. */
     private timeoutMs = 110_000,
     private aspect: Aspect = '2:3',
+    /** GPT Image only: lower is faster. */
+    private quality: 'low' | 'medium' | 'high' = 'medium',
   ) {}
 
   async edit({ imageUrl, style, exaggerated = false, appearance, petCount }: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string; petCount?: number }) {
@@ -416,7 +420,7 @@ export class FalImageEditor implements ImageEditor {
         'X-Fal-Store-IO': '0',
         'X-Fal-Object-Lifecycle-Preference': JSON.stringify({ expiration_duration_seconds: 3600 }),
       },
-      body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated, appearance, petCount), imageUrl, this.aspect)),
+      body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated, appearance, petCount), imageUrl, this.aspect, this.quality)),
       signal: AbortSignal.timeout(this.timeoutMs),
     });
     if (!response.ok) {

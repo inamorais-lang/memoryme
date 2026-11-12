@@ -16,7 +16,8 @@ function required(name: string): string {
 }
 
 export function phraseWriter() {
-  return new ClaudePhraseWriter(required('ANTHROPIC_API_KEY'), Deno.env.get('TEXT_MODEL') ?? 'claude-opus-5-5');
+  const model = Deno.env.get('TEXT_MODEL') ?? 'claude-opus-5-5';
+  return new ClaudePhraseWriter(required('ANTHROPIC_API_KEY'), model, Deno.env.get('CHECK_MODEL') ?? 'claude-sonnet-5-5');
 }
 
 /** Fast model (~20 s), used by default. */
@@ -35,9 +36,16 @@ export function faithfulImageEditor() {
     fetch,
     90_000,
     aspect(),
+    imageQuality(),
   );
 }
 
 export function json(body: unknown, status = 200) {
   return Response.json(body, { status });
+}
+
+/** GPT Image quality (IMAGE_QUALITY_FAITHFUL): low is faster, medium is the default. */
+function imageQuality(): 'low' | 'medium' | 'high' {
+  const value = Deno.env.get('IMAGE_QUALITY_FAITHFUL');
+  return value === 'low' || value === 'high' ? value : 'medium';
 }

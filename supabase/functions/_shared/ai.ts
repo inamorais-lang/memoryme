@@ -172,7 +172,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
         'copyrighted characters; tragedies, deaths or disasters with victims; violence, weapons, drugs; sexual content; hate. ' +
         'If allowed: "name_pt" (European Portuguese), "name_en", "name_es" (Spain), "name_fr" (France): a short catchy chip label, ' +
         'max 28 characters each, no emoji. "image": one English sentence (max 50 words) for an image editor showing the pet clearly ' +
-        'living the topic: pose, outfit, two or three props placed around it (rather than held in its paws), the place and bright colours; no text, no people, no brands. ' +
+        'living the topic: pose, outfit, two or three props, the place and bright colours; no text, no people, no brands. ' +
         '"voice": one or two English sentences describing how the pet reacts to the topic with pure animal logic (what it ' +
         'expected, what annoys it, what it wants), for a writer of short sarcastic thoughts. If refused, all strings are empty.',
       messages: [{ role: 'user', content: `Topic: <topic>${topic}</topic>` }],

@@ -4,7 +4,8 @@ import { type Aspect, ClaudePhraseWriter, FalImageEditor } from './ai.ts';
 
 function aspect(): Aspect {
   const value = Deno.env.get('IMAGE_ASPECT');
-  return value === '4:5' || value === '2:3' || value === '9:16' ? value : '3:4';
+  // 2:3 by default (decision of the product owner): room for the balloon, close to the first pictures.
+  return value === '4:5' || value === '3:4' || value === '9:16' ? value : '2:3';
 }
 
 function required(name: string): string {

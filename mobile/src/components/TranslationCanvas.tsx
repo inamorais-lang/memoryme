@@ -107,7 +107,8 @@ export function TranslationCanvas({
   const [drag, setDrag] = useState<BalloonSpot | null>(null);
 
   // The balloon is designed for a ~360pt-wide photo and scales with it.
-  const balloonScale = Math.min(1, Math.max(0.6, frame.w / 360));
+  // Same proportions at any size: the shared picture looks like the one on screen.
+  const balloonScale = Math.min(1, Math.max(0.4, frame.w / 360));
 
   // Without a head box (older translations), aim at the middle of the photo.
   const headBox: Box = head
@@ -275,12 +276,13 @@ export function TranslationCanvas({
   );
 }
 
-/** Width / height of every picture: 4:5, the Instagram feed shape, shown whole in WhatsApp. */
-export const SHARE_ASPECT = 4 / 5;
+/** Width / height of every picture: 2:3, room for the balloon above the pet (decision of the product owner). */
+export const SHARE_ASPECT = 2 / 3;
 
 /**
- * Part of the image (fractions 0..1) shown in a 4:5 frame: as much as fits, centred on the
- * head when known, else slightly above the middle.
+ * Part of the image (fractions 0..1) shown in the 2:3 frame. A taller picture keeps its top
+ * (the free space where the balloon goes) and loses only what is needed below the head; a
+ * wider one is trimmed at the sides, centred on the head.
  */
 export function cropWindow(
   imageAspect: number,
@@ -289,10 +291,11 @@ export function cropWindow(
   const w = imageAspect > SHARE_ASPECT ? SHARE_ASPECT / imageAspect : 1;
   const h = imageAspect > SHARE_ASPECT ? 1 : imageAspect / SHARE_ASPECT;
   const cx = head ? head[0] + head[2] / 2 : 0.5;
-  const cy = head ? head[1] + head[3] / 2 : 0.45;
+  // Lowest point that must stay visible: just below the head.
+  const keepBottom = head ? head[1] + head[3] + 0.05 : 0.75;
   return {
     x: clamp(cx - w / 2, 0, 1 - w),
-    y: clamp(cy - h / 2, 0, 1 - h),
+    y: clamp(keepBottom - h, 0, 1 - h),
     w,
     h,
   };

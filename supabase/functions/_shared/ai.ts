@@ -358,7 +358,7 @@ const GPT_SIZES: Record<Aspect, { width: number; height: number }> = {
   '9:16': { width: 864, height: 1536 },
 };
 
-export function falInput(model: string, prompt: string, imageUrl: string, aspect: Aspect = '3:4'): Record<string, unknown> {
+export function falInput(model: string, prompt: string, imageUrl: string, aspect: Aspect = '2:3'): Record<string, unknown> {
   // Pictures are portrait, sized for sharing; Kontext has no 4:5 (3:4 is the closest).
   if (model.startsWith('fal-ai/flux-pro/kontext')) {
     return { prompt, image_url: imageUrl, num_images: 1, output_format: 'jpeg', aspect_ratio: aspect === '4:5' ? '3:4' : aspect };
@@ -384,7 +384,7 @@ export class FalImageEditor implements ImageEditor {
     private fetchFn: typeof fetch = fetch,
     /** How long to wait for the model. */
     private timeoutMs = 110_000,
-    private aspect: Aspect = '3:4',
+    private aspect: Aspect = '2:3',
   ) {}
 
   async edit({ imageUrl, style, exaggerated = false, appearance }: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string }) {

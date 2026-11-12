@@ -89,7 +89,7 @@ supabase/
 - Créditos: só as funções SQL `start_generation`, `fail_generation`, `grant_credits`… mexem em saldos, e só o `service_role` as pode chamar. A app só lê.
 - Falhas devolvem sempre o crédito (`fail_generation` é idempotente). Gerações presas >5 min expiram e são reembolsadas.
 - Limites: 5/min, 100/dia, 2 em curso por utilizador (`private.limits()`).
-- Segredos (Edge Function secrets): `ANTHROPIC_API_KEY`, `FAL_KEY`; opcionais `TEXT_MODEL` (padrão `claude-opus-5-5`), `IMAGE_MODEL` (padrão `fal-ai/flux-pro/kontext`, 0,04 $, ~20 s), `IMAGE_MODEL_FAITHFUL` (padrão `openai/gpt-image-2/edit`).
+- Segredos (Edge Function secrets): `ANTHROPIC_API_KEY`, `FAL_KEY`; opcionais `TEXT_MODEL` (padrão `claude-opus-5-5`), `IMAGE_MODEL` (padrão `fal-ai/flux-pro/kontext`, 0,04 $, ~20 s), `IMAGE_MODEL_FAITHFUL` (padrão `openai/gpt-image-2/edit`), `IMAGE_ASPECT` (padrão `2:3`).
 - A app fica em **modo local** (Fase 1, sem servidor) se `mobile/.env` não tiver `EXPO_PUBLIC_SUPABASE_URL`/`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 
 ### Comandos do servidor
@@ -123,7 +123,7 @@ mobile/
 ```
 
 - Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos. Ao escrever a frase, a IA devolve a caixa da cabeça (`generations.head`, x/y/w/h 0..1); , do corpo inteiro (`generations.body`) e do objeto principal da cena (`generations.prop`, ex.: comando, copo); sem posição escolhida, a app põe o balão no canto que menos tapa a cabeça, depois o corpo, depois o objeto (`components/balloonLayout.ts`). Nunca tapa a marca de água.
-- Formato: todas as imagens em **4:5** (feed do Instagram, inteira no chat do WhatsApp; decisão do dono do produto). Os modelos pedem retrato (Kontext `aspect_ratio: 3:4`, GPT Image `1024×1280`); a app recorta o resto à volta da cabeça (`cropWindow` em `TranslationCanvas`) e ajusta a cabeça e o objeto para o balão. No resultado, a imagem ocupa só o espaço entre o título e os botões.
+- Formato: todas as imagens em **2:3** (decisão do dono do produto depois de comparar 4:5, 3:4, 2:3 e 9:16: espaço para o balão por cima do animal, como nas primeiras imagens). O servidor pede o formato aos modelos (`IMAGE_ASPECT`, padrão 2:3; Kontext `aspect_ratio`, GPT Image `image_size`) e pode mudar sem nova versão; a app mostra em 2:3 (`SHARE_ASPECT`) e, se a imagem tiver outro formato, recorta guardando o topo e cortando só abaixo da cabeça (`cropWindow`). O balão escala com a largura da imagem (mesmas proporções no ecrã e na imagem partilhada). No resultado, a imagem ocupa só o espaço entre o título e os botões.
 - "Sem balão · grátis" no resultado: esconde o balão e partilha/guarda só a imagem (com marca de água).
 - Regras globais de imagem (`imageEditPrompt`): **nunca exemplos concretos de objetos** — o modelo copia-os para todas as cenas (ex.: "três hambúrgueres" apareceu na praia e no Natal; "confetti" em todo o lado).
 - Mudar a pose do animal (ex.: de barriga para cima) só resulta com a pose **no início** do prompt do cenário ("Change the pose: …").

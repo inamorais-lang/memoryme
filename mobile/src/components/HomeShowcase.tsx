@@ -11,6 +11,7 @@ import { ThoughtBalloon } from "./ThoughtBalloon";
 const PICTURES = [
   require("../../assets/home/sleep.jpg"),
   require("../../assets/home/diva.jpg"),
+  require("../../assets/home/birthday.jpg"),
   require("../../assets/home/drag.jpg"),
   require("../../assets/home/critic.jpg"),
   require("../../assets/home/snowboard.jpg"),

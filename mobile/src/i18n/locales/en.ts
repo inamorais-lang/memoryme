@@ -13,7 +13,7 @@ const en: Strings = {
     titleHighlight: 'thinking',
     titleEnd: '?',
     subtitle: 'Snap your cat or dog and finally learn the truth.',
-    examples: ["Let me sleep…", "I’m the star of the party.", "All these bags and none smell of chicken?", "Today I want a big juicy steak.", "One run and I’m a pro.", "Straight from the block. Can’t you tell?", "I pay with my paw. The human pays the rest.", "Merry Christmas! The baubles are mine."],
+    examples: ["Let me sleep…", "I’m the star of the party.", "Happy birthday! The cake is mine, right?", "All these bags and none smell of chicken?", "Today I want a big juicy steak.", "One run and I’m a pro.", "Straight from the block. Can’t you tell?", "I pay with my paw. The human pays the rest.", "Merry Christmas! The baubles are mine."],
     takePhoto: 'Take a photo',
     pickPhoto: 'Choose from library',
     history_one: 'See your picture',

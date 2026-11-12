@@ -13,7 +13,7 @@ const es: Strings = {
     titleHighlight: 'pensando',
     titleEnd: ' tu mascota?',
     subtitle: 'Hazle una foto a tu gato o a tu perro y descubre, por fin, la verdad.',
-    examples: ["Dejadme dormir…", "Soy la estrella de la fiesta.", "¿Tantas bolsas y ninguna huele a pollo?", "Hoy lo que quiero es un buen filete.", "Una bajada y ya soy profesional.", "Soy del barrio, ¿no se nota?", "Pago con la pata. El humano paga el resto.", "¡Feliz Navidad! Las bolas del árbol son mías."],
+    examples: ["Dejadme dormir…", "Soy la estrella de la fiesta.", "¡Feliz cumpleaños! La tarta es mía, ¿no?", "¿Tantas bolsas y ninguna huele a pollo?", "Hoy lo que quiero es un buen filete.", "Una bajada y ya soy profesional.", "Soy del barrio, ¿no se nota?", "Pago con la pata. El humano paga el resto.", "¡Feliz Navidad! Las bolas del árbol son mías."],
     takePhoto: 'Hacer foto',
     pickPhoto: 'Elegir de la galería',
     history_one: 'Ver tu imagen',

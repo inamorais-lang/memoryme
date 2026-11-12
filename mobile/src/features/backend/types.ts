@@ -24,7 +24,6 @@ export type TranslationChoice = (
 ) & {
   /** Optional, from the owner, for the line only. */
   petSex?: 'male' | 'female';
-  petName?: string;
 };
 
 /** Limits of a scene typed by the user (also enforced in the database). */

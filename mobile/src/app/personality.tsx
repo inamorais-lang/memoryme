@@ -38,7 +38,6 @@ import { hasAiConsent } from "@/features/consent/aiConsent";
 import { type DraftChoice, useDraft } from "@/features/draft/DraftContext";
 import {
   loadPetProfile,
-  PET_NAME_MAX,
   type PetProfile,
   type PetSex,
   savePetProfile,
@@ -110,11 +109,9 @@ export default function PersonalityScreen() {
       return;
     }
     if (!choiceReady) return;
-    const petName = pet.name?.replace(/\s+/g, " ").trim();
     const extra = {
       ...(draft.comicId ? { comicId: draft.comicId } : {}),
       ...(pet.sex ? { petSex: pet.sex } : {}),
-      ...(petName ? { petName } : {}),
     };
     const request: TranslationChoice =
       choice.kind === "mode"
@@ -235,7 +232,7 @@ export default function PersonalityScreen() {
         </View>
       </View>
 
-      {/* Optional: only to write the line (feminine or masculine words, the pet's name). */}
+      {/* Optional: only to write the line with feminine or masculine words. */}
       <View style={styles.pet}>
         <View style={styles.chips}>
           <SceneChip
@@ -251,20 +248,6 @@ export default function PersonalityScreen() {
             onPress={() => toggleSex("female")}
           />
         </View>
-        <TextField
-          testID="pet-name"
-          value={pet.name ?? ""}
-          onChangeText={(name) =>
-            updatePet({
-              ...pet,
-              name: name.slice(0, PET_NAME_MAX) || undefined,
-            })
-          }
-          placeholder={t("pet.namePlaceholder")}
-          maxLength={PET_NAME_MAX}
-          returnKeyType="done"
-          autoCapitalize="words"
-        />
       </View>
 
       {trending.length > 0 ? (

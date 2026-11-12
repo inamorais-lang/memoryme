@@ -42,7 +42,6 @@ const fr: Strings = {
   pet: {
     male: '♂ Mâle',
     female: '♀ Femelle',
-    namePlaceholder: 'Nom de ton compagnon (facultatif)',
   },
   scene: {
     trending: '🔥 Tendance',

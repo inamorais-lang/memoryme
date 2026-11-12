@@ -1,11 +1,8 @@
 import { kv } from '@/lib/kv';
 
-/** Optional, told by the owner: used only to write the line (gender agreement, the pet's name). */
+/** Optional, told by the owner: used only to write the line (gender agreement) and the male Diva. */
 export type PetSex = 'male' | 'female';
-export type PetProfile = { sex?: PetSex; name?: string };
-
-/** Same limit as the server. */
-export const PET_NAME_MAX = 20;
+export type PetProfile = { sex?: PetSex };
 
 const KEY = 'pet-profile-v1';
 
@@ -14,10 +11,7 @@ export async function loadPetProfile(): Promise<PetProfile> {
   try {
     const raw = await kv.getItem(KEY);
     const data = raw ? JSON.parse(raw) : {};
-    return {
-      sex: data.sex === 'male' || data.sex === 'female' ? data.sex : undefined,
-      name: typeof data.name === 'string' && data.name ? data.name.slice(0, PET_NAME_MAX) : undefined,
-    };
+    return { sex: data.sex === 'male' || data.sex === 'female' ? data.sex : undefined };
   } catch {
     return {};
   }

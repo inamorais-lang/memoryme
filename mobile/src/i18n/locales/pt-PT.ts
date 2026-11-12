@@ -40,7 +40,6 @@ const ptPT = {
   pet: {
     male: '♂ Macho',
     female: '♀ Fêmea',
-    namePlaceholder: 'Nome do patudo (opcional)',
   },
   scene: {
     trending: '🔥 Em alta',

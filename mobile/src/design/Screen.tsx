@@ -18,7 +18,8 @@ type Props = {
 };
 
 export function Screen({ children, footer, scroll = true }: Props) {
-  const body = <View style={styles.inner}>{children}</View>;
+  // Without scroll the content gets exactly the room above the footer (children can flex into it).
+  const body = <View style={[styles.inner, !scroll && styles.fill]}>{children}</View>;
   return (
     <SafeAreaView style={styles.root} edges={["bottom", "left", "right"]}>
       <KeyboardAvoidingView

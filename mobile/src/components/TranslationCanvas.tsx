@@ -81,11 +81,12 @@ export function TranslationCanvas({
     width: number;
     height: number;
   } | null>(null);
-  const aspectRatio = clamp(
-    (photoWidth ?? loaded?.width ?? 4) / (photoHeight ?? loaded?.height ?? 5),
-    0.56,
-    1.5,
-  );
+  // Every picture is 4:5 (Instagram feed, whole in a WhatsApp chat). The photo is trimmed
+  // to that shape around the pet's head, never across it.
+  const aspectRatio = SHARE_ASPECT;
+  const imageAspect =
+    (photoWidth ?? loaded?.width ?? 4) / (photoHeight ?? loaded?.height ?? 5);
+  const crop = cropWindow(imageAspect, head);
   // Exact width and height: on iOS, aspectRatio + maxWidth lets a tall photo
   // grow past maxHeight (under the buttons, hiding a balloon placed low).
   const [available, setAvailable] = useState(0);
@@ -108,10 +109,10 @@ export function TranslationCanvas({
   // Without a head box (older translations), aim at the middle of the photo.
   const headBox: Box = head
     ? {
-        x: head[0] * frame.w,
-        y: head[1] * frame.h,
-        w: head[2] * frame.w,
-        h: head[3] * frame.h,
+        x: ((head[0] - crop.x) / crop.w) * frame.w,
+        y: ((head[1] - crop.y) / crop.h) * frame.h,
+        w: (head[2] / crop.w) * frame.w,
+        h: (head[3] / crop.h) * frame.h,
       }
     : {
         x: 0.4 * frame.w,
@@ -121,10 +122,10 @@ export function TranslationCanvas({
       };
   const propBox: Box | undefined = prop
     ? {
-        x: prop[0] * frame.w,
-        y: prop[1] * frame.h,
-        w: prop[2] * frame.w,
-        h: prop[3] * frame.h,
+        x: ((prop[0] - crop.x) / crop.w) * frame.w,
+        y: ((prop[1] - crop.y) / crop.h) * frame.h,
+        w: (prop[2] / crop.w) * frame.w,
+        h: (prop[3] / crop.h) * frame.h,
       }
     : undefined;
   const base = balloonSpot ?? autoSpot(headBox, propBox, frame, bubble);
@@ -190,7 +191,13 @@ export function TranslationCanvas({
       >
         <Image
           source={photoSource ?? { uri: photoUri }}
-          style={StyleSheet.absoluteFill}
+          style={{
+            position: "absolute",
+            width: frame.w / crop.w,
+            height: frame.h / crop.h,
+            left: (-crop.x * frame.w) / crop.w,
+            top: (-crop.y * frame.h) / crop.h,
+          }}
           contentFit="cover"
           onLoad={(e) =>
             setLoaded({ width: e.source.width, height: e.source.height })
@@ -255,6 +262,29 @@ export function TranslationCanvas({
       </View>
     </View>
   );
+}
+
+/** Width / height of every picture: 4:5, the Instagram feed shape, shown whole in WhatsApp. */
+export const SHARE_ASPECT = 4 / 5;
+
+/**
+ * Part of the image (fractions 0..1) shown in a 4:5 frame: as much as fits, centred on the
+ * head when known, else slightly above the middle.
+ */
+export function cropWindow(
+  imageAspect: number,
+  head?: [number, number, number, number],
+): { x: number; y: number; w: number; h: number } {
+  const w = imageAspect > SHARE_ASPECT ? SHARE_ASPECT / imageAspect : 1;
+  const h = imageAspect > SHARE_ASPECT ? 1 : imageAspect / SHARE_ASPECT;
+  const cx = head ? head[0] + head[2] / 2 : 0.5;
+  const cy = head ? head[1] + head[3] / 2 : 0.45;
+  return {
+    x: clamp(cx - w / 2, 0, 1 - w),
+    y: clamp(cy - h / 2, 0, 1 - h),
+    w,
+    h,
+  };
 }
 
 /** The corner whose balloon covers the least of the head (top-left on a tie). */

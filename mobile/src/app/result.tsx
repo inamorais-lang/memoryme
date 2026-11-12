@@ -1,28 +1,44 @@
-import * as Haptics from 'expo-haptics';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Linking, Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+import * as Haptics from "expo-haptics";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  Platform,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from "react-native";
 
-import { tintFor } from '@/components/ThoughtBalloon';
+import { tintFor } from "@/components/ThoughtBalloon";
 import {
   BALLOON_CORNERS,
   TranslationCanvas,
   type BalloonSpot,
   type CanvasRef,
-} from '@/components/TranslationCanvas';
-import { AppText, Button, colors, Screen, space, TextField } from '@/design';
-import { useAuth } from '@/features/auth/AuthContext';
-import { backend, CUSTOM_PHRASE_MAX, type TranslationView } from '@/features/backend';
-import { useDraft } from '@/features/draft/DraftContext';
-import { findPersonality } from '@/features/personalities/data';
-import { APP_STORE_URL } from '@/config';
-import { renderToImage, saveImageToLibrary, shareImage } from '@/lib/exportImage';
+} from "@/components/TranslationCanvas";
+import { AppText, Button, colors, Screen, space, TextField } from "@/design";
+import { useAuth } from "@/features/auth/AuthContext";
+import {
+  backend,
+  CUSTOM_PHRASE_MAX,
+  type TranslationView,
+} from "@/features/backend";
+import { useDraft } from "@/features/draft/DraftContext";
+import { findPersonality } from "@/features/personalities/data";
+import { APP_STORE_URL } from "@/config";
+import {
+  renderToImage,
+  saveImageToLibrary,
+  shareImage,
+} from "@/lib/exportImage";
 
 const POLL_MS = 2000;
 const GIVE_UP_MS = 3 * 60 * 1000;
 
-type Status = 'loading' | 'ready' | 'failed' | 'slow' | 'missing';
+type Status = "loading" | "ready" | "failed" | "slow" | "missing";
 
 export default function ResultScreen() {
   const { t } = useTranslation();
@@ -32,10 +48,11 @@ export default function ResultScreen() {
   const canvasRef = useRef<CanvasRef>(null);
   // Header, pinned actions and the retry link take roughly half the screen.
   const canvasMaxHeight = useWindowDimensions().height * 0.45;
+  const [canvasRoom, setCanvasRoom] = useState(0);
 
   const [item, setItem] = useState<TranslationView | null>(null);
-  const [status, setStatus] = useState<Status>('loading');
-  const [busy, setBusy] = useState<'retry' | 'share' | 'save' | null>(null);
+  const [status, setStatus] = useState<Status>("loading");
+  const [busy, setBusy] = useState<"retry" | "share" | "save" | null>(null);
   // What was in the gallery copy: any change to the picture (new line, balloon, colour) lets it be saved again.
   const [savedLook, setSavedLook] = useState<string | null>(null);
   // Each translation gets its own pastel; tapping the balloon cycles it.
@@ -51,8 +68,10 @@ export default function ResultScreen() {
     balloonHidden,
   ]);
   const [editing, setEditing] = useState(false);
-  const [draftText, setDraftText] = useState('');
-  const [loadingText] = useState(() => pickOne(t('result.loading', { returnObjects: true }) as string[]));
+  const [draftText, setDraftText] = useState("");
+  const [loadingText] = useState(() =>
+    pickOne(t("result.loading", { returnObjects: true }) as string[]),
+  );
 
   // Load the translation; while the server is still working on it, poll.
   useEffect(() => {
@@ -63,23 +82,24 @@ export default function ResultScreen() {
       try {
         const found = await backend.getTranslation(id!);
         if (cancelled) return;
-        if (!found) return setStatus('missing');
+        if (!found) return setStatus("missing");
         setItem(found);
-        if (found.status === 'succeeded') {
-          setStatus('ready');
+        if (found.status === "succeeded") {
+          setStatus("ready");
           auth.refreshCredits();
-          if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          if (Platform.OS !== "web")
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           return;
         }
-        if (found.status === 'failed') {
-          setStatus('failed');
+        if (found.status === "failed") {
+          setStatus("failed");
           auth.refreshCredits();
           return;
         }
       } catch {
         // Network blip: keep polling until we give up.
       }
-      if (Date.now() - startedAt > GIVE_UP_MS) return setStatus('slow');
+      if (Date.now() - startedAt > GIVE_UP_MS) return setStatus("slow");
       setTimeout(poll, POLL_MS);
     }
     poll();
@@ -91,13 +111,19 @@ export default function ResultScreen() {
 
   async function newPhrase() {
     if (!item || item.freePhraseUsed) return;
-    setBusy('retry');
+    setBusy("retry");
     try {
       const phrase = await backend.newPhrase(item.id);
-      setItem({ ...item, phrase, customPhrase: undefined, freePhraseUsed: true });
-      if (item.customPhrase) backend.setCustomPhrase(item.id, null).catch(() => {});
+      setItem({
+        ...item,
+        phrase,
+        customPhrase: undefined,
+        freePhraseUsed: true,
+      });
+      if (item.customPhrase)
+        backend.setCustomPhrase(item.id, null).catch(() => {});
     } catch {
-      Alert.alert(t('result.errorTitle'), t('result.errorBody'));
+      Alert.alert(t("result.errorTitle"), t("result.errorBody"));
     } finally {
       setBusy(null);
     }
@@ -116,17 +142,22 @@ export default function ResultScreen() {
   }
 
   function startWriting() {
-    setDraftText(item?.customPhrase ?? '');
+    setDraftText(item?.customPhrase ?? "");
     setEditing(true);
   }
 
   function saveOwnLine() {
     if (!item) return;
-    const text = draftText.replace(/\s+/g, ' ').trim().slice(0, CUSTOM_PHRASE_MAX);
+    const text = draftText
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, CUSTOM_PHRASE_MAX);
     if (!text) return;
     setItem({ ...item, customPhrase: text });
     setEditing(false);
-    backend.setCustomPhrase(item.id, text).catch(() => Alert.alert(t('result.network')));
+    backend
+      .setCustomPhrase(item.id, text)
+      .catch(() => Alert.alert(t("result.network")));
   }
 
   function useAiLine() {
@@ -136,12 +167,18 @@ export default function ResultScreen() {
   }
 
   async function share() {
-    setBusy('share');
+    setBusy("share");
     try {
       const uri = await renderToImage(canvasRef);
-      const message = APP_STORE_URL ? t('result.shareMessage', { url: APP_STORE_URL }) : undefined;
-      const outcome = await shareImage(uri, `petbubble-${item?.id}.png`, message);
-      if (outcome === 'unavailable') Alert.alert(t('result.shareUnavailable'));
+      const message = APP_STORE_URL
+        ? t("result.shareMessage", { url: APP_STORE_URL })
+        : undefined;
+      const outcome = await shareImage(
+        uri,
+        `petbubble-${item?.id}.png`,
+        message,
+      );
+      if (outcome === "unavailable") Alert.alert(t("result.shareUnavailable"));
     } catch {
       // Closing the share sheet also lands here on some platforms; nothing to report.
     } finally {
@@ -150,21 +187,28 @@ export default function ResultScreen() {
   }
 
   async function save() {
-    setBusy('save');
+    setBusy("save");
     try {
       const uri = await renderToImage(canvasRef);
-      const outcome = await saveImageToLibrary(uri, `petbubble-${item?.id}.png`);
-      if (outcome === 'denied') {
-        Alert.alert(t('permissions.saveTitle'), t('permissions.saveBody'), [
-          { text: t('common.cancel'), style: 'cancel' },
-          { text: t('common.openSettings'), onPress: () => Linking.openSettings() },
+      const outcome = await saveImageToLibrary(
+        uri,
+        `petbubble-${item?.id}.png`,
+      );
+      if (outcome === "denied") {
+        Alert.alert(t("permissions.saveTitle"), t("permissions.saveBody"), [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("common.openSettings"),
+            onPress: () => Linking.openSettings(),
+          },
         ]);
       } else {
         setSavedLook(look);
-        if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (Platform.OS !== "web")
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     } catch {
-      Alert.alert(t('result.errorTitle'), t('result.errorBody'));
+      Alert.alert(t("result.errorTitle"), t("result.errorBody"));
     } finally {
       setBusy(null);
     }
@@ -172,17 +216,17 @@ export default function ResultScreen() {
 
   function confirmDelete() {
     if (!item) return;
-    Alert.alert(t('result.deleteTitle'), t('result.deleteBody'), [
-      { text: t('common.cancel'), style: 'cancel' },
+    Alert.alert(t("result.deleteTitle"), t("result.deleteBody"), [
+      { text: t("common.cancel"), style: "cancel" },
       {
-        text: t('result.deleteConfirm'),
-        style: 'destructive',
+        text: t("result.deleteConfirm"),
+        style: "destructive",
         onPress: async () => {
           try {
             await backend.deleteTranslation(item.id);
             newPhoto();
           } catch {
-            Alert.alert(t('result.deleteError'));
+            Alert.alert(t("result.deleteError"));
           }
         },
       },
@@ -194,19 +238,27 @@ export default function ResultScreen() {
     router.dismissAll();
   }
 
-  if (!id || status === 'missing' || status === 'failed' || status === 'slow') {
+  if (!id || status === "missing" || status === "failed" || status === "slow") {
     const message =
-      !id || status === 'missing'
-        ? t('result.notFound')
-        : status === 'slow'
-          ? t('result.slow')
-          : item?.failureReason === 'scene_rejected'
-            ? t('result.sceneRejected', { count: item.cost })
-            : item?.failureReason === 'not_a_pet'
-              ? t('result.notAPet', { count: item.cost })
-              : t('result.failedRefunded', { count: item?.cost ?? 1 });
+      !id || status === "missing"
+        ? t("result.notFound")
+        : status === "slow"
+          ? t("result.slow")
+          : item?.failureReason === "scene_rejected"
+            ? t("result.sceneRejected", { count: item.cost })
+            : item?.failureReason === "not_a_pet"
+              ? t("result.notAPet", { count: item.cost })
+              : t("result.failedRefunded", { count: item?.cost ?? 1 });
     return (
-      <Screen footer={<Button testID="new-photo" label={t('result.newPhoto')} onPress={newPhoto} />}>
+      <Screen
+        footer={
+          <Button
+            testID="new-photo"
+            label={t("result.newPhoto")}
+            onPress={newPhoto}
+          />
+        }
+      >
         <AppText variant="heading" testID="result-message">
           {message}
         </AppText>
@@ -214,7 +266,7 @@ export default function ResultScreen() {
     );
   }
 
-  if (status === 'loading' || !item?.imageUri) {
+  if (status === "loading" || !item?.imageUri) {
     const photo = draft.photo;
     return (
       <Screen scroll={false}>
@@ -233,9 +285,9 @@ export default function ResultScreen() {
         <View style={styles.loading} testID="result-loading">
           <ActivityIndicator color={colors.ink} />
           <AppText variant="bodyStrong">{loadingText}</AppText>
-          {backend.mode === 'remote' ? (
+          {backend.mode === "remote" ? (
             <AppText variant="small" color={colors.inkMuted}>
-              {t('result.loadingHint')}
+              {t("result.loadingHint")}
             </AppText>
           ) : null}
         </View>
@@ -250,8 +302,10 @@ export default function ResultScreen() {
       ? { x: item.balloonX, y: item.balloonY }
       : item.head
         ? undefined
-        : BALLOON_CORNERS[item.balloonPosition === 'bottom' ? 3 : 0];
-  const shownPhrase = editing ? draftText || t('result.writePlaceholder') : (item.customPhrase ?? item.phrase);
+        : BALLOON_CORNERS[item.balloonPosition === "bottom" ? 3 : 0];
+  const shownPhrase = editing
+    ? draftText || t("result.writePlaceholder")
+    : (item.customPhrase ?? item.phrase);
   const saved = savedLook === look;
   const charsLeft = CUSTOM_PHRASE_MAX - draftText.length;
 
@@ -262,15 +316,25 @@ export default function ResultScreen() {
         value={draftText}
         onChangeText={setDraftText}
         maxLength={CUSTOM_PHRASE_MAX}
-        placeholder={t('result.writePlaceholder')}
+        placeholder={t("result.writePlaceholder")}
         autoFocus
         returnKeyType="done"
         onSubmitEditing={saveOwnLine}
-        counterLabel={t('result.charsLeft', { count: charsLeft })}
+        counterLabel={t("result.charsLeft", { count: charsLeft })}
       />
-      <Button testID="use-own-line" label={t('result.useMine')} onPress={saveOwnLine} disabled={!draftText.trim()} />
+      <Button
+        testID="use-own-line"
+        label={t("result.useMine")}
+        onPress={saveOwnLine}
+        disabled={!draftText.trim()}
+      />
       <View style={styles.secondary}>
-        <Button testID="cancel-own-line" variant="tertiary" label={t('common.cancel')} onPress={() => setEditing(false)} />
+        <Button
+          testID="cancel-own-line"
+          variant="tertiary"
+          label={t("common.cancel")}
+          onPress={() => setEditing(false)}
+        />
       </View>
     </>
   );
@@ -279,16 +343,22 @@ export default function ResultScreen() {
     <>
       <View style={styles.row}>
         <View style={styles.flex}>
-          <Button testID="share" label={t('result.share')} note={t('result.free')} onPress={share} loading={busy === 'share'} />
+          <Button
+            testID="share"
+            label={t("result.share")}
+            note={t("result.free")}
+            onPress={share}
+            loading={busy === "share"}
+          />
         </View>
         <View style={styles.flex}>
           <Button
             testID="save"
             variant="secondary"
-            label={saved ? t('result.saved') : t('result.save')}
-            note={t('result.free')}
+            label={saved ? t("result.saved") : t("result.save")}
+            note={t("result.free")}
             onPress={save}
-            loading={busy === 'save'}
+            loading={busy === "save"}
             disabled={saved}
           />
         </View>
@@ -296,30 +366,57 @@ export default function ResultScreen() {
       <View style={styles.secondary}>
         {!balloonHidden ? (
           <>
-            <Button testID="move-balloon" variant="tertiary" label={t('result.moveBalloon')} onPress={nextCorner} />
-            <Button testID="write-own-line" variant="tertiary" label={t('result.writeOwn')} onPress={startWriting} />
+            <Button
+              testID="move-balloon"
+              variant="tertiary"
+              label={t("result.moveBalloon")}
+              onPress={nextCorner}
+            />
+            <Button
+              testID="write-own-line"
+              variant="tertiary"
+              label={t("result.writeOwn")}
+              onPress={startWriting}
+            />
           </>
         ) : null}
         <Button
           testID="toggle-balloon"
           variant="tertiary"
-          label={balloonHidden ? t('result.showBalloon') : t('result.hideBalloon')}
+          label={
+            balloonHidden ? t("result.showBalloon") : t("result.hideBalloon")
+          }
           onPress={() => setBalloonHidden((h) => !h)}
         />
         {item.customPhrase && !balloonHidden ? (
-          <Button testID="use-ai-line" variant="tertiary" label={t('result.useAi')} onPress={useAiLine} />
+          <Button
+            testID="use-ai-line"
+            variant="tertiary"
+            label={t("result.useAi")}
+            onPress={useAiLine}
+          />
         ) : null}
         {!item.freePhraseUsed && !balloonHidden ? (
           <Button
             testID="retry"
             variant="tertiary"
-            label={t('result.retryFree')}
+            label={t("result.retryFree")}
             onPress={newPhrase}
-            loading={busy === 'retry'}
+            loading={busy === "retry"}
           />
         ) : null}
-        <Button testID="new-photo" variant="tertiary" label={t('result.newPhoto')} onPress={newPhoto} />
-        <Button testID="delete-image" variant="tertiary" label={t('result.deleteImage')} onPress={confirmDelete} />
+        <Button
+          testID="new-photo"
+          variant="tertiary"
+          label={t("result.newPhoto")}
+          onPress={newPhoto}
+        />
+        <Button
+          testID="delete-image"
+          variant="tertiary"
+          label={t("result.deleteImage")}
+          onPress={confirmDelete}
+        />
       </View>
     </>
   );
@@ -327,23 +424,29 @@ export default function ResultScreen() {
   return (
     // No scroll here: a vertical drag on the balloon must move the balloon, not the page.
     <Screen scroll={false} footer={editing ? writingFooter : actionsFooter}>
-      <TranslationCanvas
-        ref={canvasRef}
-        photoUri={item.imageUri}
-        photoWidth={item.width}
-        photoHeight={item.height}
-        phrase={balloonHidden ? undefined : shownPhrase}
-        balloonSpot={spot}
-        head={item.head}
-        prop={item.prop}
-        onBalloonMove={placeBalloon}
-        maxHeight={canvasMaxHeight}
-        balloonTint={tintFor(item.id) + tintShift}
-        onBalloonPress={() => setTintShift((n) => n + 1)}
-      />
+      {/* The 4:5 picture takes the room left between the title and the buttons, never more. */}
+      <View
+        style={styles.canvasRoom}
+        onLayout={(e) => setCanvasRoom(e.nativeEvent.layout.height)}
+      >
+        <TranslationCanvas
+          ref={canvasRef}
+          photoUri={item.imageUri}
+          photoWidth={item.width}
+          photoHeight={item.height}
+          phrase={balloonHidden ? undefined : shownPhrase}
+          balloonSpot={spot}
+          head={item.head}
+          prop={item.prop}
+          onBalloonMove={placeBalloon}
+          maxHeight={canvasRoom > 0 ? canvasRoom : canvasMaxHeight}
+          balloonTint={tintFor(item.id) + tintShift}
+          onBalloonPress={() => setTintShift((n) => n + 1)}
+        />
+      </View>
       <AppText variant="small" color={colors.inkMuted} align="center">
-        {personality ? `${personality.name} · ` : ''}
-        {balloonHidden ? t('result.hiddenHint') : t('result.dragHint')}
+        {personality ? `${personality.name} · ` : ""}
+        {balloonHidden ? t("result.hiddenHint") : t("result.dragHint")}
       </AppText>
     </Screen>
   );
@@ -355,8 +458,14 @@ function pickOne<T>(list: T[]): T {
 
 const styles = StyleSheet.create({
   dimmed: { opacity: 0.6 },
-  loading: { alignItems: 'center', gap: space.md, paddingTop: space.xl },
-  row: { flexDirection: 'row', gap: space.sm },
+  canvasRoom: { flex: 1, minHeight: 0, alignItems: "center", overflow: "hidden" },
+  loading: { alignItems: "center", gap: space.md, paddingTop: space.xl },
+  row: { flexDirection: "row", gap: space.sm },
   flex: { flex: 1 },
-  secondary: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: space.sm },
+  secondary: {
+    flexDirection: "row",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    gap: space.sm,
+  },
 });

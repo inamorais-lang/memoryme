@@ -1,7 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import i18n from 'i18next';
+import { t as translate } from 'i18next';
 import { Alert, AppState, Platform } from 'react-native';
 
 import { backend } from '@/features/backend';
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .then((added) => {
           if (added <= 0) return;
           refreshCredits();
-          Alert.alert(i18n.t('settings.codeRedeemed', { count: added }));
+          Alert.alert(translate('settings.codeRedeemed', { count: added }));
         })
         .catch(() => {});
     collect();

@@ -341,11 +341,20 @@ export function parseHead(raw: unknown): HeadBox | undefined {
 
 /** Each fal model names its inputs slightly differently. */
 export function falInput(model: string, prompt: string, imageUrl: string): Record<string, unknown> {
+  // Pictures are shared at 4:5 (Instagram feed, whole in a WhatsApp chat): ask for portrait output.
   if (model.startsWith('fal-ai/flux-pro/kontext')) {
-    return { prompt, image_url: imageUrl, num_images: 1, output_format: 'jpeg' };
+    // No 4:5 here; 3:4 is the closest and the app trims the rest around the head.
+    return { prompt, image_url: imageUrl, num_images: 1, output_format: 'jpeg', aspect_ratio: '3:4' };
   }
   if (model.startsWith('openai/gpt-image')) {
-    return { prompt, image_urls: [imageUrl], num_images: 1, output_format: 'jpeg', quality: 'medium' };
+    return {
+      prompt,
+      image_urls: [imageUrl],
+      num_images: 1,
+      output_format: 'jpeg',
+      quality: 'medium',
+      image_size: { width: 1024, height: 1280 },
+    };
   }
   // Nano Banana family (default).
   return { prompt, image_urls: [imageUrl], num_images: 1, output_format: 'jpeg', resolution: '1K', aspect_ratio: 'auto' };

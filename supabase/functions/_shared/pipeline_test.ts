@@ -292,6 +292,9 @@ Deno.test('falInput uses each model\'s field names', () => {
   assert.deepEqual(falInput('fal-ai/flux-pro/kontext', 'p', 'u').image_url, 'u');
   assert.deepEqual(falInput('google/nano-banana-2.1/edit', 'p', 'u').image_urls, ['u']);
   assert.deepEqual(falInput('openai/gpt-image-2/edit', 'p', 'u').image_urls, ['u']);
+  // Portrait output, close to the 4:5 the app shares.
+  assert.equal(falInput('fal-ai/flux-pro/kontext', 'p', 'u').aspect_ratio, '3:4');
+  assert.deepEqual(falInput('openai/gpt-image-2/edit', 'p', 'u').image_size, { width: 1024, height: 1280 });
 });
 
 Deno.test('prompts carry the pet-logic, safety and language rules', () => {

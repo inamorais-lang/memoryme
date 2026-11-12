@@ -7,6 +7,7 @@ import {
   Alert,
   Linking,
   Platform,
+  Pressable,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -19,7 +20,17 @@ import {
   type BalloonSpot,
   type CanvasRef,
 } from "@/components/TranslationCanvas";
-import { AppText, Button, colors, Screen, space, TextField } from "@/design";
+import {
+  AppText,
+  Button,
+  colors,
+  layout,
+  radius,
+  Screen,
+  shadow,
+  space,
+  TextField,
+} from "@/design";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   backend,
@@ -429,24 +440,12 @@ export default function ResultScreen() {
           label={t("result.newPhoto")}
           onPress={newPhoto}
         />
-        <View style={styles.row}>
-          <View style={styles.flex}>
-            <Button
-              testID="delete-image"
-              variant="tertiary"
-              label={t("result.deleteImage")}
-              onPress={confirmDelete}
-            />
-          </View>
-          <View style={styles.flex}>
-            <Button
-              testID="report-image"
-              variant="tertiary"
-              label={t("result.report")}
-              onPress={confirmReport}
-            />
-          </View>
-        </View>
+        <Button
+          testID="delete-image"
+          variant="tertiary"
+          label={t("result.deleteImage")}
+          onPress={confirmDelete}
+        />
       </View>
     </>
   );
@@ -473,6 +472,18 @@ export default function ResultScreen() {
           maxHeight={canvasRoom > 0 ? canvasRoom : canvasMaxHeight}
           balloonTint={tintFor(item.id) + tintShift}
           onBalloonPress={() => setTintShift((n) => n + 1)}
+          overlay={
+            <Pressable
+              testID="report-image"
+              accessibilityRole="button"
+              accessibilityLabel={t("result.report")}
+              hitSlop={space.sm}
+              onPress={confirmReport}
+              style={({ pressed }) => [styles.flag, pressed && styles.dimmed]}
+            >
+              <AppText variant="small">🚩</AppText>
+            </Pressable>
+          }
         />
       </View>
       <AppText variant="small" color={colors.inkMuted} align="center">
@@ -489,10 +500,27 @@ function pickOne<T>(list: T[]): T {
 
 const styles = StyleSheet.create({
   dimmed: { opacity: 0.6 },
-  canvasRoom: { flex: 1, minHeight: 0, alignItems: "center", overflow: "hidden" },
+  canvasRoom: {
+    flex: 1,
+    minHeight: 0,
+    alignItems: "center",
+    overflow: "hidden",
+  },
   loading: { alignItems: "center", gap: space.md, paddingTop: space.xl },
   row: { flexDirection: "row", gap: space.sm },
   flex: { flex: 1 },
+  flag: {
+    position: "absolute",
+    top: space.sm,
+    right: space.sm,
+    width: layout.buttonHeightSmall - space.md,
+    height: layout.buttonHeightSmall - space.md,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: shadow.sm,
+  },
   secondary: {
     flexDirection: "row",
     justifyContent: "center",

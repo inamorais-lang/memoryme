@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { useState, type Ref } from "react";
+import { useState, type ReactNode, type Ref } from "react";
 import { StyleSheet, View } from "react-native";
 import {
   GestureDetector,
@@ -57,6 +57,8 @@ type Props = {
   onBalloonPress?: () => void;
   /** false only while waiting, when the photo shown is still the original (not made with AI). */
   watermark?: boolean;
+  /** Shown over the picture's top-right corner, but never part of the exported image. */
+  overlay?: ReactNode;
 };
 
 type Size = { w: number; h: number };
@@ -75,6 +77,7 @@ export function TranslationCanvas({
   body,
   onBalloonMove,
   maxHeight,
+  overlay,
   balloonTint,
   onBalloonPress,
   watermark = true,
@@ -140,7 +143,8 @@ export function TranslationCanvas({
         h: (body[3] / crop.h) * frame.h,
       }
     : undefined;
-  const base = balloonSpot ?? autoSpot(headBox, propBox, bodyBox, frame, bubble);
+  const base =
+    balloonSpot ?? autoSpot(headBox, propBox, bodyBox, frame, bubble);
   const spot = fit(drag ?? base, frame, bubble);
 
   // Native gestures: a drag moves the balloon, a tap changes its colour.
@@ -272,6 +276,16 @@ export function TranslationCanvas({
           </View>
         ) : null}
       </View>
+      {overlay && width > 0 ? (
+        <View
+          style={[
+            styles.overlay,
+            { right: (available - width) / 2 + space.sm },
+          ]}
+        >
+          {overlay}
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -343,6 +357,7 @@ const styles = StyleSheet.create({
   },
   watermarkText: { fontSize: 10, lineHeight: 14 },
   slot: { width: "100%", alignItems: "center" },
+  overlay: { position: "absolute", top: space.sm },
   frame: {
     overflow: "hidden",
     borderRadius: radius.lg,

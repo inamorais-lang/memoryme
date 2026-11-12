@@ -356,7 +356,7 @@ Deno.test('SQL errors map to app-friendly HTTP codes', () => {
 
 function modelRun(
   genOver: Record<string, unknown>,
-  check: { smallMarkings?: boolean } = {},
+  check: { smallMarkings?: boolean; wearsClothes?: boolean } = {},
   faithfulFails = false,
   sceneFaithful = false,
 ) {
@@ -393,6 +393,7 @@ Deno.test('image model: the fast one by default', async () => {
 
 Deno.test('image model: the faithful one for small markings, custom scenes and pose changes', async () => {
   assert.deepEqual((await modelRun({}, { smallMarkings: true })).used, ['faithful']);
+  assert.deepEqual((await modelRun({}, { wearsClothes: true })).used, ['faithful']);
   assert.deepEqual((await modelRun({ personalityId: undefined, customScene: 'no espaço' })).used, ['faithful']);
   assert.deepEqual((await modelRun({ comicId: 'pt-sorriso' }, {}, false, true)).used, ['faithful']);
 });

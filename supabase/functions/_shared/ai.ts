@@ -17,6 +17,8 @@ export type PetCheck = {
   appearance?: string;
   /** Small facial spots the fast image model tends to drop: use the faithful one. */
   smallMarkings?: boolean;
+  /** Clothes in the photo: the fast model keeps them (logos included), the faithful one takes them off. */
+  wearsClothes?: boolean;
 };
 
 export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox; body?: HeadBox };
@@ -170,7 +172,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
         'copyrighted characters; tragedies, deaths or disasters with victims; violence, weapons, drugs; sexual content; hate. ' +
         'If allowed: "name_pt" (European Portuguese), "name_en", "name_es" (Spain), "name_fr" (France): a short catchy chip label, ' +
         'max 28 characters each, no emoji. "image": one English sentence (max 50 words) for an image editor showing the pet clearly ' +
-        'living the topic: pose, outfit, two or three props, the place and bright colours; no text, no people, no brands. ' +
+        'living the topic: pose, outfit, two or three props placed around it (rather than held in its paws), the place and bright colours; no text, no people, no brands. ' +
         '"voice": one or two English sentences describing how the pet reacts to the topic with pure animal logic (what it ' +
         'expected, what annoys it, what it wants), for a writer of short sarcastic thoughts. If refused, all strings are empty.',
       messages: [{ role: 'user', content: `Topic: <topic>${topic}</topic>` }],
@@ -208,6 +210,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
               is_pet: { type: 'boolean' },
               appearance: { type: 'string' },
               small_markings: { type: 'boolean' },
+              wears_clothes: { type: 'boolean' },
               photo: {
                 type: 'object',
                 properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } },
@@ -215,7 +218,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 additionalProperties: false,
               },
             },
-            required: ['is_pet', 'appearance', 'small_markings', 'photo'],
+            required: ['is_pet', 'appearance', 'small_markings', 'wears_clothes', 'photo'],
             additionalProperties: false,
           },
         },
@@ -239,7 +242,8 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 'small spots or patches on the nose, lips, muzzle or chin, and whether they are on the animal\'s left or right side. ' +
                 'Markings are often asymmetric: say so. Then chest, paws, tail. ' +
                 'Set "small_markings" to true only if the face has a small spot, smudge or patch (on the nose, lips, muzzle or chin) ' +
-                'that an image editor could easily drop; false for plain faces and for simple symmetric patterns.',
+                'that an image editor could easily drop; false for plain faces and for simple symmetric patterns. ' +
+                'Set "wears_clothes" to true if the animal wears any clothing (jumper, hoodie, coat, costume, bandana), false otherwise.',
             },
           ],
         },
@@ -257,6 +261,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
       ...(photo ? { photo } : {}),
       ...(appearance ? { appearance } : {}),
       smallMarkings: data.small_markings === true,
+      wearsClothes: data.wears_clothes === true,
     };
   }
 

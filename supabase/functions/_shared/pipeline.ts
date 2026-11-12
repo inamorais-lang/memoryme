@@ -167,7 +167,7 @@ export async function runGeneration(
       appearance: check.appearance,
     };
     let image;
-    if (faithfulImages && (prompts.faithful || check.smallMarkings)) {
+    if (faithfulImages && (prompts.faithful || check.smallMarkings || check.wearsClothes)) {
       try {
         image = await faithfulImages.edit(request);
       } catch (error) {

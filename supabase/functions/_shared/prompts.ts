@@ -142,6 +142,9 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
     // First, so the model weighs it most: it tends to "clean up" small markings as if they were dirt.
     ...(appearance ? [`This animal: ${appearance} Small dark spots and smudges on its face are real fur markings, not dirt: keep every one, same size and same place.`] : []),
     `Style: ${style}`,
+    // Product owner: like a family photo, the whole pet and the scene around it are visible.
+    // Early in the prompt: the fast model otherwise keeps the close-up framing of the photo.
+    'Pull the camera back for a medium-wide shot, like a family photo: the whole pet is visible from ears to paws (the floor or seat under its paws is visible) and it fills only about half of the image height, with plenty of the scene clearly visible around it. Keep the pet in the lower two thirds and the top third as calm background (no head there), so a thought bubble fits.',
     // Without this only one pet was dressed up and the others stayed plain.
     ...(petCount > 1
       ? [`There are ${petCount} animals in this photo: style every one of them. Each one wears the COMPLETE outfit described in the style (every item, the same look on each, sized to fit it), never split between them, and fits the scene, keeping its own species, breed, size, fur and markings (a puppy stays a puppy next to an adult). Keep all of them in the picture, side by side; none is left out, merged or duplicated. Every rule below applies to each animal.`]
@@ -159,7 +162,6 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
     'The fur keeps exactly the same shade and tone as in the photo: do not warm, darken, lighten or saturate it, even under coloured lights, and never change it towards the usual colour of the breed.',
     // No concrete examples here: the image model copies them into every scene.
     'Generous but clear: show two or three of the objects already named in the style above instead of one, neatly arranged so each is easy to recognise. Add no other objects and no cluttered piles.',
-    'Frame the pet in the lower two thirds of the image and keep the top third as plain, empty background.',
     'No glasses or sunglasses unless the style above asks for them.',
     'Never draw speech bubbles, thought bubbles, clouds of thought, text, letters, numbers, captions, logos or watermarks. If the source photo has any of these, or app buttons, a dimmed or washed-out overlay, remove them and show the pet with natural, full colours.',
     exaggerated

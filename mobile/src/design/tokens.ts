@@ -95,6 +95,8 @@ export const layout = {
   gutter: space.lg,
   buttonHeight: 56,
   buttonHeightSmall: 44,
+  /** Discreet actions (e.g. report); the tap area is widened with hitSlop. */
+  buttonHeightMini: 32,
   minTap: 44,
   maxContentWidth: 520,
 } as const;

@@ -97,7 +97,7 @@ const en: Strings = {
     deleteBody: 'The picture and its line are deleted from your history and from our server. This can\'t be undone.',
     deleteConfirm: 'Delete',
     deleteError: 'Couldn\'t delete the picture. Please try again.',
-    report: "Report",
+    report: "🚩 Report image",
     reportTitle: "Report this picture?",
     reportBody: "Let us know if the picture has anything inappropriate or offensive. We'll review it.",
     reportConfirm: "Report",

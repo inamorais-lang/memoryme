@@ -7,7 +7,6 @@ import {
   Alert,
   Linking,
   Platform,
-  Pressable,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -20,17 +19,7 @@ import {
   type BalloonSpot,
   type CanvasRef,
 } from "@/components/TranslationCanvas";
-import {
-  AppText,
-  Button,
-  colors,
-  layout,
-  radius,
-  Screen,
-  shadow,
-  space,
-  TextField,
-} from "@/design";
+import { AppText, Button, colors, Screen, space, TextField } from "@/design";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   backend,
@@ -472,17 +461,13 @@ export default function ResultScreen() {
           maxHeight={canvasRoom > 0 ? canvasRoom : canvasMaxHeight}
           balloonTint={tintFor(item.id) + tintShift}
           onBalloonPress={() => setTintShift((n) => n + 1)}
-          overlay={
-            <Pressable
+          below={
+            <Button
               testID="report-image"
-              accessibilityRole="button"
-              accessibilityLabel={t("result.report")}
-              hitSlop={space.sm}
+              variant="mini"
+              label={t("result.report")}
               onPress={confirmReport}
-              style={({ pressed }) => [styles.flag, pressed && styles.dimmed]}
-            >
-              <AppText variant="small">🚩</AppText>
-            </Pressable>
+            />
           }
         />
       </View>
@@ -509,18 +494,6 @@ const styles = StyleSheet.create({
   loading: { alignItems: "center", gap: space.md, paddingTop: space.xl },
   row: { flexDirection: "row", gap: space.sm },
   flex: { flex: 1 },
-  flag: {
-    position: "absolute",
-    top: space.sm,
-    right: space.sm,
-    width: layout.buttonHeightSmall - space.md,
-    height: layout.buttonHeightSmall - space.md,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: shadow.sm,
-  },
   secondary: {
     flexDirection: "row",
     justifyContent: "center",

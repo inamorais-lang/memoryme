@@ -97,7 +97,7 @@ const fr: Strings = {
     deleteBody: 'L’image et sa phrase sont supprimées de ton historique et de notre serveur. C’est irréversible.',
     deleteConfirm: 'Supprimer',
     deleteError: 'Impossible de supprimer l’image. Réessaie.',
-    report: "Signaler",
+    report: "🚩 Signaler l’image",
     reportTitle: "Signaler cette image ?",
     reportBody: "Dis-nous si l’image contient quelque chose d’inapproprié ou de choquant. Nous allons la vérifier.",
     reportConfirm: "Signaler",

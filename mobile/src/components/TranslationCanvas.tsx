@@ -10,7 +10,7 @@ import {
 
 import { useTranslation } from "react-i18next";
 
-import { AppText, colors, radius, shadow, space } from "@/design";
+import { AppText, colors, layout, radius, shadow, space } from "@/design";
 
 import { bestSpot, trailDots, type Box } from "./balloonLayout";
 import { ThoughtBalloon, TRAIL_DOTS } from "./ThoughtBalloon";
@@ -57,8 +57,8 @@ type Props = {
   onBalloonPress?: () => void;
   /** false only while waiting, when the photo shown is still the original (not made with AI). */
   watermark?: boolean;
-  /** Shown over the picture's top-right corner, but never part of the exported image. */
-  overlay?: ReactNode;
+  /** Shown under the picture, on its right edge; never part of the exported image. */
+  below?: ReactNode;
 };
 
 type Size = { w: number; h: number };
@@ -77,7 +77,7 @@ export function TranslationCanvas({
   body,
   onBalloonMove,
   maxHeight,
-  overlay,
+  below,
   balloonTint,
   onBalloonPress,
   watermark = true,
@@ -98,7 +98,7 @@ export function TranslationCanvas({
   const [available, setAvailable] = useState(0);
   const width = Math.min(
     available,
-    maxHeight ? maxHeight * aspectRatio : Infinity,
+    maxHeight ? (maxHeight - (below ? BELOW_ROOM : 0)) * aspectRatio : Infinity,
   );
   const sizing =
     width > 0
@@ -276,19 +276,15 @@ export function TranslationCanvas({
           </View>
         ) : null}
       </View>
-      {overlay && width > 0 ? (
-        <View
-          style={[
-            styles.overlay,
-            { right: (available - width) / 2 + space.sm },
-          ]}
-        >
-          {overlay}
-        </View>
+      {below && width > 0 ? (
+        <View style={[styles.below, { width }]}>{below}</View>
       ) : null}
     </View>
   );
 }
+
+/** Room kept under the picture for `below` (a small button). */
+const BELOW_ROOM = layout.buttonHeightMini + space.xs;
 
 /** Width / height of every picture: 2:3, room for the balloon above the pet (decision of the product owner). */
 export const SHARE_ASPECT = 2 / 3;
@@ -357,7 +353,7 @@ const styles = StyleSheet.create({
   },
   watermarkText: { fontSize: 10, lineHeight: 14 },
   slot: { width: "100%", alignItems: "center" },
-  overlay: { position: "absolute", top: space.sm },
+  below: { alignItems: "flex-end", marginTop: space.xs },
   frame: {
     overflow: "hidden",
     borderRadius: radius.lg,

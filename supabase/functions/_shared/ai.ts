@@ -324,14 +324,14 @@ export class ClaudePhraseWriter implements PhraseWriter {
     if (response.stop_reason === 'max_tokens') throw new Error('phrase_too_long');
     const text = response.content.find((block) => block.type === 'text');
     if (!text || text.type !== 'text') throw new Error('phrase_empty');
-    // About 1 picture in 3 gets the dry, deadpan line (product owner: often funnier than a joke).
+    // About half the pictures get the dry, deadpan line (product owner: often funnier than a joke).
     return parsePhrase(text.text, Math.random() < DEADPAN_SHARE);
   }
 }
 
 /** Picks the first (funniest) option that fits the balloon; never returns more than PHRASE_MAX. */
 /** Share of pictures whose line is the dry, deadpan option (the third one). */
-export const DEADPAN_SHARE = 1 / 3;
+export const DEADPAN_SHARE = 1 / 2;
 
 export function parsePhrase(raw: string, deadpan = false): PhraseResult {
   const data = JSON.parse(raw);

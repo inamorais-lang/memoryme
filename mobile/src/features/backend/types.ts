@@ -17,10 +17,15 @@ export type SceneInfo = {
  * What a new translation starts from: a mode, a place scene or a scene typed by the person
  * (2 credits), plus an optional free funny extra.
  */
-export type TranslationChoice =
+export type TranslationChoice = (
   | { personalityId: string; comicId?: string }
   | { sceneId: string; comicId?: string }
-  | { customScene: string; comicId?: string };
+  | { customScene: string; comicId?: string }
+) & {
+  /** Optional, from the owner, for the line only. */
+  petSex?: 'male' | 'female';
+  petName?: string;
+};
 
 /** Limits of a scene typed by the user (also enforced in the database). */
 export const CUSTOM_SCENE_MIN = 3;

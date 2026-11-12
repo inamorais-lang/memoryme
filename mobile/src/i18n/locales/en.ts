@@ -39,6 +39,11 @@ const en: Strings = {
     pickFirst: 'Pick a scene or a mood',
     selected: 'Selected',
   },
+  pet: {
+    male: '♂ Male',
+    female: '♀ Female',
+    namePlaceholder: 'Your pet’s name (optional)',
+  },
   scene: {
     trending: '🔥 Trending',
     places: 'Scenes',

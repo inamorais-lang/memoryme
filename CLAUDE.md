@@ -117,6 +117,7 @@ mobile/
       translate/translate.ts   frases locais (só modo local)
       history/history.ts       histórico guardado no dispositivo
       store/                   compras: creditStore.ios.ts (StoreKit 2 via expo-iap; desligado na Expo Go) e creditStore.ts (web: sem compras). Cada transação vai a `verify-purchase` antes de ser fechada; as que ficaram a meio são entregues ao abrir a app com sessão (AuthContext)
+      pet/petProfile.ts        macho/fêmea e nome do animal (opcionais, guardados no dispositivo)
       draft/DraftContext.tsx   foto + escolha (modo | cenário | criar cenário) + toque engraçado, antes de criar a imagem
     components/                ThoughtBalloon, TranslationCanvas (vista exportada como PNG)
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)
@@ -139,6 +140,7 @@ mobile/
 - Recorte: o "há animal?" devolve também onde está a fotografia dentro da imagem; se houver barras ou margens (capturas de ecrã), o servidor corta só isso — o conteúdo da foto nunca é cortado (pedido do dono do produto). Se o recorte falhar, usa a original. Fotos que já trazem a nossa marca de água (capturas da app) não são cortadas: o modelo copia a marca, e o dono do produto aceitou deixar assim.
 - Frases da IA: lógica de animal, inspiradas no que os donos dizem dos bichos; a IA descarta a primeira ideia (óbvia). Máx. **45** caracteres (`PHRASE_MAX`), golpe seco no fim, nunca descrever a roupa/cenário. A IA dá 3 opções e o servidor escolhe a primeira que cabe; se nenhuma couber, pede outra vez uma vez.
 - Cenários (`scenes`, no servidor, prompts escondidos): escolhidos em vez de um modo (`generations.personality_id` fica vazio; `language` guarda a língua do cenário criado). Apps antigas que enviam um engraçado como `sceneId` continuam a funcionar (passa a toque). Criar cenário: recusado (pessoas reais, marcas, impróprio…) → `scene_rejected`, 2 créditos devolvidos. No modo local não há cenários.
+- Macho/fêmea e nome (opcionais, decisão do dono do produto): no topo do ecrã de escolha, "♂ Macho · ♀ Fêmea" e "Nome do patudo", lembrados no dispositivo (`features/pet`); vão para `generations.pet_sex`/`pet_name` e só servem a frase (concordância em PT/ES/FR; o nome pode aparecer de vez em quando). A imagem não muda. Nome limpo no servidor (`cleanPetName`: letras, até 20).
 - Frase própria: "Escrever a minha frase", máx. **45** caracteres (`CUSTOM_PHRASE_MAX` e `check` na BD), grátis, sem IA; `custom_phrase` substitui a frase da IA no balão.
 - Balão: rasto de 3 bolinhas desenhado na foto, a apontar para a cabeça e a parar antes dela (encolhem ou desaparecem se não houver espaço); cor pastel (`colors.balloonTints`) estável por tradução (`tintFor(id)`), tocar no balão troca a cor.
 - Marca de água fixa em todas as imagens (canto inferior direito, pequena): "Feito com IA · PetBubble" (AI Act da UE + publicidade). Não se pode remover. Só não aparece no ecrã de espera, que mostra a foto original.

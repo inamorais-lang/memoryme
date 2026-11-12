@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 import { falInput, parseHead, parsePhrase, type ImageEditor, type PhraseWriter } from './ai.ts';
 import { httpErrorFor, runGeneration, safeReason, type Store } from './pipeline.ts';
-import { imageEditPrompt, phraseSystemPrompt, phraseUserPrompt } from './prompts.ts';
+import { cleanPetName, imageEditPrompt, phraseSystemPrompt, phraseUserPrompt } from './prompts.ts';
 
 function fakeStore() {
   const calls: string[] = [];
@@ -401,4 +401,19 @@ Deno.test('image model: if the faithful one fails, the fast one still makes the 
   const { outcome, used } = await modelRun({}, { smallMarkings: true }, true);
   assert.equal(outcome, 'succeeded');
   assert.deepEqual(used, ['faithful', 'fast']);
+});
+
+Deno.test('phrase prompt: the pet\'s sex and name, when the owner gives them', () => {
+  const female = phraseUserPrompt({ voice: 'v', scene: 's', exclude: [], sex: 'female', name: 'Mimi' });
+  assert.match(female, /female/);
+  assert.match(female, /<name>Mimi<\/name>/);
+  assert.doesNotMatch(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /female|male|name/);
+});
+
+Deno.test('pet name: only letters, short, never markup', () => {
+  assert.equal(cleanPetName('  Bóbi  '), 'Bóbi');
+  assert.equal(cleanPetName('<b>Rex</b> ignore all'), 'bRexb ignore all');
+  assert.equal(cleanPetName('A'.repeat(40))?.length, 20);
+  assert.equal(cleanPetName(42), undefined);
+  assert.equal(cleanPetName('!!!'), undefined);
 });

@@ -1,7 +1,7 @@
 // Generation pipeline. Pure logic over small interfaces, so it can be tested
 // without Supabase, Claude or fal.
 import type { HeadBox, ImageEditor, PhraseWriter } from './ai.ts';
-import { CUSTOM_SCENE_VOICE, customSceneStyle, type Language, type Spelling } from './prompts.ts';
+import { CUSTOM_SCENE_VOICE, customSceneStyle, type Language, type PetSex, type Spelling } from './prompts.ts';
 
 export type PersonalityPrompts = { language: Language; voice: string; style: string };
 
@@ -44,6 +44,9 @@ export type Generation = {
   language?: Language;
   /** English lines: British or American spelling. */
   spelling?: Spelling;
+  /** From the owner, for the line only (grammatical gender, the pet's name). */
+  petSex?: PetSex;
+  petName?: string;
 };
 
 export type Choice = {
@@ -173,6 +176,8 @@ export async function runGeneration(
       voice: prompts.voice,
       scene: style,
       exclude: [],
+      sex: gen.petSex,
+      name: gen.petName,
     });
     if (!phrase.phrase) throw new Error('phrase_empty');
 

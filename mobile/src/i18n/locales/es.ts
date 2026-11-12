@@ -39,6 +39,11 @@ const es: Strings = {
     pickFirst: 'Elige un escenario o un modo',
     selected: 'Elegido',
   },
+  pet: {
+    male: '♂ Macho',
+    female: '♀ Hembra',
+    namePlaceholder: 'Nombre de tu mascota (opcional)',
+  },
   scene: {
     trending: '🔥 Tendencia',
     places: 'Escenarios',

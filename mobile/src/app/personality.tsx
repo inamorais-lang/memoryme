@@ -36,6 +36,13 @@ import {
 } from "@/features/backend";
 import { hasAiConsent } from "@/features/consent/aiConsent";
 import { type DraftChoice, useDraft } from "@/features/draft/DraftContext";
+import {
+  loadPetProfile,
+  PET_NAME_MAX,
+  type PetProfile,
+  type PetSex,
+  savePetProfile,
+} from "@/features/pet/petProfile";
 import { currentLanguage, currentMarket } from "@/i18n";
 
 export default function PersonalityScreen() {
@@ -45,6 +52,18 @@ export default function PersonalityScreen() {
   const [list, setList] = useState<PersonalityInfo[] | null>(null);
   const [scenes, setScenes] = useState<SceneInfo[]>([]);
   const [starting, setStarting] = useState(false);
+  const [pet, setPet] = useState<PetProfile>({});
+  useEffect(() => {
+    loadPetProfile().then(setPet);
+  }, []);
+  function updatePet(next: PetProfile) {
+    setPet(next);
+    savePetProfile(next);
+  }
+  function toggleSex(sex: PetSex) {
+    if (Platform.OS !== "web") Haptics.selectionAsync();
+    updatePet({ ...pet, sex: pet.sex === sex ? undefined : sex });
+  }
   const waitingForSignIn = useRef(false);
   const waitingForConsent = useRef(false);
 
@@ -65,10 +84,15 @@ export default function PersonalityScreen() {
   const choiceReady =
     choice !== null && (!isCustom || customText.length >= CUSTOM_SCENE_MIN);
   const cost = isCustom ? 2 : 1;
-  const trending = scenes.filter((s) => s.kind === "place" && s.category === "trend");
-  const christmas = scenes.filter((s) => s.kind === "place" && s.category === "natal");
+  const trending = scenes.filter(
+    (s) => s.kind === "place" && s.category === "trend",
+  );
+  const christmas = scenes.filter(
+    (s) => s.kind === "place" && s.category === "natal",
+  );
   const places = scenes.filter(
-    (s) => s.kind === "place" && s.category !== "natal" && s.category !== "trend",
+    (s) =>
+      s.kind === "place" && s.category !== "natal" && s.category !== "trend",
   );
   const comics = scenes.filter((s) => s.kind === "comic");
 
@@ -86,7 +110,12 @@ export default function PersonalityScreen() {
       return;
     }
     if (!choiceReady) return;
-    const extra = draft.comicId ? { comicId: draft.comicId } : {};
+    const petName = pet.name?.replace(/\s+/g, " ").trim();
+    const extra = {
+      ...(draft.comicId ? { comicId: draft.comicId } : {}),
+      ...(pet.sex ? { petSex: pet.sex } : {}),
+      ...(petName ? { petName } : {}),
+    };
     const request: TranslationChoice =
       choice.kind === "mode"
         ? { personalityId: choice.id, ...extra }
@@ -110,7 +139,16 @@ export default function PersonalityScreen() {
       setStarting(false);
       auth.refreshCredits();
     }
-  }, [draft.photo, choice, draft.comicId, customText, choiceReady, auth, t]);
+  }, [
+    draft.photo,
+    choice,
+    draft.comicId,
+    customText,
+    choiceReady,
+    pet,
+    auth,
+    t,
+  ]);
 
   // Coming back from the AI consent screen: carry on only if the person accepted.
   useFocusEffect(
@@ -195,6 +233,38 @@ export default function PersonalityScreen() {
           <AppText variant="title">{t("personality.title")}</AppText>
           <AppText color={colors.inkMuted}>{t("personality.subtitle")}</AppText>
         </View>
+      </View>
+
+      {/* Optional: only to write the line (feminine or masculine words, the pet's name). */}
+      <View style={styles.pet}>
+        <View style={styles.chips}>
+          <SceneChip
+            testID="pet-male"
+            label={t("pet.male")}
+            selected={pet.sex === "male"}
+            onPress={() => toggleSex("male")}
+          />
+          <SceneChip
+            testID="pet-female"
+            label={t("pet.female")}
+            selected={pet.sex === "female"}
+            onPress={() => toggleSex("female")}
+          />
+        </View>
+        <TextField
+          testID="pet-name"
+          value={pet.name ?? ""}
+          onChangeText={(name) =>
+            updatePet({
+              ...pet,
+              name: name.slice(0, PET_NAME_MAX) || undefined,
+            })
+          }
+          placeholder={t("pet.namePlaceholder")}
+          maxLength={PET_NAME_MAX}
+          returnKeyType="done"
+          autoCapitalize="words"
+        />
       </View>
 
       {trending.length > 0 ? (
@@ -363,9 +433,14 @@ const styles = StyleSheet.create({
   },
   headerText: { flex: 1, gap: space.xs },
   group: { gap: space.md },
+  pet: { gap: space.sm },
   footer: { gap: space.md },
   comics: { gap: space.sm },
-  comicRow: { gap: space.sm, paddingVertical: space.xxs, paddingHorizontal: space.xxs },
+  comicRow: {
+    gap: space.sm,
+    paddingVertical: space.xxs,
+    paddingHorizontal: space.xxs,
+  },
   card: {
     padding: space.lg,
     gap: space.xs,

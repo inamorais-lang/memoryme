@@ -39,6 +39,11 @@ const fr: Strings = {
     pickFirst: 'Choisis un décor ou une humeur',
     selected: 'Choisie',
   },
+  pet: {
+    male: '♂ Mâle',
+    female: '♀ Femelle',
+    namePlaceholder: 'Nom de ton compagnon (facultatif)',
+  },
   scene: {
     trending: '🔥 Tendance',
     places: 'Décors',

@@ -37,6 +37,11 @@ const ptPT = {
     pickFirst: 'Escolhe um cenário ou um modo',
     selected: 'Selecionada',
   },
+  pet: {
+    male: '♂ Macho',
+    female: '♀ Fêmea',
+    namePlaceholder: 'Nome do patudo (opcional)',
+  },
   scene: {
     trending: '🔥 Em alta',
     places: 'Cenários',

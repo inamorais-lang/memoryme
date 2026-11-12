@@ -32,7 +32,7 @@ export default {
       const store = supabaseStore(admin);
       const { data: gen } = await admin
         .from('generations')
-        .select('image_path, spelling, personality_id, scene_id, comic_id, custom_scene, language')
+        .select('image_path, spelling, personality_id, scene_id, comic_id, custom_scene, language, pet_sex, pet_name')
         .eq('id', generationId)
         .single();
       if (!gen?.image_path) throw new Error('image_missing');
@@ -50,6 +50,8 @@ export default {
         voice: prompts.voice,
         scene: prompts.style,
         exclude: row.shown_phrases ?? [],
+        sex: gen.pet_sex === 'male' || gen.pet_sex === 'female' ? gen.pet_sex : undefined,
+        name: gen.pet_name ?? undefined,
       });
       if (!phrase) throw new Error('phrase_empty');
 

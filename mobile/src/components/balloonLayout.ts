@@ -24,15 +24,19 @@ export function overlap(a: Box, b: Box): number {
  * (and then of the scene's main prop), and among equals the one farthest
  * from the head. Candidates are in order of preference.
  */
-export function bestSpot(candidates: Box[], head: Box, prop?: Box): number {
+export function bestSpot(candidates: Box[], head: Box, prop?: Box, body?: Box): number {
   const hc = centre(head);
   let best = 0;
   let bestScore = Infinity;
   candidates.forEach((c, i) => {
     const cc = centre(c);
     const distance = Math.hypot(cc.x - hc.x, cc.y - hc.y);
-    // Covering the face always loses; distance only breaks ties (and near-ties).
-    const score = overlap(c, head) * 1000 + (prop ? overlap(c, prop) * 300 : 0) - distance;
+    // Covering the face always loses, then the body, then the prop; distance only breaks ties.
+    const score =
+      overlap(c, head) * 1000 +
+      (body ? overlap(c, body) * 400 : 0) +
+      (prop ? overlap(c, prop) * 300 : 0) -
+      distance;
     if (score < bestScore - 0.5) {
       bestScore = score;
       best = i;

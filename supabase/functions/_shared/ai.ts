@@ -19,7 +19,7 @@ export type PetCheck = {
   smallMarkings?: boolean;
 };
 
-export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox };
+export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox; body?: HeadBox };
 
 export interface PhraseWriter {
   /** Cheap gate on the original photo, before any expensive image call; also says where the pet is. */
@@ -59,6 +59,12 @@ const PHRASE_SCHEMA = {
       required: ['x', 'y', 'w', 'h'],
       additionalProperties: false,
     },
+    body: {
+      type: 'object',
+      properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } },
+      required: ['x', 'y', 'w', 'h'],
+      additionalProperties: false,
+    },
     prop: {
       type: 'object',
       properties: {
@@ -72,7 +78,7 @@ const PHRASE_SCHEMA = {
       additionalProperties: false,
     },
   },
-  required: ['is_pet', 'phrases', 'head', 'prop'],
+  required: ['is_pet', 'phrases', 'head', 'body', 'prop'],
   additionalProperties: false,
 };
 
@@ -319,6 +325,8 @@ export function parsePhrase(raw: string): PhraseResult {
   if (head) result.head = head;
   const prop = data.prop?.present === true ? parseHead(data.prop) : undefined;
   if (prop) result.prop = prop;
+  const body = parseHead(data.body);
+  if (body) result.body = body;
   return result;
 }
 

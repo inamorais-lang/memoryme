@@ -54,6 +54,7 @@ export function phraseSystemPrompt(language: Language, spelling?: Spelling): str
     `Write 3 different, less obvious options in "phrases", the funniest first, each within ${PHRASE_MAX} characters.`,
     'Set is_pet to true when a cat or dog is visible (it normally is).',
     'In "head", give the box around the pet\'s whole head (ears included) as fractions of the image: x and y of the top-left corner, then width and height, all between 0 and 1. The app uses it to keep the thought bubble off the face, so be accurate.',
+    'In "body", give the box around the pet\'s whole body as it appears (head, outfit, paws and tail included), same format. The bubble avoids it after the face.',
     'In "prop", give the box of the scene\'s main object next to the pet (a TV remote, a glass, a cocktail, a surfboard, a cake…), same format, with present = true. If there is no such object, present = false and zeros.',
   ].join('\n');
 }

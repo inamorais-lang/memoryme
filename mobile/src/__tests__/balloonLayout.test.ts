@@ -32,6 +32,14 @@ describe('bestSpot', () => {
     expect(bestSpot(corners(), head, remote)).toBe(3);
   });
 
+  it('avoids the body after the face: a pet on the left keeps the balloon on the right', () => {
+    // Head top-left; the body fills the left half down to the bottom.
+    const head: Box = { x: 30, y: 60, w: 140, h: 120 };
+    const body: Box = { x: 10, y: 60, w: 200, h: 410 };
+    const i = bestSpot(corners(), head, undefined, body);
+    expect(i === 1 || i === 2).toBe(true);
+  });
+
   it('keeps the first corner (top-left) when the head is low and centred', () => {
     expect(bestSpot(corners(), { x: 130, y: 260, w: 100, h: 100 })).toBe(0);
   });

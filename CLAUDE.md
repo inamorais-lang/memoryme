@@ -122,7 +122,7 @@ mobile/
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)
 ```
 
-- Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos. Ao escrever a frase, a IA devolve a caixa da cabeça (`generations.head`, x/y/w/h 0..1); e do objeto principal da cena (`generations.prop`, ex.: comando, copo); sem posição escolhida, a app põe o balão no canto que menos tapa a cabeça e, depois, o objeto (`components/balloonLayout.ts`). Nunca tapa a marca de água.
+- Balão: 68% da largura, arrastável (`balloon_x/y` em frações 0..1), "Mover balão" percorre os 4 cantos. Ao escrever a frase, a IA devolve a caixa da cabeça (`generations.head`, x/y/w/h 0..1); , do corpo inteiro (`generations.body`) e do objeto principal da cena (`generations.prop`, ex.: comando, copo); sem posição escolhida, a app põe o balão no canto que menos tapa a cabeça, depois o corpo, depois o objeto (`components/balloonLayout.ts`). Nunca tapa a marca de água.
 - Formato: todas as imagens em **4:5** (feed do Instagram, inteira no chat do WhatsApp; decisão do dono do produto). Os modelos pedem retrato (Kontext `aspect_ratio: 3:4`, GPT Image `1024×1280`); a app recorta o resto à volta da cabeça (`cropWindow` em `TranslationCanvas`) e ajusta a cabeça e o objeto para o balão. No resultado, a imagem ocupa só o espaço entre o título e os botões.
 - "Sem balão · grátis" no resultado: esconde o balão e partilha/guarda só a imagem (com marca de água).
 - Regras globais de imagem (`imageEditPrompt`): **nunca exemplos concretos de objetos** — o modelo copia-os para todas as cenas (ex.: "três hambúrgueres" apareceu na praia e no Natal; "confetti" em todo o lado).

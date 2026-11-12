@@ -438,6 +438,7 @@ export default function ResultScreen() {
           balloonSpot={spot}
           head={item.head}
           prop={item.prop}
+          body={item.body}
           onBalloonMove={placeBalloon}
           maxHeight={canvasRoom > 0 ? canvasRoom : canvasMaxHeight}
           balloonTint={tintFor(item.id) + tintShift}

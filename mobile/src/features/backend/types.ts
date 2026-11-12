@@ -52,6 +52,8 @@ export type TranslationView = {
   head?: [number, number, number, number];
   /** Main prop of the scene (TV remote, glass…), same format. The balloon avoids it too. */
   prop?: [number, number, number, number];
+  /** The pet's whole body, same format. The balloon avoids it after the face. */
+  body?: [number, number, number, number];
   failureReason?: string;
   /** Credits spent (1, or 2 for a scene typed by the user). */
   cost: number;

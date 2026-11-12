@@ -46,6 +46,8 @@ type Props = {
   head?: [number, number, number, number];
   /** Main prop of the scene (TV remote, glass…), same format; avoided after the head. */
   prop?: [number, number, number, number];
+  /** The pet's whole body, same format; avoided after the head, before the prop. */
+  body?: [number, number, number, number];
   /** When set, the balloon can be dragged; called when the drag ends. */
   onBalloonMove?: (spot: BalloonSpot) => void;
   /** Keeps the whole image on screen; the width shrinks to respect it. */
@@ -70,6 +72,7 @@ export function TranslationCanvas({
   balloonSpot,
   head,
   prop,
+  body,
   onBalloonMove,
   maxHeight,
   balloonTint,
@@ -128,7 +131,15 @@ export function TranslationCanvas({
         h: (prop[3] / crop.h) * frame.h,
       }
     : undefined;
-  const base = balloonSpot ?? autoSpot(headBox, propBox, frame, bubble);
+  const bodyBox: Box | undefined = body
+    ? {
+        x: ((body[0] - crop.x) / crop.w) * frame.w,
+        y: ((body[1] - crop.y) / crop.h) * frame.h,
+        w: (body[2] / crop.w) * frame.w,
+        h: (body[3] / crop.h) * frame.h,
+      }
+    : undefined;
+  const base = balloonSpot ?? autoSpot(headBox, propBox, bodyBox, frame, bubble);
   const spot = fit(drag ?? base, frame, bubble);
 
   // Native gestures: a drag moves the balloon, a tap changes its colour.
@@ -291,6 +302,7 @@ export function cropWindow(
 function autoSpot(
   head: Box,
   prop: Box | undefined,
+  body: Box | undefined,
   frame: Size,
   bubble: Size,
 ): BalloonSpot {
@@ -301,7 +313,7 @@ function autoSpot(
     w: bubble.w,
     h: bubble.h,
   }));
-  return spots[bestSpot(boxes, head, prop)];
+  return spots[bestSpot(boxes, head, prop, body)];
 }
 
 /** Keeps the balloon fully inside the photo, with a small margin. */

@@ -81,8 +81,17 @@
   </section>
 
   <section class="card" id="step-phrases" hidden>
-    <h2 style="margin:0;font:700 20px 'Bricolage Grotesque',sans-serif">⭐ Frases das pessoas</h2>
-    <p class="muted" style="margin:0">Frases que as pessoas escreveram na app (sem nome nem conta). As que marcares com ⭐ passam a ser exemplos de estilo para a IA (imita, não copia).</p>
+    <h2 style="margin:0;font:700 20px 'Bricolage Grotesque',sans-serif">⭐ Frases-modelo</h2>
+    <p class="muted" style="margin:0">Escreve as tuas ou marca ⭐ nas que as pessoas escreveram na app (sem nome nem conta). Todas as ⭐ são exemplos de estilo para a IA (imita, não copia).</p>
+    <label>Escrever uma frase-modelo
+      <input id="newPhrase" maxlength="45" placeholder="Ex.: O sofá é meu. Tu tens o chão.">
+    </label>
+    <div class="row" style="justify-content:flex-start;gap:8px">
+      <select id="newPhraseLang" style="width:auto;padding:10px;border-radius:12px;border:0;font:inherit">
+        <option value="pt-PT">🇵🇹 Português</option><option value="en">🇬🇧🇺🇸 Inglês</option><option value="es">🇪🇸 Espanhol</option><option value="fr">🇫🇷 Francês</option>
+      </select>
+      <button class="primary" id="addPhrase" style="width:auto">Adicionar exemplo</button>
+    </div>
     <div id="phrases"></div>
   </section>
 
@@ -209,6 +218,17 @@
       }
     } catch { /* the list is optional */ }
   }
+
+  $('addPhrase').onclick = async () => {
+    const text = $('newPhrase').value.replace(/\s+/g, ' ').trim();
+    if (!text) return say('Escreve a frase.', true);
+    $('addPhrase').disabled = true;
+    try {
+      await call({ star: { text, language: $('newPhraseLang').value } }, 'admin-phrases');
+      $('newPhrase').value = ''; say('Frase-modelo adicionada.'); loadPhrases();
+    } catch { say('Não foi possível guardar.', true); }
+    finally { $('addPhrase').disabled = false; }
+  };
 
   async function loadReports() {
     try {

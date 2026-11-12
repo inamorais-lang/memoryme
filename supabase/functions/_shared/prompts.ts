@@ -144,7 +144,7 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
     `Style: ${style}`,
     // Product owner: like a family photo, the whole pet and the scene around it are visible.
     // Early in the prompt: the fast model otherwise keeps the close-up framing of the photo.
-    'Pull the camera back for a medium-wide shot, like a family photo: the whole pet is visible from ears to paws (the floor or seat under its paws is visible) and it fills only about half of the image height, with plenty of the scene clearly visible around it. Keep the pet in the lower two thirds and the top third as calm background (no head there), so a thought bubble fits.',
+    'Frame it as a medium shot, like a family photo: the pet is the clear subject and is shown whole or almost whole (from ears to paws), filling most of the lower two thirds of the image (about 60% of the image height), with the scene still visible around it. Not a close-up of the face, and not a far-away wide shot where the pet looks small. Keep the top third as calm background (no head there), so a thought bubble fits.',
     // Without this only one pet was dressed up and the others stayed plain.
     ...(petCount > 1
       ? [`There are ${petCount} animals in this photo: style every one of them. Each one wears the COMPLETE outfit described in the style (every item, the same look on each, sized to fit it), never split between them, and fits the scene, keeping its own species, breed, size, fur and markings (a puppy stays a puppy next to an adult). Keep all of them in the picture, side by side; none is left out, merged or duplicated. Every rule below applies to each animal.`]

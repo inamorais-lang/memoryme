@@ -31,15 +31,16 @@ const es: Strings = {
     saveBody: 'Para guardar la imagen en el carrete, permite el acceso a las fotos en Ajustes.',
   },
   personality: {
-    screenTitle: 'Modo',
-    title: '¿En qué modo está tu mascota?',
-    subtitle: 'El modo da la ropa, la actitud y el tono de la frase.',
+    screenTitle: 'Escenario y modo',
+    title: '¿Cómo está tu mascota hoy?',
+    subtitle: 'Elige dónde está y en qué modo.',
     translate_one: 'Crear imagen · 1 crédito',
     translate_other: 'Crear imagen · {{count}} créditos',
     pickFirst: 'Elige un modo',
     selected: 'Elegido',
     surprise: '🎲 Sorpréndeme',
     surpriseTagline: 'La app elige un modo al azar.',
+    step: '2 · ¿En qué modo?',
   },
   place: {
     screenTitle: 'Escenario',
@@ -49,6 +50,7 @@ const es: Strings = {
     home: '🏠 En su sitio',
     next: 'Siguiente',
     pickFirst: 'Elige un escenario',
+    step: '1 · ¿Dónde está?',
   },
   pet: {
     male: '♂ Macho',

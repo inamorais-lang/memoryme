@@ -29,15 +29,16 @@ const ptPT = {
     saveBody: 'Para guardares a imagem no rolo da câmara, permite o acesso às fotos nas Definições.',
   },
   personality: {
-    screenTitle: 'Modo',
-    title: 'Em que modo está o teu patudo?',
-    subtitle: 'O modo dá a roupa, a atitude e o tom da frase.',
+    screenTitle: 'Cenário e modo',
+    title: 'Como está o teu patudo hoje?',
+    subtitle: 'Escolhe onde está e em que modo.',
     translate_one: 'Criar imagem · 1 crédito',
     translate_other: 'Criar imagem · {{count}} créditos',
     pickFirst: 'Escolhe um modo',
     selected: 'Selecionada',
     surprise: '🎲 Surpreende-me',
     surpriseTagline: 'A app escolhe um modo ao acaso.',
+    step: '2 · Em que modo?',
   },
   place: {
     screenTitle: 'Cenário',
@@ -47,6 +48,7 @@ const ptPT = {
     home: '🏠 No sítio dele',
     next: 'Seguinte',
     pickFirst: 'Escolhe um cenário',
+    step: '1 · Onde está?',
   },
   pet: {
     male: '♂ Macho',

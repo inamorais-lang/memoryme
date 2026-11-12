@@ -31,15 +31,16 @@ const fr: Strings = {
     saveBody: 'Pour enregistrer l’image dans ta pellicule, autorise l’accès aux photos dans les Réglages.',
   },
   personality: {
-    screenTitle: 'Humeur',
-    title: 'Dans quelle humeur est ton compagnon ?',
-    subtitle: 'L’humeur donne la tenue, l’attitude et le ton de la phrase.',
+    screenTitle: 'Décor et humeur',
+    title: 'Comment va ton compagnon aujourd’hui ?',
+    subtitle: 'Choisis où il est et son humeur.',
     translate_one: 'Créer l’image · 1 crédit',
     translate_other: 'Créer l’image · {{count}} crédits',
     pickFirst: 'Choisis une humeur',
     selected: 'Choisie',
     surprise: '🎲 Surprends-moi',
     surpriseTagline: 'L’app choisit une humeur au hasard.',
+    step: '2 · Quelle humeur ?',
   },
   place: {
     screenTitle: 'Décor',
@@ -49,6 +50,7 @@ const fr: Strings = {
     home: '🏠 Dans son coin',
     next: 'Suivant',
     pickFirst: 'Choisis un décor',
+    step: '1 · Où est-il ?',
   },
   pet: {
     male: '♂ Mâle',

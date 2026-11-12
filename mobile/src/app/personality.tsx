@@ -23,11 +23,14 @@ import {
   Screen,
   shadow,
   space,
+  TextField,
 } from "@/design";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   backend,
   BackendError,
+  CUSTOM_SCENE_MAX,
+  CUSTOM_SCENE_MIN,
   type PersonalityInfo,
   type SceneInfo,
   type TranslationChoice,
@@ -35,10 +38,16 @@ import {
 import { hasAiConsent } from "@/features/consent/aiConsent";
 import {
   type ModeChoice,
+  type PlaceChoice,
   pickRandom,
   useDraft,
 } from "@/features/draft/DraftContext";
-import { loadPetProfile, type PetProfile } from "@/features/pet/petProfile";
+import {
+  loadPetProfile,
+  type PetProfile,
+  type PetSex,
+  savePetProfile,
+} from "@/features/pet/petProfile";
 import { currentLanguage, currentMarket } from "@/i18n";
 
 export default function PersonalityScreen() {
@@ -53,7 +62,6 @@ export default function PersonalityScreen() {
   const waitingForConsent = useRef(false);
 
   useEffect(() => {
-    // The sex may have just been chosen on the scene screen.
     loadPetProfile().then(setPet);
     backend
       .listPersonalities(currentMarket())
@@ -71,9 +79,27 @@ export default function PersonalityScreen() {
   const isCustom = place?.kind === "custom";
   const cost = isCustom ? 2 : 1;
   const comics = scenes.filter((s) => s.kind === "comic");
+  const placeScenes = scenes.filter((s) => s.kind === "place");
+  // Without the server there are no scenes: only the mode is chosen.
+  const needsPlace = placeScenes.length > 0;
+  const placeReady =
+    !needsPlace ||
+    (place !== null && (!isCustom || customText.length >= CUSTOM_SCENE_MIN));
+  const ready = placeReady && mode !== null && !!list?.length;
+  const ofCategory = (category: string | null) =>
+    placeScenes.filter((s) =>
+      category === null
+        ? s.category !== "natal" && s.category !== "trend"
+        : s.category === category,
+    );
+  function chooseSex(sex: PetSex | undefined) {
+    const next = { ...pet, sex };
+    setPet(next);
+    savePetProfile(next);
+  }
 
   const start = useCallback(async () => {
-    if (!draft.photo || !mode || !list?.length) return;
+    if (!draft.photo || !mode || !list?.length || !placeReady) return;
     // The photo goes to third-party AI services: ask once, before anything is uploaded.
     if (backend.mode === "remote" && !(await hasAiConsent())) {
       waitingForConsent.current = true;
@@ -125,6 +151,7 @@ export default function PersonalityScreen() {
     place,
     list,
     scenes,
+    placeReady,
     isCustom,
     customText,
     pet,
@@ -153,6 +180,10 @@ export default function PersonalityScreen() {
 
   if (!draft.photo) return <Redirect href="/" />;
 
+  function selectPlace(next: PlaceChoice) {
+    if (Platform.OS !== "web") Haptics.selectionAsync();
+    draft.setPlace(next);
+  }
   function select(next: ModeChoice) {
     if (Platform.OS !== "web") Haptics.selectionAsync();
     draft.setMode(next);
@@ -213,11 +244,15 @@ export default function PersonalityScreen() {
           <Button
             testID="translate"
             label={
-              !mode
-                ? t("personality.pickFirst")
-                : t("personality.translate", { count: cost })
+              needsPlace && !place
+                ? t("place.pickFirst")
+                : !placeReady
+                  ? t("scene.tooShort")
+                  : !mode
+                    ? t("personality.pickFirst")
+                    : t("personality.translate", { count: cost })
             }
-            disabled={!mode || !list?.length}
+            disabled={!ready}
             loading={starting}
             onPress={start}
           />
@@ -236,6 +271,115 @@ export default function PersonalityScreen() {
         </View>
       </View>
 
+      {/* Optional: only to write the line with feminine or masculine words. */}
+      <View style={styles.chips}>
+        <Chip
+          testID="pet-male"
+          label={t("pet.male")}
+          tint={colors.petMale}
+          selected={pet.sex === "male"}
+          onPress={() => chooseSex("male")}
+        />
+        <Chip
+          testID="pet-female"
+          label={t("pet.female")}
+          tint={colors.petFemale}
+          selected={pet.sex === "female"}
+          onPress={() => chooseSex("female")}
+        />
+        <Chip
+          testID="pet-unsaid"
+          label={t("pet.unsaid")}
+          tint={colors.surface}
+          selected={!pet.sex}
+          onPress={() => chooseSex(undefined)}
+        />
+      </View>
+
+      {needsPlace ? (
+        <View style={styles.section}>
+          <AppText variant="title">{t("place.step")}</AppText>
+          <View style={styles.chips}>
+            <Chip
+              testID="place-surprise"
+              label={t("place.surprise")}
+              selected={place?.kind === "surprise"}
+              onPress={() => selectPlace({ kind: "surprise" })}
+            />
+            <Chip
+              testID="place-home"
+              label={t("place.home")}
+              selected={place?.kind === "home"}
+              onPress={() => selectPlace({ kind: "home" })}
+            />
+          </View>
+          {[
+            {
+              key: "trend",
+              title: t("scene.trending"),
+              items: ofCategory("trend"),
+            },
+            {
+              key: "natal",
+              title: t("scene.christmas"),
+              items: ofCategory("natal"),
+            },
+            {
+              key: "places",
+              title: t("scene.places"),
+              items: ofCategory(null),
+            },
+          ].map((g) =>
+            g.items.length > 0 || g.key === "places" ? (
+              <View key={g.key} style={styles.group}>
+                <AppText variant="heading">{g.title}</AppText>
+                <View style={styles.chips}>
+                  {g.items.map((s) => (
+                    <Chip
+                      key={s.id}
+                      testID={`scene-${s.id}`}
+                      label={s.name}
+                      selected={place?.kind === "scene" && place.id === s.id}
+                      onPress={() => selectPlace({ kind: "scene", id: s.id })}
+                    />
+                  ))}
+                  {g.key === "places" ? (
+                    <Chip
+                      testID="scene-custom"
+                      label={t("scene.custom")}
+                      selected={isCustom}
+                      onPress={() => selectPlace({ kind: "custom" })}
+                    />
+                  ) : null}
+                </View>
+              </View>
+            ) : null,
+          )}
+          {isCustom ? (
+            <View style={styles.group}>
+              <AppText variant="small" color={colors.inkMuted}>
+                {t("scene.customHint")}
+              </AppText>
+              <TextField
+                testID="custom-scene"
+                value={draft.customScene}
+                onChangeText={draft.setCustomScene}
+                placeholder={t("scene.customPlaceholder")}
+                maxLength={CUSTOM_SCENE_MAX}
+                counterLabel={t("result.charsLeft", {
+                  count: CUSTOM_SCENE_MAX - draft.customScene.length,
+                })}
+                returnKeyType="done"
+                autoFocus
+              />
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+
+      {needsPlace ? (
+        <AppText variant="title">{t("personality.step")}</AppText>
+      ) : null}
       {list === null ? <ActivityIndicator color={colors.ink} /> : null}
       {list?.length === 0 ? (
         <AppText color={colors.inkMuted}>{t("result.network")}</AppText>
@@ -296,6 +440,8 @@ const styles = StyleSheet.create({
   },
   headerText: { flex: 1, gap: space.xs },
   group: { gap: space.md },
+  section: { gap: space.lg },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
   footer: { gap: space.md },
   comics: { gap: space.sm },
   comicRow: {

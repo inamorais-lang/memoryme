@@ -31,15 +31,16 @@ const en: Strings = {
     saveBody: 'To save the picture to your camera roll, allow photo access in Settings.',
   },
   personality: {
-    screenTitle: 'Mood',
-    title: 'What mood is your pet in?',
-    subtitle: 'The mood sets the outfit, the attitude and the tone of the line.',
+    screenTitle: 'Scene and mood',
+    title: 'How is your pet today?',
+    subtitle: 'Pick where it is and its mood.',
     translate_one: 'Create picture · 1 credit',
     translate_other: 'Create picture · {{count}} credits',
     pickFirst: 'Pick a mood',
     selected: 'Selected',
     surprise: '🎲 Surprise me',
     surpriseTagline: 'The app picks a mood at random.',
+    step: '2 · What mood?',
   },
   place: {
     screenTitle: 'Scene',
@@ -49,6 +50,7 @@ const en: Strings = {
     home: '🏠 Its usual spot',
     next: 'Next',
     pickFirst: 'Pick a scene',
+    step: '1 · Where is it?',
   },
   pet: {
     male: '♂ Male',

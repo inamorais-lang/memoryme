@@ -39,8 +39,7 @@ export default function Home() {
     if (outcome.status !== 'picked') return;
     draft.reset();
     draft.setPhoto(outcome.photo);
-    // Step 1 (scenes) needs the server; without it there are only modes.
-    router.push(backend.mode === 'remote' ? '/scene' : '/personality');
+    router.push('/personality');
   }
 
   return (

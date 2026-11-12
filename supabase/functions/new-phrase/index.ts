@@ -42,6 +42,7 @@ export default {
         comicId: gen.comic_id ?? undefined,
         customStyle: gen.custom_scene ? customSceneStyle(gen.custom_scene) : undefined,
         language: gen.language ?? undefined,
+        sex: gen.pet_sex === 'male' || gen.pet_sex === 'female' ? gen.pet_sex : undefined,
       });
       const { phrase } = await phraseWriter().write({
         imageUrl: await store.signedUrl('generated', gen.image_path),

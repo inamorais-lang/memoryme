@@ -3,7 +3,13 @@
 import type { HeadBox, ImageEditor, PhraseWriter } from './ai.ts';
 import { CUSTOM_SCENE_VOICE, customSceneStyle, type Language, type PetSex, type Spelling } from './prompts.ts';
 
-export type PersonalityPrompts = { language: Language; voice: string; style: string };
+export type PersonalityPrompts = {
+  language: Language;
+  voice: string;
+  style: string;
+  /** Outfit for a male pet, when the mode has one (e.g. Diva in blue). */
+  styleMale?: string;
+};
 
 /** 'place': chosen instead of a mode (own phrase tone). 'comic': optional funny extra. */
 export type ScenePrompt = {
@@ -56,6 +62,7 @@ export type Choice = {
   /** Picture style of a custom scene, already checked and described. */
   customStyle?: string;
   language?: Language;
+  sex?: PetSex;
 };
 
 /** Picture style, phrase tone and language for a choice: a custom scene, a place scene or a mode, plus the funny extra. */
@@ -77,7 +84,11 @@ export async function resolvePrompts(
   } else if (scene) {
     base = { language: scene.language, voice: scene.voice ?? personality?.voice ?? CUSTOM_SCENE_VOICE, style: scene.style };
   } else if (personality) {
-    base = personality;
+    base = {
+      language: personality.language,
+      voice: personality.voice,
+      style: choice.sex === 'male' && personality.styleMale ? personality.styleMale : personality.style,
+    };
   } else {
     throw new Error('unknown_personality');
   }
@@ -145,6 +156,7 @@ export async function runGeneration(
       comicId: gen.comicId,
       customStyle: custom ? customSceneStyle(custom) : undefined,
       language: gen.language,
+      sex: gen.petSex,
     });
     const style = prompts.style;
 

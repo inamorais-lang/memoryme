@@ -10,11 +10,16 @@ export function supabaseStore(admin: SupabaseClient): Store {
     async personality(id) {
       const { data, error } = await admin
         .from('personalities')
-        .select('language, voice_prompt, image_prompt')
+        .select('language, voice_prompt, image_prompt, image_prompt_male')
         .eq('id', id)
         .single();
       if (error || !data) throw new Error(`personality_${error?.message ?? 'missing'}`);
-      return { language: data.language, voice: data.voice_prompt, style: data.image_prompt } as PersonalityPrompts;
+      return {
+        language: data.language,
+        voice: data.voice_prompt,
+        style: data.image_prompt,
+        styleMale: data.image_prompt_male ?? undefined,
+      } as PersonalityPrompts;
     },
     async scene(id) {
       const { data, error } = await admin

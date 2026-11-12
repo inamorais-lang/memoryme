@@ -417,3 +417,25 @@ Deno.test('pet name: only letters, short, never markup', () => {
   assert.equal(cleanPetName(42), undefined);
   assert.equal(cleanPetName('!!!'), undefined);
 });
+
+Deno.test('a male pet gets the mode\'s male outfit when there is one (Diva in blue)', async () => {
+  const { store } = fakeStore();
+  store.personality = async () => ({ language: 'pt-PT', voice: 'v', style: 'pink stole', styleMale: 'blue stole' });
+  let style = '';
+  const run = (petSex?: 'male' | 'female') =>
+    runGeneration(
+      {
+        store,
+        phrases: phrases({ isPet: true, phrase: 'x' }),
+        images: images(async (a) => ((style = a.style), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
+        log: quiet,
+      },
+      { ...gen, petSex },
+    );
+  await run('male');
+  assert.equal(style, 'blue stole');
+  await run('female');
+  assert.equal(style, 'pink stole');
+  await run();
+  assert.equal(style, 'pink stole');
+});

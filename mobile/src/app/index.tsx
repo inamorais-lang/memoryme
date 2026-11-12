@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, Linking, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ThoughtBalloon } from '@/components/ThoughtBalloon';
+import { HomeShowcase } from '@/components/HomeShowcase';
 import { AppText, Button, colors, layout, radius, space } from '@/design';
 import { useAuth } from '@/features/auth/AuthContext';
 import { backend } from '@/features/backend';
@@ -58,9 +58,6 @@ export default function Home() {
           </View>
         ) : null}
         <View style={styles.hero}>
-          <View style={styles.sample}>
-            <ThoughtBalloon text={t('home.sampleThought')} />
-          </View>
           <AppText variant="hero" accessibilityLabel={t('home.title')}>
             {t('home.titleStart')}
             <AppText variant="hero" style={styles.highlight}>
@@ -69,6 +66,7 @@ export default function Home() {
             {t('home.titleEnd')}
           </AppText>
           <AppText color={colors.inkMuted}>{t('home.subtitle')}</AppText>
+          <HomeShowcase />
         </View>
 
         <View style={styles.actions}>
@@ -119,8 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.secondary,
   },
-  hero: { flex: 1, justifyContent: 'center', gap: space.lg },
-  sample: { transform: [{ rotate: '-2deg' }], marginBottom: space.lg, marginHorizontal: space.sm },
+  hero: { flex: 1, gap: space.md, paddingVertical: space.lg },
   actions: { gap: space.md },
   highlight: { backgroundColor: colors.secondary },
 });

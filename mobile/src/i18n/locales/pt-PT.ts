@@ -11,7 +11,7 @@ const ptPT = {
     titleHighlight: 'pensar',
     titleEnd: '?',
     subtitle: 'Tira uma foto ao teu gato ou cão e descobre, finalmente, a verdade.',
-    sampleThought: 'Mais uma foto? Cobro à hora.',
+    examples: ["Deixem-me dormir…", "Sou a estrela da festa.", "Tantos sacos e nenhum cheira a frango?", "O que eu quero hoje é um bifinho suculento", "Sou da margem sul! Não se nota??", "Pago com a pata. O humano paga o resto.", "Feliz Natal! As bolas da árvore são minhas."],
     takePhoto: 'Tirar foto',
     pickPhoto: 'Escolher da galeria',
     history_one: 'Ver a tua imagem',

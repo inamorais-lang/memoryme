@@ -1,0 +1,5 @@
+-- Aniversário (product owner): a big party, the pet dressed up, confetti, balloons, cake, presents,
+-- and a slight happy smile natural for the species. The faithful model gets the party and the smile right.
+update public.scenes set faithful = true, image_prompt =
+  'Place the pet at a big, joyful birthday party, dressed up for the occasion: a shiny colourful party hat and a smart festive outfit (a sparkly bow tie or a glittery party collar with a little cape). It sits right behind a big, clearly visible birthday cake with lit candles on the table in front of it. Lots of balloons in many colours (pink, blue, yellow and green) fill the room, colourful confetti falls through the air and covers the table, with paper streamers and a pile of wrapped presents. Its expression is happy and warm: a slight, gentle smile or the mouth just a little open with joy, natural for its species, still clearly the same real animal. No readable text and no banners with letters.'
+where id like '%-aniversario';

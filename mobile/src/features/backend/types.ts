@@ -16,8 +16,8 @@ export type SceneInfo = {
 };
 
 /**
- * What a new translation starts from: a mode, a place scene or a scene typed by the person
- * (2 credits), plus an optional free funny extra.
+ * What a new translation starts from: a mode, a scene or a scene typed by the person
+ * (always 1 credit), plus an optional free funny extra.
  */
 /** A mode, a scene (or one typed by the person), or both together; at least one of them. */
 export type TranslationChoice = {

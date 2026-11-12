@@ -52,11 +52,6 @@ const ptPT = {
     unsaid: 'Prefiro não dizer',
   },
   scene: {
-    trending: '🔥 Em alta',
-    places: 'Lugares',
-    modes: 'Modos',
-    christmas: 'Natal',
-    custom: 'Criar cenário',
     comicTitle: 'Toque engraçado (opcional, grátis)',
     comicNone: 'Nenhum',
     customHint: 'Descreve o cenário. Sem pessoas reais, marcas, religião ou nada impróprio.',
@@ -66,14 +61,6 @@ const ptPT = {
   },
   result: {
     screenTitle: 'A tua imagem',
-    loading: [
-      'A vestir o teu patudo a rigor…',
-      'A preparar o cenário…',
-      'A escolher o melhor ângulo…',
-      'A adivinhar o que ele está a pensar…',
-      'A pôr o balão no sítio certo…',
-    ],
-    loadingHint: 'Isto pode demorar até 1 minuto.',
     wait: {
       steps: {
         checking: "A encontrar o teu patudo…",

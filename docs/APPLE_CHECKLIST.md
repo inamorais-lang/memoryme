@@ -1,6 +1,6 @@
 # Lista para a aprovação da Apple
 
-Estado a 11 de novembro de 2026. Inscrição no Apple Developer Program paga a 11/11/2026 (à espera de aprovação). ✅ feito · ⏳ por fazer (fase indicada) · ❗ precisa de decisão ou ação da Ana
+Estado a 12 de novembro de 2026. Conta Apple Developer aprovada; acordos, banco, impostos ativos; comerciante UE (DSA) em revisão. ✅ feito · ⏳ por fazer (fase indicada) · ❗ precisa de decisão ou ação da Ana
 
 ## Privacidade e dados (diretrizes 5.1)
 | Requisito | Estado |
@@ -35,8 +35,8 @@ Estado a 11 de novembro de 2026. Inscrição no Apple Developer Program paga a 1
 | Requisito | Estado |
 |---|---|
 | Marca "Feito com IA" nas imagens | ✅ fixa, não se pode remover |
-| Reportar imagem imprópria (IA generativa) | ✅ botão "Reportar" no ecrã da imagem → `report_generation`; lista em "Imagens reportadas" na página de admin |
-| Filtro de pedidos impróprios (cenário à medida) | ✅ a IA recusa pessoas reais, marcas, conteúdo sexual, violência, etc. |
+| Reportar imagem imprópria (IA generativa) | ✅ "🚩 Denunciar imagem" (discreto, última linha do ecrã da imagem) → `report_generation`; lista em "Imagens reportadas" na página de admin |
+| Filtro de pedidos impróprios (cenário à medida) | ✅ a IA recusa pessoas reais, marcas, religião, conteúdo sexual, violência, drogas, ódio, etc. (testado: igreja, Coca-Cola e lingerie recusados) |
 | Sem pessoas reais nem marcas nos modos | ✅ |
 | Classificação etária | ❗ responder ao questionário: "Hora do Vinho" tem referências ligeiras a álcool. Idade mínima nos Termos: **16 anos** (consentimento RGPD sem pais em todos os países) → escolher 16+ |
 

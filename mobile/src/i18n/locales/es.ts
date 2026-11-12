@@ -54,11 +54,6 @@ const es: Strings = {
     unsaid: 'Prefiero no decirlo',
   },
   scene: {
-    trending: '🔥 Tendencia',
-    places: 'Lugares',
-    modes: 'Modos',
-    christmas: 'Navidad',
-    custom: 'Crear escenario',
     comicTitle: 'Toque gracioso (opcional, gratis)',
     comicNone: 'Ninguno',
     customHint: 'Describe el escenario. Sin personas reales, marcas, religión ni nada inapropiado.',
@@ -68,14 +63,6 @@ const es: Strings = {
   },
   result: {
     screenTitle: 'Tu imagen',
-    loading: [
-      'Vistiendo a tu mascota de gala…',
-      'Preparando el escenario…',
-      'Buscando el mejor ángulo…',
-      'Adivinando lo que está pensando…',
-      'Colocando el bocadillo en su sitio…',
-    ],
-    loadingHint: 'Puede tardar hasta un minuto.',
     wait: {
       steps: {
         checking: "Buscando a tu mascota…",

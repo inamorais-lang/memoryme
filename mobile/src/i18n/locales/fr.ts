@@ -54,11 +54,6 @@ const fr: Strings = {
     unsaid: 'Je préfère ne pas dire',
   },
   scene: {
-    trending: '🔥 Tendance',
-    places: 'Lieux',
-    modes: 'Humeurs',
-    christmas: 'Noël',
-    custom: 'Créer un décor',
     comicTitle: 'Touche rigolote (facultative, gratuite)',
     comicNone: 'Aucune',
     customHint: 'Décris le décor. Pas de vraies personnes, de marques, de religion ni rien de déplacé.',
@@ -68,14 +63,6 @@ const fr: Strings = {
   },
   result: {
     screenTitle: 'Ton image',
-    loading: [
-      'On habille ton compagnon sur son trente-et-un…',
-      'On prépare le décor…',
-      'On cherche le meilleur angle…',
-      'On devine à quoi il pense…',
-      'On place la bulle au bon endroit…',
-    ],
-    loadingHint: 'Cela peut prendre jusqu’à une minute.',
     wait: {
       steps: {
         checking: "On cherche ton compagnon…",

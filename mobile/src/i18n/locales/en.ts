@@ -54,11 +54,6 @@ const en: Strings = {
     unsaid: 'Prefer not to say',
   },
   scene: {
-    trending: '🔥 Trending',
-    places: 'Places',
-    modes: 'Moods',
-    christmas: 'Christmas',
-    custom: 'Create a scene',
     comicTitle: 'Funny touch (optional, free)',
     comicNone: 'None',
     customHint: 'Describe the scene. No real people, brands, religion or anything inappropriate.',
@@ -68,14 +63,6 @@ const en: Strings = {
   },
   result: {
     screenTitle: 'Your picture',
-    loading: [
-      'Dressing up your pet…',
-      'Setting the scene…',
-      'Finding the best angle…',
-      'Guessing what they are thinking…',
-      'Putting the bubble in the right spot…',
-    ],
-    loadingHint: 'This can take up to a minute.',
     wait: {
       steps: {
         checking: "Finding your pet…",

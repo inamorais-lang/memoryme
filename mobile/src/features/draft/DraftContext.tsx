@@ -59,8 +59,3 @@ export function useDraft() {
   if (!ctx) throw new Error('useDraft must be used inside DraftProvider');
   return ctx;
 }
-
-/** Picks one item at random ("Surpreende-me"). */
-export function pickRandom<T>(items: readonly T[]): T | undefined {
-  return items.length ? items[Math.floor(Math.random() * items.length)] : undefined;
-}

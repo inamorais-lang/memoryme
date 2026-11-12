@@ -13,7 +13,7 @@ const fr: Strings = {
     titleHighlight: 'pense',
     titleEnd: ' vraiment ton compagnon ?',
     subtitle: 'Prends ton chat ou ton chien en photo et découvre enfin la vérité.',
-    examples: ["Laissez-moi dormir…", "Je suis la star de la fête.", "Tous ces sacs et aucun ne sent le poulet ?", "Aujourd’hui, je veux un steak bien juteux.", "Je viens du quartier, ça se voit ?", "Je paie avec la patte. L’humain, le reste.", "Joyeux Noël ! Les boules du sapin sont à moi."],
+    examples: ["Laissez-moi dormir…", "Je suis la star de la fête.", "Tous ces sacs et aucun ne sent le poulet ?", "Aujourd’hui, je veux un steak bien juteux.", "Une descente et je suis pro.", "Je viens du quartier, ça se voit ?", "Je paie avec la patte. L’humain, le reste.", "Joyeux Noël ! Les boules du sapin sont à moi."],
     takePhoto: 'Prendre une photo',
     pickPhoto: 'Choisir dans la galerie',
     history_one: 'Voir ton image',

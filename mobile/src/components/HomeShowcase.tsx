@@ -13,6 +13,7 @@ const PICTURES = [
   require("../../assets/home/diva.jpg"),
   require("../../assets/home/drag.jpg"),
   require("../../assets/home/critic.jpg"),
+  require("../../assets/home/snowboard.jpg"),
   require("../../assets/home/rapper.jpg"),
   require("../../assets/home/shopping.jpg"),
   require("../../assets/home/christmas.jpg"),

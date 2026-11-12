@@ -12,7 +12,7 @@ const es: Strings = {
     titleStart: '¿Qué está ',
     titleHighlight: 'pensando',
     titleEnd: ' tu mascota?',
-    subtitle: 'Hazle una foto a tu mascota y descúbrelo.',
+    subtitle: 'Hazle una foto a tu mascota, elige el modo de hoy y diviértete.',
     examples: ["Dejadme dormir…", "Soy la estrella de la fiesta.", "¡Feliz cumpleaños! La tarta es mía, ¿no?", "¿Tantas bolsas y ninguna huele a pollo?", "Hoy lo que quiero es un buen filete.", "Una bajada y ya soy profesional.", "El rapero más famoso de esta casa.", "Pago con la pata. El humano paga el resto.", "¡Feliz Navidad! Las bolas del árbol son mías."],
     takePhoto: 'Hacer foto',
     pickPhoto: 'Elegir de la galería',

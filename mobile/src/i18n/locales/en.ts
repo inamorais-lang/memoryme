@@ -12,7 +12,7 @@ const en: Strings = {
     titleStart: 'What is your pet really ',
     titleHighlight: 'thinking',
     titleEnd: '?',
-    subtitle: 'Snap your pet and find out.',
+    subtitle: 'Snap your pet, pick today’s mood and have fun!',
     examples: ["Let me sleep…", "I’m the star of the party.", "Happy birthday! The cake is mine, right?", "All these bags and none smell of chicken?", "Today I want a big juicy steak.", "One run and I’m a pro.", "The most famous rapper in this house.", "I pay with my paw. The human pays the rest.", "Merry Christmas! The baubles are mine."],
     takePhoto: 'Take a photo',
     pickPhoto: 'Choose from library',

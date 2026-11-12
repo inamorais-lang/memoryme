@@ -43,6 +43,14 @@ export function HomeShowcase() {
           contentFit="cover"
           transition={350}
         />
+        {/* On the picture, like the real result, in the free space above the pet. */}
+        <View style={styles.balloon}>
+          <ThoughtBalloon
+            text={lines[index % lines.length]}
+            scale={0.5}
+            tint={index}
+          />
+        </View>
         <View style={styles.watermark} pointerEvents="none">
           <AppText
             numberOfLines={1}
@@ -53,14 +61,6 @@ export function HomeShowcase() {
             {t("result.watermark")}
           </AppText>
         </View>
-      </View>
-      {/* Above the picture, never on the pet (product owner). */}
-      <View style={styles.balloon}>
-        <ThoughtBalloon
-          text={lines[index % lines.length]}
-          scale={0.55}
-          tint={index}
-        />
       </View>
       <View style={styles.dots}>
         {PICTURES.map((_, i) => (
@@ -82,13 +82,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inkFaint,
     boxShadow: shadow.md,
     transform: [{ rotate: "-2deg" }],
-    marginTop: space.xxxl,
   },
   balloon: {
     position: "absolute",
-    top: 0,
-    left: space.xl,
-    right: space.xl,
+    top: space.sm,
+    left: space.sm,
+    right: space.sm,
   },
   watermark: {
     position: "absolute",

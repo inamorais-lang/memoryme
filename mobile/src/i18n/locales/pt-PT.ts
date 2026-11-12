@@ -10,7 +10,7 @@ const ptPT = {
     titleStart: 'O que está o teu patudo a ',
     titleHighlight: 'pensar',
     titleEnd: '?',
-    subtitle: 'Tira uma foto ao teu patudo e descobre.',
+    subtitle: 'Tira uma foto ao teu patudo, escolhe o modo de hoje e diverte-te!',
     examples: ["Deixem-me dormir…", "Sou a estrela da festa.", "Parabéns! O bolo é meu, certo?", "Tantos sacos e nenhum cheira a frango?", "O que eu quero hoje é um bifinho suculento", "Uma descida e já sou profissional.", "Sou o rapper mais famoso desta casa.", "Pago com a pata. O humano paga o resto.", "Feliz Natal! As bolas da árvore são minhas."],
     takePhoto: 'Tirar foto',
     pickPhoto: 'Escolher da galeria',

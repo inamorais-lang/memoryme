@@ -54,6 +54,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccountCode(data?.account_code ?? null);
   }, [session]);
 
+  // Gifts from the owner and other devices change the balance: refresh it whenever the app comes back.
+  useEffect(() => {
+    if (!session) return;
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') refreshCredits();
+    });
+    return () => sub.remove();
+  }, [session, refreshCredits]);
+
   // Purchases left unfinished (app closed mid-purchase, Ask to Buy approved later) and vouchers
   // redeemed in Apple's sheet or in the App Store: hand them to the server whenever the app opens
   // or comes back to the front. Each transaction adds credits only once.
@@ -71,7 +80,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .catch(() => {});
     collect();
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') collect();
+      if (state !== 'active') return;
+      collect();
     });
     return () => sub.remove();
     // Once per signed-in user, not on every credits refresh.

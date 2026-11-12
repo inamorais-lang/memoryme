@@ -22,6 +22,11 @@ export default function SettingsScreen() {
   const auth = useAuth();
   const [deleting, setDeleting] = useState(false);
 
+  const { refreshCredits } = auth;
+  useEffect(() => {
+    refreshCredits();
+  }, [refreshCredits]);
+
   const [aiConsent, setAiConsentState] = useState(false);
   useEffect(() => {
     hasAiConsent().then(setAiConsentState);

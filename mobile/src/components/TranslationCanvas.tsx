@@ -34,6 +34,8 @@ export const BALLOON_CORNERS: BalloonSpot[] = [
 type Props = {
   ref?: Ref<CanvasRef>;
   photoUri: string;
+  /** Bundled image (e.g. paywall examples); used instead of photoUri when set. */
+  photoSource?: number;
   /** Unknown for remote images until they load. */
   photoWidth?: number;
   photoHeight?: number;
@@ -61,6 +63,7 @@ type Size = { w: number; h: number };
 export function TranslationCanvas({
   ref,
   photoUri,
+  photoSource,
   photoWidth,
   photoHeight,
   phrase,
@@ -186,7 +189,7 @@ export function TranslationCanvas({
         }
       >
         <Image
-          source={{ uri: photoUri }}
+          source={photoSource ?? { uri: photoUri }}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
           onLoad={(e) =>

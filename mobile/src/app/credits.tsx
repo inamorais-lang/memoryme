@@ -1,4 +1,3 @@
-import { Asset } from "expo-asset";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
@@ -103,6 +102,12 @@ export default function CreditsScreen() {
     fetchPacks().then(apply);
   }, [apply]);
 
+  // The balance may have changed elsewhere (gift from the owner, another device).
+  const { refreshCredits } = auth;
+  useEffect(() => {
+    refreshCredits();
+  }, [refreshCredits]);
+
   const pack = packs?.find((p) => p.productId === selected);
   const verify = (signed: string) => backend.verifyPurchase(signed);
 
@@ -196,12 +201,12 @@ export default function CreditsScreen() {
         style={styles.examplesRow}
       >
         {EXAMPLES.map((ex) => {
-          const asset = Asset.fromModule(ex.source);
           return (
             <View key={ex.key} style={styles.example} pointerEvents="none">
               <View style={styles.exampleInner}>
                 <TranslationCanvas
-                  photoUri={asset.uri}
+                  photoUri=""
+                photoSource={ex.source}
                   photoWidth={EXAMPLE_PHOTO.width}
                   photoHeight={EXAMPLE_PHOTO.height}
                   phrase={t(`paywall.examples.${ex.key}`)}

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
+  AppState,
   Linking,
   Platform,
   StyleSheet,
@@ -37,6 +38,18 @@ import {
 } from "@/lib/exportImage";
 
 const POLL_MS = 2000;
+/** One status request never waits longer than this. */
+const REQUEST_MS = 8000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error("timeout")), ms);
+    promise.then(
+      (v) => (clearTimeout(t), resolve(v)),
+      (e) => (clearTimeout(t), reject(e)),
+    );
+  });
+}
 const GIVE_UP_MS = 3 * 60 * 1000;
 
 type Status = "loading" | "ready" | "failed" | "slow" | "missing";
@@ -82,17 +95,32 @@ export default function ResultScreen() {
   const [draftText, setDraftText] = useState("");
 
   // Load the translation; while the server is still working on it, poll.
+  // Each request has a time limit and the app polls again when it comes back to the
+  // foreground: on iPhone a request made just before leaving the app can hang forever,
+  // which left the waiting screen stuck although the picture was ready.
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
+    let done = false;
+    let token = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const startedAt = Date.now();
     async function poll() {
+      const mine = ++token;
+      if (timer) clearTimeout(timer);
       try {
-        const found = await backend.getTranslation(id!);
-        if (cancelled) return;
-        if (!found) return setStatus("missing");
+        const found = await withTimeout(
+          backend.getTranslation(id!),
+          REQUEST_MS,
+        );
+        if (cancelled || done || mine !== token) return;
+        if (!found) {
+          done = true;
+          return setStatus("missing");
+        }
         setItem(found);
         if (found.status === "succeeded") {
+          done = true;
           setStatus("ready");
           auth.refreshCredits();
           if (Platform.OS !== "web")
@@ -100,19 +128,26 @@ export default function ResultScreen() {
           return;
         }
         if (found.status === "failed") {
+          done = true;
           setStatus("failed");
           auth.refreshCredits();
           return;
         }
       } catch {
-        // Network blip: keep polling until we give up.
+        // Network blip or timeout: keep polling until we give up.
       }
+      if (cancelled || done || mine !== token) return;
       if (Date.now() - startedAt > GIVE_UP_MS) return setStatus("slow");
-      setTimeout(poll, POLL_MS);
+      timer = setTimeout(poll, POLL_MS);
     }
     poll();
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active" && !done && !cancelled) poll();
+    });
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
+      sub.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);

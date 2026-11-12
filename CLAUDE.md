@@ -90,7 +90,7 @@ supabase/
 - Créditos: só as funções SQL `start_generation`, `fail_generation`, `grant_credits`… mexem em saldos, e só o `service_role` as pode chamar. A app só lê.
 - Falhas devolvem sempre o crédito (`fail_generation` é idempotente). Gerações presas >5 min expiram e são reembolsadas.
 - Limites: 5/min, 100/dia, 2 em curso por utilizador (`private.limits()`).
-- Segredos (Edge Function secrets): `ANTHROPIC_API_KEY`, `FAL_KEY`; opcionais `TEXT_MODEL` (padrão `claude-opus-5-5`), `IMAGE_MODEL` (padrão `fal-ai/flux-pro/kontext`, 0,04 $, ~20 s), `IMAGE_MODEL_FAITHFUL` (padrão `openai/gpt-image-2/edit`), `IMAGE_ASPECT` (padrão `2:3`).
+- Segredos (Edge Function secrets): `ANTHROPIC_API_KEY`, `FAL_KEY`; opcionais `TEXT_MODEL` (padrão `claude-opus-5-5`), `IMAGE_MODEL` (padrão `fal-ai/flux-pro/kontext`, 0,04 $, ~20 s), `IMAGE_MODEL_FAITHFUL` (padrão `openai/gpt-image-2/edit`), `IMAGE_ASPECT` (padrão `2:3`), `CHECK_MODEL` ("há animal?", padrão `claude-sonnet-5-5`), `IMAGE_QUALITY_FAITHFUL` (`medium`: a dona comparou com `low`, ~30 s em vez de ~50 s, e preferiu a média porque o cenário às vezes não pegava).
 - A app fica em **modo local** (Fase 1, sem servidor) se `mobile/.env` não tiver `EXPO_PUBLIC_SUPABASE_URL`/`EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 
 ### Comandos do servidor

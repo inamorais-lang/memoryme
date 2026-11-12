@@ -12,7 +12,7 @@ const fr: Strings = {
     titleStart: 'À quoi ',
     titleHighlight: 'pense',
     titleEnd: ' vraiment ton compagnon ?',
-    subtitle: 'Prends ton chat ou ton chien en photo et découvre enfin la vérité.',
+    subtitle: 'Prends ton compagnon en photo et découvre-le.',
     examples: ["Laissez-moi dormir…", "Je suis la star de la fête.", "Joyeux anniversaire ! Le gâteau est à moi ?", "Tous ces sacs et aucun ne sent le poulet ?", "Aujourd’hui, je veux un steak bien juteux.", "Une descente et je suis pro.", "Le rappeur le plus célèbre de la maison.", "Je paie avec la patte. L’humain, le reste.", "Joyeux Noël ! Les boules du sapin sont à moi."],
     takePhoto: 'Prendre une photo',
     pickPhoto: 'Choisir dans la galerie',

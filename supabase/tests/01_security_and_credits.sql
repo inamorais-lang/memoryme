@@ -153,7 +153,7 @@ set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
 
 select test.check((select count(*) = 1 from public.profiles), 'user sees only their own profile');
 select test.check((select count(*) = 0 from public.generations where user_id <> auth.uid()), 'user sees only their own generations');
-select test.check((select count(*) = 64 from public.personalities), 'user sees the 64 active moods (16 × PT, EN, ES, FR)');
+select test.check((select count(*) = 68 from public.personalities), 'user sees the 68 active moods (17 × PT, EN, ES, FR)');
 
 select test.expect_error($$select image_prompt from public.personalities limit 1$$, 'permission denied');
 select test.expect_error($$select image_prompt from public.scenes limit 1$$, 'permission denied');
@@ -201,12 +201,12 @@ select test.check((select custom_phrase = 'A minha frase' from public.generation
 
 -- ───────── Anonymous ─────────
 set role anon;
-select test.check((select count(*) = 64 from public.personalities), 'personality list is public');
-select test.check((select count(*) = 16 from public.personalities where markets @> array['PT']), 'PT market: 16 moods');
-select test.check((select count(*) = 16 from public.personalities where markets @> array['US']), 'US market: 16 moods');
-select test.check((select count(*) = 16 from public.personalities where markets @> array['GB']), 'UK market: 16 moods');
-select test.check((select count(*) = 16 from public.personalities where markets @> array['ES']), 'Spain: 16 moods');
-select test.check((select count(*) = 16 from public.personalities where markets @> array['FR']), 'France: 16 moods');
+select test.check((select count(*) = 68 from public.personalities), 'personality list is public');
+select test.check((select count(*) = 17 from public.personalities where markets @> array['PT']), 'PT market: 17 moods');
+select test.check((select count(*) = 17 from public.personalities where markets @> array['US']), 'US market: 17 moods');
+select test.check((select count(*) = 17 from public.personalities where markets @> array['GB']), 'UK market: 17 moods');
+select test.check((select count(*) = 17 from public.personalities where markets @> array['ES']), 'Spain: 17 moods');
+select test.check((select count(*) = 17 from public.personalities where markets @> array['FR']), 'France: 17 moods');
 select test.check((select count(*) = 0 from public.personalities where id = 'en-campaign-rally'), 'no political personality is offered');
 select test.check((select count(*) = 0 from public.personalities where id in ('pt-tia-cascais', 'en-karen')), 'human archetypes are retired');
 select test.expect_error($$select voice_prompt from public.personalities limit 1$$, 'permission denied');

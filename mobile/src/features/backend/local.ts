@@ -51,8 +51,8 @@ export const localBackend: Backend = {
   },
   async createTranslation(photo, choice) {
     // Without the server there are only modes.
-    if (!('personalityId' in choice)) throw new BackendError('server_error');
     const { personalityId } = choice;
+    if (!personalityId) throw new BackendError('server_error');
     const id = newId();
     const [{ phrase }, photoUri] = await Promise.all([
       translatePhoto({ photoUri: photo.uri, personalityId }),

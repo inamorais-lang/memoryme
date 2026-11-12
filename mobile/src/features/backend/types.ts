@@ -17,11 +17,12 @@ export type SceneInfo = {
  * What a new translation starts from: a mode, a place scene or a scene typed by the person
  * (2 credits), plus an optional free funny extra.
  */
-export type TranslationChoice = (
-  | { personalityId: string; comicId?: string }
-  | { sceneId: string; comicId?: string }
-  | { customScene: string; comicId?: string }
-) & {
+/** A mode, a scene (or one typed by the person), or both together; at least one of them. */
+export type TranslationChoice = {
+  personalityId?: string;
+  sceneId?: string;
+  customScene?: string;
+  comicId?: string;
   /** Optional, from the owner, for the line only. */
   petSex?: 'male' | 'female';
 };
@@ -39,8 +40,10 @@ export type TranslationStatus = 'pending' | 'succeeded' | 'failed';
 export type TranslationView = {
   id: string;
   status: TranslationStatus;
-  /** Absent when a scene was chosen instead of a mode. */
+  /** Absent when no mode was chosen. */
   personalityId?: string;
+  /** Scene chosen in step 1, if any. */
+  sceneId?: string;
   imageUri?: string;
   /** Known for local photos; remote images report their size when loaded. */
   width?: number;

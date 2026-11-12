@@ -29,6 +29,7 @@ import {
 import { useDraft } from "@/features/draft/DraftContext";
 import { findPersonality } from "@/features/personalities/data";
 import { APP_STORE_URL } from "@/config";
+import { currentLanguage, currentMarket } from "@/i18n";
 import {
   renderToImage,
   saveImageToLibrary,
@@ -51,6 +52,16 @@ export default function ResultScreen() {
   const [canvasRoom, setCanvasRoom] = useState(0);
 
   const [item, setItem] = useState<TranslationView | null>(null);
+  // Names of the scenes, to show what came out (also after "Surpreende-me").
+  const [sceneNames, setSceneNames] = useState<Record<string, string>>({});
+  useEffect(() => {
+    backend
+      .listScenes(currentLanguage(), currentMarket())
+      .then((list) =>
+        setSceneNames(Object.fromEntries(list.map((s) => [s.id, s.name]))),
+      )
+      .catch(() => {});
+  }, []);
   const [status, setStatus] = useState<Status>("loading");
   const [busy, setBusy] = useState<"retry" | "share" | "save" | null>(null);
   // What was in the gallery copy: any change to the picture (new line, balloon, colour) lets it be saved again.
@@ -314,6 +325,7 @@ export default function ResultScreen() {
   }
 
   const personality = findPersonality(item.personalityId);
+  const sceneName = sceneNames[item.sceneId ?? ""];
   // No spot chosen yet: with the head box the canvas picks the corner away from the face.
   const spot: BalloonSpot | undefined =
     item.balloonX !== undefined && item.balloonY !== undefined
@@ -473,6 +485,7 @@ export default function ResultScreen() {
       </View>
       <AppText variant="small" color={colors.inkMuted} align="center">
         {personality ? `${personality.name} · ` : ""}
+        {sceneName ? `${sceneName} · ` : ""}
         {balloonHidden ? t("result.hiddenHint") : t("result.dragHint")}
       </AppText>
     </Screen>

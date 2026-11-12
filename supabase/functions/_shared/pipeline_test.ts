@@ -504,3 +504,16 @@ Deno.test('waiting screen: the picture moves to painting, then writing', async (
   await runGeneration({ store, phrases: phrases({ isPet: true, phrase: 'x' }), images: okImage, log: quiet }, gen);
   assert.deepEqual(stages, ['painting', 'writing']);
 });
+
+Deno.test('starred lines from users are style examples for the AI', async () => {
+  assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [], examples: ['Sofá meu.', 'Biscoito já.'] }), /never copy or reuse them:\n- Sofá meu\.\n- Biscoito já\./);
+  assert.doesNotMatch(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /owners wrote/);
+  const { store } = fakeStore();
+  store.phraseExamples = async () => ['Sofá meu.'];
+  let got: string[] | undefined;
+  await runGeneration(
+    { store, phrases: { ...phrases({ isPet: true, phrase: 'x' }), write: async (a) => ((got = a.examples), { isPet: true, phrase: 'x' }) }, images: okImage, log: quiet },
+    gen,
+  );
+  assert.deepEqual(got, ['Sofá meu.']);
+});

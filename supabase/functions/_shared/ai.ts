@@ -46,6 +46,8 @@ export interface PhraseWriter {
     name?: string;
     /** More than one pet in the picture. */
     petCount?: number;
+    /** Lines people loved: imitate their style, never copy them. */
+    examples?: string[];
   }): Promise<PhraseResult>;
 }
 
@@ -306,7 +308,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
             { type: 'image', source: { type: 'url', url: args.imageUrl } },
             {
               type: 'text',
-              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name, petCount: args.petCount }), reminder]
+              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name, petCount: args.petCount, examples: args.examples }), reminder]
                 .filter(Boolean)
                 .join('\n\n'),
             },

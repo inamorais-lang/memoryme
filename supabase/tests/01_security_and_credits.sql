@@ -298,3 +298,10 @@ set role anon;
 select test.expect_error($$select public.report_generation((select id from a_gen))$$, 'permission denied');
 select test.check(true, 'anonymous callers cannot report');
 reset role;
+
+-- ───────── Frases-modelo (só o servidor) ─────────
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
+select test.expect_error($$select * from public.phrase_examples$$, 'permission denied');
+select test.check(true, 'users cannot read the phrase examples');
+reset role;

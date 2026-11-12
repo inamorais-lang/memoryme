@@ -80,6 +80,12 @@
     <div id="trends"></div>
   </section>
 
+  <section class="card" id="step-phrases" hidden>
+    <h2 style="margin:0;font:700 20px 'Bricolage Grotesque',sans-serif">⭐ Frases das pessoas</h2>
+    <p class="muted" style="margin:0">Frases que as pessoas escreveram na app (sem nome nem conta). As que marcares com ⭐ passam a ser exemplos de estilo para a IA (imita, não copia).</p>
+    <div id="phrases"></div>
+  </section>
+
   <section class="card" id="step-reports" hidden>
     <h2 style="margin:0;font:700 20px 'Bricolage Grotesque',sans-serif">🚩 Imagens reportadas</h2>
     <p class="muted" style="margin:0">Imagens que os donos reportaram como impróprias na app (mais recentes primeiro).</p>
@@ -104,6 +110,7 @@
     for (const s of ['step-email', 'step-code', 'step-grant']) $(s).hidden = s !== step;
     $('step-trends').hidden = step !== 'step-grant';
     $('step-reports').hidden = step !== 'step-grant';
+    $('step-phrases').hidden = step !== 'step-grant';
   }
 
   async function call(body, fn = 'admin-grant') {
@@ -123,6 +130,7 @@
       show('step-grant');
       loadTrends();
       loadReports();
+      loadPhrases();
     } catch { say('Não foi possível ligar ao servidor.', true); }
   }
 
@@ -170,6 +178,34 @@
           row.append(b);
         }
         box.append(row);
+      }
+    } catch { /* the list is optional */ }
+  }
+
+  const FLAGS = { 'pt-PT': '🇵🇹', en: '🇬🇧🇺🇸', es: '🇪🇸', fr: '🇫🇷' };
+  async function loadPhrases() {
+    try {
+      const { recent, starred } = await call({ list: true }, 'admin-phrases');
+      const box = $('phrases'); box.innerHTML = '';
+      const ids = new Map(starred.map((s) => [s.language + '|' + s.text, s.id]));
+      const rows = [...recent];
+      for (const s of starred) if (!recent.some((r) => r.language === s.language && r.text === s.text)) rows.push({ ...s, starred: true });
+      if (rows.length === 0) { box.textContent = 'Ainda ninguém escreveu a sua frase.'; box.className = 'muted'; return; }
+      for (const r of rows) {
+        const row = document.createElement('div'); row.className = 'row';
+        const text = document.createElement('span'); text.textContent = (FLAGS[r.language] ?? '') + ' ' + r.text;
+        const b = document.createElement('button'); b.className = r.starred ? 'primary' : 'secondary';
+        b.textContent = r.starred ? '⭐ Exemplo' : '☆ Usar';
+        b.style.width = 'auto';
+        b.onclick = async () => {
+          b.disabled = true;
+          try {
+            if (r.starred) await call({ unstar: ids.get(r.language + '|' + r.text) }, 'admin-phrases');
+            else await call({ star: { text: r.text, language: r.language } }, 'admin-phrases');
+            loadPhrases();
+          } catch { say('Não foi possível guardar.', true); b.disabled = false; }
+        };
+        row.append(text, b); box.append(row);
       }
     } catch { /* the list is optional */ }
   }

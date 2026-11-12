@@ -53,6 +53,7 @@ export default {
         exclude: row.shown_phrases ?? [],
         sex: gen.pet_sex === 'male' || gen.pet_sex === 'female' ? gen.pet_sex : undefined,
         name: gen.pet_name ?? undefined,
+        examples: await (store.phraseExamples?.(prompts.language) ?? Promise.resolve([])).catch(() => []),
       });
       if (!phrase) throw new Error('phrase_empty');
 

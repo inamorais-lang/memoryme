@@ -65,6 +65,12 @@ export function supabaseStore(admin: SupabaseClient): Store {
       const { error } = await admin.storage.from('originals').remove([path]);
       if (error) throw new Error(`remove_original_${error.message}`);
     },
+    async phraseExamples(language) {
+      const { data } = await admin.from('phrase_examples').select('text').eq('language', language).limit(200);
+      const all = (data ?? []).map((r) => r.text as string);
+      // A different handful each time, so the AI does not lean on the same few.
+      return all.sort(() => Math.random() - 0.5).slice(0, 8);
+    },
     async setStage(generationId, stage) {
       await admin.from('generations').update({ stage }).eq('id', generationId).eq('status', 'pending');
     },

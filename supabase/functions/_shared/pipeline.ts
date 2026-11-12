@@ -33,6 +33,8 @@ export interface Store {
   upload(bucket: 'generated', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
   finish(generationId: string, imagePath: string, phrase: string, head?: HeadBox, prop?: HeadBox, body?: HeadBox): Promise<boolean>;
   fail(generationId: string, reason: string): Promise<boolean>;
+  /** Lines people wrote, starred by the owner: style examples for the AI (optional). */
+  phraseExamples?(language: Language): Promise<string[]>;
   /** Waiting screen: which step the picture is at. Best effort, never fails the picture. */
   setStage?(generationId: string, stage: 'painting' | 'writing'): Promise<void>;
   /** Privacy: the original photo is only needed to make the picture. */
@@ -245,6 +247,7 @@ export async function runGeneration(
       sex: gen.petSex,
       name: gen.petName,
       petCount: check.petCount,
+      examples: await (store.phraseExamples?.(prompts.language) ?? Promise.resolve([])).catch(() => []),
     });
     if (!phrase.phrase) throw new Error(phrase.isPet ? 'phrase_empty' : 'phrase_no_pet');
 

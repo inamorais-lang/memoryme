@@ -9,6 +9,9 @@ export type PersonalityPrompts = {
   style: string;
   /** Outfit for a male pet, when the mode has one (e.g. Diva in blue). */
   styleMale?: string;
+  /** Outfit, signature prop and attitude only (no place): used with a scene. */
+  outfit?: string;
+  outfitMale?: string;
 };
 
 /** 'place': chosen instead of a mode (own phrase tone). 'comic': optional funny extra. */
@@ -66,6 +69,18 @@ export type Choice = {
 };
 
 /** Picture style, phrase tone and language for a choice: a custom scene, a place scene or a mode, plus the funny extra. */
+/** Scene + mode: the scene's place and pose win; the mode keeps only its outfit, accessories and attitude. */
+export function combinedStyle(place: string, outfit: string): string {
+  return `${place} The very same real animal (four legs, fur, its own face, never a human or a person in costume) is in this exact place, wearing: ${outfit}. Keep the place, background and pose described first.`;
+}
+
+/** The mode is the pet's personality; the scene is where it is right now. */
+export function combinedVoice(modeVoice: string, sceneVoice: string | null): string {
+  return sceneVoice
+    ? `${modeVoice} Right now it is in this situation, and reacts to it in that personality: ${sceneVoice}`
+    : `${modeVoice} Right now it is in the situation shown in the picture, and reacts to it in that personality.`;
+}
+
 export async function resolvePrompts(
   store: Store,
   choice: Choice,
@@ -78,8 +93,23 @@ export async function resolvePrompts(
   if (comic && comic.kind !== 'comic') comic = null;
   const personality = choice.personalityId ? await store.personality(choice.personalityId) : null;
 
+  const personalityStyle = personality
+    ? choice.sex === 'male' && personality.styleMale ? personality.styleMale : personality.style
+    : null;
+  const outfit = personality
+    ? (choice.sex === 'male' && personality.outfitMale ? personality.outfitMale : personality.outfit) ?? personalityStyle
+    : null;
+  const place = choice.customStyle ?? scene?.style ?? null;
+
   let base: { language: Language; voice: string; style: string };
-  if (choice.customStyle) {
+  if (place && personality && personalityStyle) {
+    // Two steps: the scene gives the place (and its pose), the mode gives the outfit, attitude and tone.
+    base = {
+      language: choice.customStyle ? (choice.language ?? personality.language) : scene!.language,
+      voice: combinedVoice(personality.voice, choice.customStyle ? null : scene?.voice ?? null),
+      style: combinedStyle(place, outfit!),
+    };
+  } else if (choice.customStyle) {
     base = { language: choice.language ?? personality?.language ?? 'en', voice: CUSTOM_SCENE_VOICE, style: choice.customStyle };
   } else if (scene) {
     base = { language: scene.language, voice: scene.voice ?? personality?.voice ?? CUSTOM_SCENE_VOICE, style: scene.style };
@@ -87,7 +117,7 @@ export async function resolvePrompts(
     base = {
       language: personality.language,
       voice: personality.voice,
-      style: choice.sex === 'male' && personality.styleMale ? personality.styleMale : personality.style,
+      style: personalityStyle!,
     };
   } else {
     throw new Error('unknown_personality');
@@ -175,7 +205,16 @@ export async function runGeneration(
         log(`faithful model failed for ${gen.id}: ${error instanceof Error ? error.message.slice(0, 80) : error}`);
       }
     }
-    image ??= await images.edit(request);
+    if (!image) {
+      try {
+        image = await images.edit(request);
+      } catch (error) {
+        // The fast model's safety filter sometimes blocks a harmless picture: the other model may not.
+        if (!(error instanceof Error) || error.message !== 'image_blocked' || !faithfulImages) throw error;
+        log(`fast model blocked ${gen.id}; trying the faithful one`);
+        image = await faithfulImages.edit(request);
+      }
+    }
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
     await store.upload('generated', imagePath, image.bytes, image.contentType);
@@ -191,7 +230,7 @@ export async function runGeneration(
       sex: gen.petSex,
       name: gen.petName,
     });
-    if (!phrase.phrase) throw new Error('phrase_empty');
+    if (!phrase.phrase) throw new Error(phrase.isPet ? 'phrase_empty' : 'phrase_no_pet');
 
     const finished = await store.finish(gen.id, imagePath, phrase.phrase, phrase.head, phrase.prop, phrase.body);
     if (!finished) throw new Error('finish_rejected');

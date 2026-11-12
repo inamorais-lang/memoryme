@@ -144,7 +144,7 @@ Deno.test('custom scene: a refused scene refunds and never reaches the image mod
   assert.deepEqual(calls, ['fail g1 scene_rejected', 'remove u1/photo.jpg']);
 });
 
-Deno.test('custom scene replaces the mood scene in the image prompt', async () => {
+Deno.test('custom scene + mode: the place comes from the scene, the outfit from the mode', async () => {
   const { store } = fakeStore();
   let style = '';
   await runGeneration(
@@ -156,8 +156,8 @@ Deno.test('custom scene replaces the mood scene in the image prompt', async () =
     },
     { ...gen, customScene: 'a surfar uma onda gigante' },
   );
-  assert.match(style, /a surfar uma onda gigante/);
-  assert.doesNotMatch(style, /pearls and a yacht/);
+  assert.match(style, /^A pet a surfar uma onda gigante\./);
+  assert.match(style, /wearing: pearls and a yacht\. Keep the place, background and pose described first\.$/);
 });
 
 function captureRun(genOver: Partial<typeof gen> & Record<string, unknown>) {
@@ -319,7 +319,7 @@ Deno.test('prompts carry the pet-logic, safety and language rules', () => {
   assert.match(imageEditPrompt('pearls'), /Never dark/);
   assert.match(imageEditPrompt('pearls'), /never make it resemble a real person/);
   assert.match(imageEditPrompt('pearls'), /Never draw speech bubbles/);
-  assert.match(imageEditPrompt('pearls'), /genital area is never visible/);
+  assert.match(imageEditPrompt('pearls'), /wholesome, family-friendly picture/);
   assert.match(imageEditPrompt('pearls'), /same proportion to the head/);
 });
 
@@ -441,4 +441,42 @@ Deno.test('a male pet gets the mode\'s male outfit when there is one (Diva in bl
   assert.equal(style, 'pink stole');
   await run();
   assert.equal(style, 'pink stole');
+});
+
+Deno.test('two steps: a place scene and a mode together', async () => {
+  const got = await captureRun({ sceneId: 'pt-praia', comicId: 'pt-sorriso' });
+  assert.match(got.style, /^a sunny beach The very same real animal.*never a human.*wearing: pearls and a yacht\. Keep the place.* Funny extra: joke-shop fake teeth\.$/);
+  assert.match(got.voice, /^Tia de Cascais Right now .*: Beach snob$/);
+  assert.equal(got.language, 'pt-PT');
+});
+
+Deno.test('image model: a picture blocked by the fast model\'s safety filter is tried on the faithful one', async () => {
+  const { store } = fakeStore();
+  let faithfulCalled = false;
+  const outcome = await runGeneration(
+    {
+      store,
+      phrases: phrases({ isPet: true, phrase: 'x' }),
+      images: images(async () => {
+        throw new Error('image_blocked');
+      }),
+      faithfulImages: images(async () => ((faithfulCalled = true), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })),
+      log: quiet,
+    },
+    gen,
+  );
+  assert.equal(outcome, 'succeeded');
+  assert.equal(faithfulCalled, true);
+});
+
+Deno.test('two steps: the mode gives only its outfit (never its own place) when it has one', async () => {
+  const { store } = fakeStore();
+  store.personality = async () => ({ language: 'pt-PT', voice: 'v', style: 'suit in a corner office', outfit: 'a navy suit', outfitMale: 'a blue suit' });
+  let style = '';
+  await runGeneration(
+    { store, phrases: phrases({ isPet: true, phrase: 'x' }), images: images(async (a) => ((style = a.style), { bytes: new Uint8Array([1]), contentType: 'image/jpeg' })), log: quiet },
+    { ...gen, sceneId: 'pt-praia', petSex: 'male' },
+  );
+  assert.match(style, /wearing: a blue suit\./);
+  assert.doesNotMatch(style, /corner office/);
 });

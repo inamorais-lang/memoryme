@@ -278,7 +278,9 @@ export class ClaudePhraseWriter implements PhraseWriter {
   private async ask(args: Parameters<PhraseWriter['write']>[0], reminder: string): Promise<PhraseResult> {
     const response = await this.client.beta.messages.create({
       model: this.model,
-      max_tokens: 4000,
+      // Room for the model's thinking: with a mode and a scene together it thinks longer,
+      // and at 4000 it sometimes ran out before writing any line (phrase_empty).
+      max_tokens: 16000,
       // Re-runs on a fallback model if the main one declines on a safety false positive.
       betas: ['server-side-fallback-2026-07-01'],
       fallbacks: 'default',
@@ -304,6 +306,8 @@ export class ClaudePhraseWriter implements PhraseWriter {
     });
 
     if (response.stop_reason === 'refusal') throw new Error('phrase_refused');
+    // Ran out of room before the answer: the caller tries once more.
+    if (response.stop_reason === 'max_tokens') throw new Error('phrase_too_long');
     const text = response.content.find((block) => block.type === 'text');
     if (!text || text.type !== 'text') throw new Error('phrase_empty');
     return parsePhrase(text.text);
@@ -411,6 +415,8 @@ export class FalImageEditor implements ImageEditor {
       throw new Error(`image_failed_${response.status}: ${(await response.text()).slice(0, 200)}`);
     }
     const result = await response.json();
+    // The provider's safety filter returns a black picture instead of failing.
+    if (Array.isArray(result?.has_nsfw_concepts) && result.has_nsfw_concepts.some(Boolean)) throw new Error('image_blocked');
     const url: string | undefined = result?.images?.[0]?.url;
     if (!url) throw new Error('image_missing');
 

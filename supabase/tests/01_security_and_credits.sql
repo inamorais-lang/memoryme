@@ -281,3 +281,20 @@ select test.check(true, 'users cannot call the admin function');
 select test.expect_error($$select * from public.admin_grants$$, 'permission denied');
 select test.check(true, 'users cannot read the gift log');
 reset role;
+
+-- ───────── Reportar imagem ─────────
+create temp table a_gen as select id from public.generations where user_id = 'aaaaaaaa-0000-0000-0000-000000000001' limit 1;
+grant select on a_gen to authenticated;
+set role authenticated;
+set request.jwt.claim.sub = 'bbbbbbbb-0000-0000-0000-000000000002';
+select test.expect_error($$select public.report_generation((select id from a_gen))$$, 'not_found');
+select test.check(true, 'a user cannot report someone else''s picture');
+set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
+select public.report_generation((select id from a_gen));
+select public.report_generation((select id from a_gen));
+select test.check((select reported_at is not null from public.generations where id = (select id from a_gen)), 'the owner reports their picture (twice is fine)');
+reset role;
+set role anon;
+select test.expect_error($$select public.report_generation((select id from a_gen))$$, 'permission denied');
+select test.check(true, 'anonymous callers cannot report');
+reset role;

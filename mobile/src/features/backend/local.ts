@@ -95,4 +95,5 @@ export const localBackend: Backend = {
   async deleteTranslation(id) {
     await removeTranslation(id);
   },
+  async reportTranslation() {},
 };

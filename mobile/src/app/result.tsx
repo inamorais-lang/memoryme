@@ -233,6 +233,24 @@ export default function ResultScreen() {
     ]);
   }
 
+  function confirmReport() {
+    if (!item) return;
+    Alert.alert(t("result.reportTitle"), t("result.reportBody"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("result.reportConfirm"),
+        onPress: async () => {
+          try {
+            await backend.reportTranslation(item.id);
+            Alert.alert(t("result.reported"));
+          } catch {
+            Alert.alert(t("result.reportError"));
+          }
+        },
+      },
+    ]);
+  }
+
   function newPhoto() {
     draft.reset();
     router.dismissAll();
@@ -411,12 +429,24 @@ export default function ResultScreen() {
           label={t("result.newPhoto")}
           onPress={newPhoto}
         />
-        <Button
-          testID="delete-image"
-          variant="tertiary"
-          label={t("result.deleteImage")}
-          onPress={confirmDelete}
-        />
+        <View style={styles.row}>
+          <View style={styles.flex}>
+            <Button
+              testID="delete-image"
+              variant="tertiary"
+              label={t("result.deleteImage")}
+              onPress={confirmDelete}
+            />
+          </View>
+          <View style={styles.flex}>
+            <Button
+              testID="report-image"
+              variant="tertiary"
+              label={t("result.report")}
+              onPress={confirmReport}
+            />
+          </View>
+        </View>
       </View>
     </>
   );

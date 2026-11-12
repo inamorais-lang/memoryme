@@ -80,6 +80,12 @@
     <div id="trends"></div>
   </section>
 
+  <section class="card" id="step-reports" hidden>
+    <h2 style="margin:0;font:700 20px 'Bricolage Grotesque',sans-serif">🚩 Imagens reportadas</h2>
+    <p class="muted" style="margin:0">Imagens que os donos reportaram como impróprias na app (mais recentes primeiro).</p>
+    <div id="reports"></div>
+  </section>
+
   <div class="msg" id="msg" hidden></div>
 </main>
 
@@ -97,6 +103,7 @@
   function show(step) {
     for (const s of ['step-email', 'step-code', 'step-grant']) $(s).hidden = s !== step;
     $('step-trends').hidden = step !== 'step-grant';
+    $('step-reports').hidden = step !== 'step-grant';
   }
 
   async function call(body, fn = 'admin-grant') {
@@ -115,6 +122,7 @@
       $('who').textContent = session.user.email ?? '';
       show('step-grant');
       loadTrends();
+      loadReports();
     } catch { say('Não foi possível ligar ao servidor.', true); }
   }
 
@@ -162,6 +170,24 @@
           row.append(b);
         }
         box.append(row);
+      }
+    } catch { /* the list is optional */ }
+  }
+
+  async function loadReports() {
+    try {
+      const { reports } = await call({}, 'admin-reports');
+      const box = $('reports'); box.innerHTML = '';
+      if (reports.length === 0) { box.textContent = 'Nenhuma imagem reportada.'; box.className = 'muted'; return; }
+      for (const r of reports) {
+        const row = document.createElement('div'); row.className = 'row'; row.style.alignItems = 'flex-start';
+        if (r.image_url) {
+          const img = document.createElement('img'); img.src = r.image_url; img.alt = '';
+          img.style.cssText = 'width:96px;border-radius:12px;flex:none'; row.append(img);
+        }
+        const text = document.createElement('span');
+        text.textContent = new Date(r.reported_at).toLocaleString('pt-PT') + ' · ' + (r.account_code ?? '') + (r.phrase ? ' · "' + r.phrase + '"' : '');
+        row.append(text); box.append(row);
       }
     } catch { /* the list is optional */ }
   }

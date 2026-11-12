@@ -178,6 +178,10 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       const { error } = await supabase.functions.invoke('delete-image', { body: { generationId: id } });
       if (error) throw await toBackendError(error);
     },
+    async reportTranslation(id) {
+      const { error } = await supabase.rpc('report_generation', { p_generation_id: id });
+      if (error) throw new BackendError('network');
+    },
     async listHistory() {
       const { data, error } = await supabase
         .from('generations')

@@ -18,7 +18,7 @@ Estado a 11 de novembro de 2026. Inscrição no Apple Developer Program paga a 1
 ## Conta e login (4.8)
 | Requisito | Estado |
 |---|---|
-| Só "Iniciar sessão com a Apple" | ✅ |
+| Só "Iniciar sessão com a Apple" | ✅ (Supabase aceita `app.petbubble` e `host.exp.Exponent`) |
 | Login só quando é preciso (não logo ao abrir) | ✅ |
 
 ## Compras (3.1)
@@ -35,6 +35,7 @@ Estado a 11 de novembro de 2026. Inscrição no Apple Developer Program paga a 1
 | Requisito | Estado |
 |---|---|
 | Marca "Feito com IA" nas imagens | ✅ fixa, não se pode remover |
+| Reportar imagem imprópria (IA generativa) | ✅ botão "Reportar" no ecrã da imagem → `report_generation`; lista em "Imagens reportadas" na página de admin |
 | Filtro de pedidos impróprios (cenário à medida) | ✅ a IA recusa pessoas reais, marcas, conteúdo sexual, violência, etc. |
 | Sem pessoas reais nem marcas nos modos | ✅ |
 | Classificação etária | ❗ responder ao questionário: "Hora do Vinho" tem referências ligeiras a álcool. Idade mínima nos Termos: **16 anos** (consentimento RGPD sem pais em todos os países) → escolher 16+ |

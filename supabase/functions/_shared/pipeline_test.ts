@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 
 import { falInput, parseHead, parsePhrase, type ImageEditor, type PhraseWriter } from './ai.ts';
-import { httpErrorFor, runGeneration, safeReason, type Store } from './pipeline.ts';
+import { httpErrorFor, runGeneration, safeReason, withCurrency, type Store } from './pipeline.ts';
 import { cleanPetName, imageEditPrompt, phraseSystemPrompt, phraseUserPrompt } from './prompts.ts';
 
 function fakeStore() {
@@ -485,4 +485,12 @@ Deno.test('several pets: all of them are dressed up and the line knows it', () =
   assert.match(imageEditPrompt('a pink wig', false, 'Two dogs.', 2), /There are 2 animals in this photo: style every one of them/);
   assert.doesNotMatch(imageEditPrompt('a pink wig'), /animals in this photo/);
   assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [], petCount: 2 }), /There are 2 pets in this picture/);
+});
+
+Deno.test('banknotes: euros in PT/ES/FR, pounds in the UK, dollars in the US', () => {
+  assert.equal(withCurrency('{currency} notes', 'pt-PT'), 'euro notes');
+  assert.equal(withCurrency('{currency} notes', 'fr'), 'euro notes');
+  assert.equal(withCurrency('{currency} notes', 'en', 'GB'), 'British pound sterling notes');
+  assert.equal(withCurrency('{currency} notes', 'en', 'US'), 'US dollar notes');
+  assert.equal(withCurrency('no money here', 'en'), 'no money here');
 });

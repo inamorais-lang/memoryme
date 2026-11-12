@@ -81,6 +81,15 @@ export function combinedVoice(modeVoice: string, sceneVoice: string | null): str
     : `${modeVoice} Right now it is in the situation shown in the picture, and reacts to it in that personality.`;
 }
 
+/**
+ * Scene prompts may say "{currency} banknotes": euros in Portugal, Spain and France,
+ * pounds in the UK (English with British spelling), dollars elsewhere.
+ */
+export function withCurrency(style: string, language: Language, spelling?: Spelling): string {
+  const currency = language !== 'en' ? 'euro' : spelling === 'GB' ? 'British pound sterling' : 'US dollar';
+  return style.replaceAll('{currency}', currency);
+}
+
 export async function resolvePrompts(
   store: Store,
   choice: Choice,
@@ -188,7 +197,7 @@ export async function runGeneration(
       language: gen.language,
       sex: gen.petSex,
     });
-    const style = prompts.style;
+    const style = withCurrency(prompts.style, prompts.language, gen.spelling);
 
     const request = {
       imageUrl: sourceUrl,

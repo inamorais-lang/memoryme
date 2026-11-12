@@ -3,7 +3,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
   Alert,
   Linking,
   Platform,
@@ -13,6 +12,7 @@ import {
 } from "react-native";
 
 import { tintFor } from "@/components/ThoughtBalloon";
+import { WaitingProgress } from "@/components/WaitingProgress";
 import {
   BALLOON_CORNERS,
   TranslationCanvas,
@@ -80,9 +80,6 @@ export default function ResultScreen() {
   ]);
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
-  const [loadingText] = useState(() =>
-    pickOne(t("result.loading", { returnObjects: true }) as string[]),
-  );
 
   // Load the translation; while the server is still working on it, poll.
   useEffect(() => {
@@ -311,15 +308,7 @@ export default function ResultScreen() {
             />
           </View>
         ) : null}
-        <View style={styles.loading} testID="result-loading">
-          <ActivityIndicator color={colors.ink} />
-          <AppText variant="bodyStrong">{loadingText}</AppText>
-          {backend.mode === "remote" ? (
-            <AppText variant="small" color={colors.inkMuted}>
-              {t("result.loadingHint")}
-            </AppText>
-          ) : null}
-        </View>
+        <WaitingProgress stage={item?.stage} />
       </Screen>
     );
   }
@@ -490,10 +479,6 @@ export default function ResultScreen() {
       </AppText>
     </Screen>
   );
-}
-
-function pickOne<T>(list: T[]): T {
-  return list[Math.floor(Math.random() * list.length)];
 }
 
 const styles = StyleSheet.create({

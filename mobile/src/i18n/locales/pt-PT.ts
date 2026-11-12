@@ -78,6 +78,24 @@ const ptPT = {
       'A pôr o balão no sítio certo…',
     ],
     loadingHint: 'Isto pode demorar até 1 minuto.',
+    wait: {
+      steps: {
+        checking: "A encontrar o teu patudo…",
+        painting: "A vestir e preparar o cenário…",
+        writing: "A escrever o que ele pensa…",
+      },
+      done: {
+        checking: "Patudo encontrado!",
+        painting: "Imagem pronta!",
+        writing: "Frase pronta!",
+      },
+      jokes: {
+        checking: ["A contar os bigodes…", "A confirmar que é mesmo um patudo…", "A pedir licença ao teu patudo…"],
+        painting: ["O teu patudo está a recusar o chapéu. A negociar…", "A escolher a roupa. Ele é exigente…", "A pentear o pelo para a foto…", "A montar o cenário. Ele quer mais luz…", "A tentar que fique quieto dois segundos…"],
+        writing: ["Ele tem muito a dizer. A escolher a melhor…", "A traduzir miaus e latidos…", "A cortar os palavrões…"],
+      },
+      hint: "Demora até 1 minuto. Podes sair: a imagem aparece em «As tuas imagens».",
+    },
     notAPet_one: 'Não encontrámos nenhum gato ou cão nesta foto. O crédito foi devolvido.',
     notAPet_other: 'Não encontrámos nenhum gato ou cão nesta foto. Os {{count}} créditos foram devolvidos.',
     failedRefunded_one: 'Não conseguimos criar a imagem. O crédito foi devolvido.',

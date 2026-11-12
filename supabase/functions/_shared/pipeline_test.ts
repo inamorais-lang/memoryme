@@ -496,3 +496,11 @@ Deno.test('banknotes: euros in PT/ES/FR, pounds in the UK, dollars in the US', (
   assert.equal(withCurrency('{currency} notes', 'en', 'US'), 'US dollar notes');
   assert.equal(withCurrency('no money here', 'en'), 'no money here');
 });
+
+Deno.test('waiting screen: the picture moves to painting, then writing', async () => {
+  const { store } = fakeStore();
+  const stages: string[] = [];
+  store.setStage = async (_id, stage) => void stages.push(stage);
+  await runGeneration({ store, phrases: phrases({ isPet: true, phrase: 'x' }), images: okImage, log: quiet }, gen);
+  assert.deepEqual(stages, ['painting', 'writing']);
+});

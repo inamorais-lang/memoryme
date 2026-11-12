@@ -80,6 +80,24 @@ const fr: Strings = {
       'On place la bulle au bon endroit…',
     ],
     loadingHint: 'Cela peut prendre jusqu’à une minute.',
+    wait: {
+      steps: {
+        checking: "On cherche ton compagnon…",
+        painting: "Habillage et décor en cours…",
+        writing: "On écrit ce qu’il pense…",
+      },
+      done: {
+        checking: "Compagnon trouvé !",
+        painting: "Image prête !",
+        writing: "Phrase prête !",
+      },
+      jokes: {
+        checking: ["On compte les moustaches…", "On vérifie que c’est bien un compagnon…", "On demande la permission à ton compagnon…"],
+        painting: ["Ton compagnon refuse le chapeau. On négocie…", "On choisit la tenue. Il est très exigeant…", "On brosse le poil pour la photo…", "On installe le décor. Il veut plus de lumière…", "On essaie qu’il reste tranquille deux secondes…"],
+        writing: ["Il a beaucoup à dire. On garde le meilleur…", "On traduit les miaous et les ouafs…", "On coupe les gros mots…"],
+      },
+      hint: "Ça prend jusqu’à 1 minute. Tu peux partir : l’image sera dans « Tes images ».",
+    },
     notAPet_one: 'Nous n’avons trouvé ni chat ni chien sur cette photo. Ton crédit a été remboursé.',
     notAPet_other: 'Nous n’avons trouvé ni chat ni chien sur cette photo. Tes {{count}} crédits ont été remboursés.',
     failedRefunded_one: 'Nous n’avons pas pu créer l’image. Ton crédit a été remboursé.',

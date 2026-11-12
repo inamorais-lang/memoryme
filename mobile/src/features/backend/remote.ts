@@ -11,9 +11,10 @@ import { BackendError, type Backend, type BackendErrorCode, type TranslationView
 
 const MAX_SIDE = 1536;
 const COLUMNS =
-  'id, status, personality_id, scene_id, image_path, phrase, custom_phrase, free_phrase_used, balloon_position, balloon_x, balloon_y, failure_reason, cost, head, prop, body, created_at';
+  'id, status, stage, personality_id, scene_id, image_path, phrase, custom_phrase, free_phrase_used, balloon_position, balloon_x, balloon_y, failure_reason, cost, head, prop, body, created_at';
 
 type Row = {
+  stage?: 'checking' | 'painting' | 'writing' | null;
   scene_id: string | null;
   id: string;
   status: TranslationView['status'];
@@ -79,6 +80,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
     return rows.map((r) => ({
       id: r.id,
       status: r.status,
+      stage: r.stage ?? undefined,
       personalityId: r.personality_id ?? undefined,
       sceneId: r.scene_id ?? undefined,
       imageUri: r.image_path ? urls.get(r.image_path) : undefined,

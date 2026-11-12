@@ -40,6 +40,8 @@ export type TranslationStatus = 'pending' | 'succeeded' | 'failed';
 export type TranslationView = {
   id: string;
   status: TranslationStatus;
+  /** While pending: the step the server is at (waiting screen). */
+  stage?: 'checking' | 'painting' | 'writing';
   /** Absent when no mode was chosen. */
   personalityId?: string;
   /** Scene chosen in step 1, if any. */

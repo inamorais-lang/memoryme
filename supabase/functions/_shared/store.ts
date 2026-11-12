@@ -65,6 +65,9 @@ export function supabaseStore(admin: SupabaseClient): Store {
       const { error } = await admin.storage.from('originals').remove([path]);
       if (error) throw new Error(`remove_original_${error.message}`);
     },
+    async setStage(generationId, stage) {
+      await admin.from('generations').update({ stage }).eq('id', generationId).eq('status', 'pending');
+    },
     async fail(generationId, reason) {
       const { data, error } = await admin.rpc('fail_generation', {
         p_generation_id: generationId,

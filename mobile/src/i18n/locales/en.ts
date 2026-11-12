@@ -80,6 +80,24 @@ const en: Strings = {
       'Putting the bubble in the right spot…',
     ],
     loadingHint: 'This can take up to a minute.',
+    wait: {
+      steps: {
+        checking: "Finding your pet…",
+        painting: "Dressing up and setting the scene…",
+        writing: "Writing what it thinks…",
+      },
+      done: {
+        checking: "Pet found!",
+        painting: "Picture ready!",
+        writing: "Line ready!",
+      },
+      jokes: {
+        checking: ["Counting the whiskers…", "Making sure it really is a pet…", "Asking your pet for permission…"],
+        painting: ["Your pet is refusing the hat. Negotiating…", "Picking the outfit. It’s very fussy…", "Brushing the fur for the photo…", "Setting the scene. It wants more light…", "Trying to make it sit still for two seconds…"],
+        writing: ["It has a lot to say. Picking the best bit…", "Translating meows and woofs…", "Cutting out the swear words…"],
+      },
+      hint: "Takes up to 1 minute. You can leave: the picture will be in “Your pictures”.",
+    },
     notAPet_one: "We couldn't find a cat or dog in this photo. Your credit was refunded.",
     notAPet_other: "We couldn't find a cat or dog in this photo. Your {{count}} credits were refunded.",
     failedRefunded_one: "We couldn't create the picture. Your credit was refunded.",

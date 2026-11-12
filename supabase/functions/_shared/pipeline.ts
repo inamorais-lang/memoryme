@@ -33,6 +33,8 @@ export interface Store {
   upload(bucket: 'generated', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
   finish(generationId: string, imagePath: string, phrase: string, head?: HeadBox, prop?: HeadBox, body?: HeadBox): Promise<boolean>;
   fail(generationId: string, reason: string): Promise<boolean>;
+  /** Waiting screen: which step the picture is at. Best effort, never fails the picture. */
+  setStage?(generationId: string, stage: 'painting' | 'writing'): Promise<void>;
   /** Privacy: the original photo is only needed to make the picture. */
   removeOriginal(path: string): Promise<void>;
 }
@@ -206,6 +208,7 @@ export async function runGeneration(
       appearance: check.appearance,
       petCount: check.petCount,
     };
+    await store.setStage?.(gen.id, 'painting').catch(() => {});
     let image;
     // Several pets: the fast model split the outfit between them and changed faces.
     if (faithfulImages && (prompts.faithful || check.smallMarkings || check.wearsClothes || (check.petCount ?? 1) > 1)) {
@@ -230,6 +233,7 @@ export async function runGeneration(
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
     await store.upload('generated', imagePath, image.bytes, image.contentType);
 
+    await store.setStage?.(gen.id, 'writing').catch(() => {});
     // The line is written last, looking at the final picture, so it matches what is really there.
     const phrase = await phrases.write({
       imageUrl: await store.signedUrl('generated', imagePath),

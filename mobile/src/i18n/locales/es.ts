@@ -80,6 +80,24 @@ const es: Strings = {
       'Colocando el bocadillo en su sitio…',
     ],
     loadingHint: 'Puede tardar hasta un minuto.',
+    wait: {
+      steps: {
+        checking: "Buscando a tu mascota…",
+        painting: "Vistiendo y preparando el escenario…",
+        writing: "Escribiendo lo que piensa…",
+      },
+      done: {
+        checking: "¡Mascota encontrada!",
+        painting: "¡Imagen lista!",
+        writing: "¡Frase lista!",
+      },
+      jokes: {
+        checking: ["Contando los bigotes…", "Comprobando que es una mascota…", "Pidiendo permiso a tu mascota…"],
+        painting: ["Tu mascota rechaza el sombrero. Negociando…", "Eligiendo la ropa. Es muy exigente…", "Peinando el pelo para la foto…", "Montando el escenario. Quiere más luz…", "Intentando que se quede quieta dos segundos…"],
+        writing: ["Tiene mucho que decir. Eligiendo lo mejor…", "Traduciendo maullidos y ladridos…", "Quitando las palabrotas…"],
+      },
+      hint: "Tarda hasta 1 minuto. Puedes salir: la imagen aparecerá en «Tus imágenes».",
+    },
     notAPet_one: 'No hemos encontrado ningún gato ni perro en esta foto. Te hemos devuelto el crédito.',
     notAPet_other: 'No hemos encontrado ningún gato ni perro en esta foto. Te hemos devuelto los {{count}} créditos.',
     failedRefunded_one: 'No hemos podido crear la imagen. Te hemos devuelto el crédito.',

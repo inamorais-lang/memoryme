@@ -480,3 +480,9 @@ Deno.test('two steps: the mode gives only its outfit (never its own place) when 
   assert.match(style, /wearing: a blue suit\./);
   assert.doesNotMatch(style, /corner office/);
 });
+
+Deno.test('several pets: all of them are dressed up and the line knows it', () => {
+  assert.match(imageEditPrompt('a pink wig', false, 'Two dogs.', 2), /There are 2 animals in this photo: style every one of them/);
+  assert.doesNotMatch(imageEditPrompt('a pink wig'), /animals in this photo/);
+  assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [], petCount: 2 }), /There are 2 pets in this picture/);
+});

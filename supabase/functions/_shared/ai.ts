@@ -19,6 +19,8 @@ export type PetCheck = {
   smallMarkings?: boolean;
   /** Clothes in the photo: the fast model keeps them (logos included), the faithful one takes them off. */
   wearsClothes?: boolean;
+  /** Cats and dogs in the photo; with more than one, all of them are dressed up. */
+  petCount?: number;
 };
 
 export type PhraseResult = { isPet: boolean; phrase: string; head?: HeadBox; prop?: HeadBox; body?: HeadBox };
@@ -42,12 +44,14 @@ export interface PhraseWriter {
     exclude: string[];
     sex?: PetSex;
     name?: string;
+    /** More than one pet in the picture. */
+    petCount?: number;
   }): Promise<PhraseResult>;
 }
 
 export interface ImageEditor {
   /** Returns the bytes of the restyled image. */
-  edit(args: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string }): Promise<{ bytes: Uint8Array; contentType: string }>;
+  edit(args: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string; petCount?: number }): Promise<{ bytes: Uint8Array; contentType: string }>;
 }
 
 // ───────────────────────── Claude (phrase + "is there a pet?") ─────────────────────────
@@ -211,6 +215,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
               appearance: { type: 'string' },
               small_markings: { type: 'boolean' },
               wears_clothes: { type: 'boolean' },
+              pet_count: { type: 'integer' },
               photo: {
                 type: 'object',
                 properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } },
@@ -218,7 +223,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 additionalProperties: false,
               },
             },
-            required: ['is_pet', 'appearance', 'small_markings', 'wears_clothes', 'photo'],
+            required: ['is_pet', 'appearance', 'small_markings', 'wears_clothes', 'pet_count', 'photo'],
             additionalProperties: false,
           },
         },
@@ -243,7 +248,9 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 'Markings are often asymmetric: say so. Then chest, paws, tail. ' +
                 'Set "small_markings" to true only if the face has a small spot, smudge or patch (on the nose, lips, muzzle or chin) ' +
                 'that an image editor could easily drop; false for plain faces and for simple symmetric patterns. ' +
-                'Set "wears_clothes" to true if the animal wears any clothing (jumper, hoodie, coat, costume, bandana), false otherwise.',
+                'Set "wears_clothes" to true if the animal wears any clothing (jumper, hoodie, coat, costume, bandana), false otherwise. ' +
+                'In "pet_count", give how many cats and dogs are clearly visible. If there are several, describe each one in "appearance" ' +
+                '(left to right, with its size compared to the others; max 140 words) and set the flags if any of them qualifies.',
             },
           ],
         },
@@ -255,13 +262,14 @@ export class ClaudePhraseWriter implements PhraseWriter {
     const data = JSON.parse(text.text);
     if (data.is_pet !== true) return { isPet: false };
     const photo = parseHead(data.photo);
-    const appearance = typeof data.appearance === 'string' ? data.appearance.replace(/\s+/g, ' ').trim().slice(0, 500) : '';
+    const appearance = typeof data.appearance === 'string' ? data.appearance.replace(/\s+/g, ' ').trim().slice(0, 900) : '';
     return {
       isPet: true,
       ...(photo ? { photo } : {}),
       ...(appearance ? { appearance } : {}),
       smallMarkings: data.small_markings === true,
       wearsClothes: data.wears_clothes === true,
+      petCount: Number.isInteger(data.pet_count) && data.pet_count > 1 ? Math.min(data.pet_count, 6) : 1,
     };
   }
 
@@ -296,7 +304,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
             { type: 'image', source: { type: 'url', url: args.imageUrl } },
             {
               type: 'text',
-              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name }), reminder]
+              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name, petCount: args.petCount }), reminder]
                 .filter(Boolean)
                 .join('\n\n'),
             },
@@ -398,7 +406,7 @@ export class FalImageEditor implements ImageEditor {
     private aspect: Aspect = '2:3',
   ) {}
 
-  async edit({ imageUrl, style, exaggerated = false, appearance }: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string }) {
+  async edit({ imageUrl, style, exaggerated = false, appearance, petCount }: { imageUrl: string; style: string; exaggerated?: boolean; appearance?: string; petCount?: number }) {
     const response = await this.fetchFn(`https://fal.run/${this.model}`, {
       method: 'POST',
       headers: {
@@ -408,7 +416,7 @@ export class FalImageEditor implements ImageEditor {
         'X-Fal-Store-IO': '0',
         'X-Fal-Object-Lifecycle-Preference': JSON.stringify({ expiration_duration_seconds: 3600 }),
       },
-      body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated, appearance), imageUrl, this.aspect)),
+      body: JSON.stringify(falInput(this.model, imageEditPrompt(style, exaggerated, appearance, petCount), imageUrl, this.aspect)),
       signal: AbortSignal.timeout(this.timeoutMs),
     });
     if (!response.ok) {

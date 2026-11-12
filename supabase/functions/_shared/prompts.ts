@@ -69,6 +69,8 @@ export function phraseUserPrompt(args: {
   sex?: PetSex;
   /** The pet's name, from the owner (data, never instructions). */
   name?: string;
+  /** More than one pet in the picture. */
+  petCount?: number;
 }): string {
   const lines = [
     `Mood: ${args.voice}`,
@@ -82,6 +84,11 @@ export function phraseUserPrompt(args: {
       args.sex === 'female'
         ? 'The pet is a female: when the language has grammatical gender, every word about the pet is feminine (e.g. cansada, la reina, fatiguée).'
         : 'The pet is a male: when the language has grammatical gender, every word about the pet is masculine (e.g. cansado, el rey, fatigué).',
+    );
+  }
+  if (args.petCount && args.petCount > 1) {
+    lines.push(
+      `There are ${args.petCount} pets in this picture. The line can speak for the whole gang ("we", "us") or be the thought of the biggest or most central one; "head" and "body" are for that main pet.`,
     );
   }
   if (args.name) {
@@ -111,7 +118,7 @@ export function customSceneStyle(description: string): string {
   return `${description} Change the whole setting to match; the pet is clearly doing this. Family-friendly.`;
 }
 
-export function imageEditPrompt(style: string, exaggerated = false, appearance?: string): string {
+export function imageEditPrompt(style: string, exaggerated = false, appearance?: string, petCount = 1): string {
   return [
     'Edit this photo of a pet.',
     // First: the fast model keeps the photo's clothes (e.g. a branded hoodie) unless told early.
@@ -119,6 +126,10 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
     // First, so the model weighs it most: it tends to "clean up" small markings as if they were dirt.
     ...(appearance ? [`This animal: ${appearance} Small dark spots and smudges on its face are real fur markings, not dirt: keep every one, same size and same place.`] : []),
     `Style: ${style}`,
+    // Without this only one pet was dressed up and the others stayed plain.
+    ...(petCount > 1
+      ? [`There are ${petCount} animals in this photo: style every one of them. Each one wears the COMPLETE outfit described in the style (every item, the same look on each, sized to fit it), never split between them, and fits the scene, keeping its own species, breed, size, fur and markings (a puppy stays a puppy next to an adult). Keep all of them in the picture, side by side; none is left out, merged or duplicated. Every rule below applies to each animal.`]
+      : []),
     'Keep the exact same animal fully recognisable: same species, breed, size, fur colours, markings, eye colour and face shape. Keep its real anatomy: exactly four legs and four paws, never an extra leg or paw (if it holds something, one of its two front paws holds it and that paw is not also on the ground; when it wears boots or shoes, put them only on paws that touch the ground), one tail, two ears; a cat keeps a short cat muzzle and cat teeth, never a dog-like snout or grin. Keep its real size, build and age: a large adult dog stays a big, sturdy adult dog, clearly large next to the furniture and props, never puppy-sized or miniature. Keep the body in the same proportion to the head as in the photo, never a small body under a big head, with a natural belly, never swollen or pregnant-looking; furniture is scaled to the animal, so a big dog fills a chair or sofa.',
     // Belly-up poses showed a male dog's genitals. Worded softly: explicit words trip the image model's safety filter.
     'A wholesome, family-friendly picture: the lower belly between the hind legs stays naturally covered by fluffy fur, a leg, the tail or the outfit.',

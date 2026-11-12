@@ -195,9 +195,11 @@ export async function runGeneration(
       style,
       exaggerated: prompts.exaggerated,
       appearance: check.appearance,
+      petCount: check.petCount,
     };
     let image;
-    if (faithfulImages && (prompts.faithful || check.smallMarkings || check.wearsClothes)) {
+    // Several pets: the fast model split the outfit between them and changed faces.
+    if (faithfulImages && (prompts.faithful || check.smallMarkings || check.wearsClothes || (check.petCount ?? 1) > 1)) {
       try {
         image = await faithfulImages.edit(request);
       } catch (error) {
@@ -229,6 +231,7 @@ export async function runGeneration(
       exclude: [],
       sex: gen.petSex,
       name: gen.petName,
+      petCount: check.petCount,
     });
     if (!phrase.phrase) throw new Error(phrase.isPet ? 'phrase_empty' : 'phrase_no_pet');
 

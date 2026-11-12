@@ -43,16 +43,9 @@ export function HomeShowcase() {
           contentFit="cover"
           transition={350}
         />
-        <View style={styles.balloon}>
-          <ThoughtBalloon
-            text={lines[index % lines.length]}
-            scale={0.62}
-            tint={index}
-            trail={false}
-          />
-        </View>
         <View style={styles.watermark} pointerEvents="none">
           <AppText
+            numberOfLines={1}
             variant="small"
             color={colors.onPrimary}
             style={styles.watermarkText}
@@ -60,6 +53,14 @@ export function HomeShowcase() {
             {t("result.watermark")}
           </AppText>
         </View>
+      </View>
+      {/* Above the picture, never on the pet (product owner). */}
+      <View style={styles.balloon}>
+        <ThoughtBalloon
+          text={lines[index % lines.length]}
+          scale={0.55}
+          tint={index}
+        />
       </View>
       <View style={styles.dots}>
         {PICTURES.map((_, i) => (
@@ -81,12 +82,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inkFaint,
     boxShadow: shadow.md,
     transform: [{ rotate: "-2deg" }],
+    marginTop: space.xxxl,
   },
   balloon: {
     position: "absolute",
-    top: space.sm,
-    left: space.sm,
-    right: space.sm,
+    top: 0,
+    left: space.xl,
+    right: space.xl,
   },
   watermark: {
     position: "absolute",
@@ -97,7 +99,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.overlay,
   },
-  watermarkText: { fontSize: 9, lineHeight: 12 },
+  watermarkText: { fontSize: 8, lineHeight: 11 },
   dots: { flexDirection: "row", gap: space.xs },
   dot: {
     width: space.xs + space.xxs,

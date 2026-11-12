@@ -94,7 +94,7 @@ export default function PersonalityScreen() {
   const choice = draft.choice;
   const customText = draft.customScene.replace(/\s+/g, " ").trim();
   const isCustom = choice?.kind === "custom";
-  const cost = isCustom ? 2 : 1;
+  const cost = 1;
   const ready =
     choice !== null &&
     (!isCustom || customText.length >= CUSTOM_SCENE_MIN) &&

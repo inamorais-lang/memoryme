@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.secondary,
   },
-  hero: { flex: 1, gap: space.md, paddingVertical: space.lg },
+  hero: { flex: 1, gap: space.sm, paddingTop: space.md, paddingBottom: space.md },
   actions: { gap: space.md },
   highlight: { backgroundColor: colors.secondary },
 });

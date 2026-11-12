@@ -87,23 +87,19 @@ select test.check(true, 'free phrase only once');
 select public.set_phrase((select id from ok), 'Frase 2');
 select test.check((select phrase = 'Frase 2' and shown_phrases = array['Frase 1', 'Frase 2'] from public.generations where id = (select id from ok)), 'new phrase saved and remembered');
 
--- Custom scene: costs 2 credits and refunds 2.
+-- Custom scene ("Criar o teu modo"): costs 1 credit like any picture and refunds 1.
 select public.grant_credits('bbbbbbbb-0000-0000-0000-000000000002', 3);
 create temp table cs (id uuid);
 grant all on cs to service_role, authenticated;
 insert into cs select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/s.jpg', 'a surfar uma onda gigante');
-select test.check((select credits = 1 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'custom scene costs 2 credits');
-select test.check((select delta = -2 from public.credit_ledger where generation_id = (select id from cs)), 'ledger records -2');
-select test.expect_error(
-  $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/t.jpg', 'astronauta na lua')$$,
-  'insufficient_credits');
-select test.check(true, 'custom scene needs 2 credits (1 is not enough)');
+select test.check((select credits = 2 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'custom scene costs 1 credit');
+select test.check((select delta = -1 from public.credit_ledger where generation_id = (select id from cs)), 'ledger records -1');
 select test.expect_error(
   $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/t.jpg', repeat('x', 81))$$,
   'invalid_scene');
 select test.check(true, 'custom scene is limited to 80 characters');
 select test.check(public.fail_generation((select id from cs), 'scene_rejected'), 'fail the custom scene');
-select test.check((select credits = 3 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'failed custom scene refunds 2 credits');
+select test.check((select credits = 3 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'failed custom scene refunds its credit');
 
 -- Preset scenes cost 1 credit; unknown scenes or both kinds at once are refused.
 insert into cs select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', 'pt-diva', 'bbbbbbbb-0000-0000-0000-000000000002/u.jpg', null, 'pt-sorriso');
@@ -126,9 +122,9 @@ grant all on pl to service_role, authenticated;
 insert into pl select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/w.jpg', null, 'pt-praia', 'pt-oculos');
 select test.check((select personality_id is null and scene_id = 'pt-praia' and comic_id = 'pt-oculos' and cost = 1 from public.generations where id = (select id from pl)), 'a place scene without a mode, plus a funny extra, costs 1 credit');
 insert into pl select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/x.jpg', 'no espaço', null, 'pt-narigudo', 'fr');
-select test.check((select count(*) = 1 from public.generations where custom_scene = 'no espaço' and comic_id = 'pt-narigudo' and language = 'fr' and cost = 2), 'a custom scene without a mode, plus a funny extra, costs 2 credits');
--- 3 + 3 granted (one older pending test picture expired and was refunded), minus 1 and 2.
-select test.check((select credits = 3 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'the funny extra is free');
+select test.check((select count(*) = 1 from public.generations where custom_scene = 'no espaço' and comic_id = 'pt-narigudo' and language = 'fr' and cost = 1), 'a custom scene without a mode, plus a funny extra, costs 1 credit');
+-- 3 + 3 granted (one older pending test picture expired and was refunded), minus 1 and 1.
+select test.check((select credits = 4 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'the funny extra is free');
 select test.expect_error(
   $$select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/y.jpg')$$,
   'unknown_personality');

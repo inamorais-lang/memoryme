@@ -9,8 +9,10 @@ export type SceneInfo = {
   id: string;
   name: string;
   kind: 'place' | 'comic';
-  /** e.g. 'natal': shown as its own group at the top. */
+  /** 'natal' (one "Natal" mode picks one at random) or 'trend' (🔥 Em alta). */
   category?: string | null;
+  /** One line under the name, like the modes. */
+  tagline?: string | null;
 };
 
 /**
@@ -25,6 +27,8 @@ export type TranslationChoice = {
   comicId?: string;
   /** Optional, from the owner, for the line only. */
   petSex?: 'male' | 'female';
+  /** Aniversário: who the pet wishes a happy birthday to (optional). */
+  recipientName?: string;
 };
 
 /** Limits of a scene typed by the user (also enforced in the database). */

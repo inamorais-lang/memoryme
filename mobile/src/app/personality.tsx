@@ -37,9 +37,8 @@ import {
 } from "@/features/backend";
 import { hasAiConsent } from "@/features/consent/aiConsent";
 import {
-  type ModeChoice,
-  type PlaceChoice,
   pickRandom,
+  type StyleChoice,
   useDraft,
 } from "@/features/draft/DraftContext";
 import {
@@ -50,6 +49,22 @@ import {
 } from "@/features/pet/petProfile";
 import { currentLanguage, currentMarket } from "@/i18n";
 
+/** Birthday person's name: same limit as on the server. */
+const RECIPIENT_MAX = 20;
+const isBirthday = (id: string) => id.endsWith("-aniversario");
+
+type Card = {
+  key: string;
+  name: string;
+  tagline: string;
+  choice: StyleChoice;
+};
+
+/**
+ * One list of modes, one choice (product owner's decision): surprise, trending topics,
+ * Natal (a Christmas scene at random), the scenes shown as modes (Compras, Aniversário,
+ * Praia…), the characters (Diva, Chefe…) and "Criar o teu modo".
+ */
 export default function PersonalityScreen() {
   const { t } = useTranslation();
   const draft = useDraft();
@@ -73,33 +88,77 @@ export default function PersonalityScreen() {
       .catch(() => setScenes([]));
   }, []);
 
-  const customText = draft.customScene.replace(/\s+/g, " ").trim();
-  const place = draft.place;
-  const mode = draft.mode;
-  const isCustom = place?.kind === "custom";
-  const cost = isCustom ? 2 : 1;
-  const comics = scenes.filter((s) => s.kind === "comic");
-  const placeScenes = scenes.filter((s) => s.kind === "place");
-  // Without the server there are no scenes: only the mode is chosen.
-  const needsPlace = placeScenes.length > 0;
-  const placeReady =
-    !needsPlace ||
-    (place !== null && (!isCustom || customText.length >= CUSTOM_SCENE_MIN));
-  const ready = placeReady && mode !== null && !!list?.length;
-  const ofCategory = (category: string | null) =>
-    placeScenes.filter((s) =>
-      category === null
-        ? s.category !== "natal" && s.category !== "trend"
-        : s.category === category,
-    );
   function chooseSex(sex: PetSex | undefined) {
     const next = { ...pet, sex };
     setPet(next);
     savePetProfile(next);
   }
 
+  const choice = draft.choice;
+  const customText = draft.customScene.replace(/\s+/g, " ").trim();
+  const isCustom = choice?.kind === "custom";
+  const cost = isCustom ? 2 : 1;
+  const ready =
+    choice !== null &&
+    (!isCustom || customText.length >= CUSTOM_SCENE_MIN) &&
+    !!list?.length;
+  const comics = scenes.filter((s) => s.kind === "comic");
+  const places = scenes.filter((s) => s.kind === "place");
+  const trending = places.filter((s) => s.category === "trend");
+  const christmas = places.filter((s) => s.category === "natal");
+  const others = places.filter(
+    (s) => s.category !== "trend" && s.category !== "natal",
+  );
+
+  const cards: Card[] = [
+    {
+      key: "surprise",
+      name: t("personality.surprise"),
+      tagline: t("personality.surpriseTagline"),
+      choice: { kind: "surprise" },
+    },
+    ...trending.map((s) => ({
+      key: s.id,
+      name: s.name,
+      tagline: s.tagline ?? t("personality.trendTagline"),
+      choice: { kind: "scene", id: s.id } as StyleChoice,
+    })),
+    ...(christmas.length > 0
+      ? [
+          {
+            key: "natal",
+            name: t("personality.natal"),
+            tagline: t("personality.natalTagline"),
+            choice: { kind: "natal" } as StyleChoice,
+          },
+        ]
+      : []),
+    ...others.map((s) => ({
+      key: s.id,
+      name: s.name,
+      tagline: s.tagline ?? "",
+      choice: { kind: "scene", id: s.id } as StyleChoice,
+    })),
+    ...(list ?? []).map((p) => ({
+      key: p.id,
+      name: p.name,
+      tagline: p.tagline,
+      choice: { kind: "mode", id: p.id } as StyleChoice,
+    })),
+    ...(scenes.length > 0
+      ? [
+          {
+            key: "custom",
+            name: t("personality.custom"),
+            tagline: t("personality.customTagline"),
+            choice: { kind: "custom" } as StyleChoice,
+          },
+        ]
+      : []),
+  ];
+
   const start = useCallback(async () => {
-    if (!draft.photo || !mode || !list?.length || !placeReady) return;
+    if (!draft.photo || !choice || !ready) return;
     // The photo goes to third-party AI services: ask once, before anything is uploaded.
     if (backend.mode === "remote" && !(await hasAiConsent())) {
       waitingForConsent.current = true;
@@ -111,19 +170,25 @@ export default function PersonalityScreen() {
       router.push("/sign-in");
       return;
     }
-    // "Surpreende-me": settled now, so the result shows what came out.
-    const personalityId = mode.kind === "mode" ? mode.id : pickRandom(list)!.id;
-    let sceneId: string | undefined;
-    if (place?.kind === "scene") sceneId = place.id;
-    if (place?.kind === "surprise") {
-      const options = scenes.filter((s) => s.kind === "place");
-      // "Its usual spot" is one of the surprises too.
-      sceneId = pickRandom([...options.map((s) => s.id), undefined]);
+    // "Surpreende-me" and "Natal" are settled now, so the result shows what came out.
+    let picked: StyleChoice = choice;
+    if (picked.kind === "surprise") {
+      const options = cards
+        .map((c) => c.choice)
+        .filter((c) => c.kind !== "surprise" && c.kind !== "custom");
+      picked = pickRandom(options) ?? { kind: "mode", id: list![0].id };
     }
+    if (picked.kind === "natal") {
+      picked = { kind: "scene", id: pickRandom(christmas)!.id };
+    }
+    const recipient = draft.recipient.replace(/\s+/g, " ").trim();
     const request: TranslationChoice = {
-      personalityId,
-      ...(sceneId ? { sceneId } : {}),
-      ...(isCustom ? { customScene: customText } : {}),
+      ...(picked.kind === "mode" ? { personalityId: picked.id } : {}),
+      ...(picked.kind === "scene" ? { sceneId: picked.id } : {}),
+      ...(picked.kind === "custom" ? { customScene: customText } : {}),
+      ...(picked.kind === "scene" && isBirthday(picked.id) && recipient
+        ? { recipientName: recipient }
+        : {}),
       ...(draft.comicId ? { comicId: draft.comicId } : {}),
       ...(pet.sex ? { petSex: pet.sex } : {}),
     };
@@ -144,20 +209,9 @@ export default function PersonalityScreen() {
       setStarting(false);
       auth.refreshCredits();
     }
-  }, [
-    draft.photo,
-    draft.comicId,
-    mode,
-    place,
-    list,
-    scenes,
-    placeReady,
-    isCustom,
-    customText,
-    pet,
-    auth,
-    t,
-  ]);
+    // `cards` and `christmas` are rebuilt from `list` and `scenes` on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, choice, ready, list, scenes, customText, pet, auth, t]);
 
   // Coming back from the AI consent screen: carry on only if the person accepted.
   useFocusEffect(
@@ -180,42 +234,19 @@ export default function PersonalityScreen() {
 
   if (!draft.photo) return <Redirect href="/" />;
 
-  function selectPlace(next: PlaceChoice) {
+  function select(next: StyleChoice) {
     if (Platform.OS !== "web") Haptics.selectionAsync();
-    draft.setPlace(next);
+    draft.setChoice(next);
   }
-  function select(next: ModeChoice) {
-    if (Platform.OS !== "web") Haptics.selectionAsync();
-    draft.setMode(next);
-  }
-  const cards: {
-    id: string;
-    name: string;
-    tagline: string;
-    choice: ModeChoice;
-  }[] = [
-    {
-      id: "surprise",
-      name: t("personality.surprise"),
-      tagline: t("personality.surpriseTagline"),
-      choice: { kind: "surprise" },
-    },
-    ...(list ?? []).map((p) => ({
-      id: p.id,
-      name: p.name,
-      tagline: p.tagline,
-      choice: { kind: "mode", id: p.id } as ModeChoice,
-    })),
-  ];
-  const isSelected = (c: ModeChoice) =>
-    mode?.kind === c.kind &&
-    (c.kind === "surprise" || (mode.kind === "mode" && mode.id === c.id));
+  const isSelected = (c: StyleChoice) =>
+    choice?.kind === c.kind &&
+    (!("id" in c) || ("id" in choice && choice.id === c.id));
 
   return (
     <Screen
       footer={
         <View style={styles.footer}>
-          {mode && comics.length > 0 ? (
+          {choice && comics.length > 0 ? (
             <View style={styles.comics}>
               <AppText variant="smallStrong">{t("scene.comicTitle")}</AppText>
               <ScrollView
@@ -244,13 +275,11 @@ export default function PersonalityScreen() {
           <Button
             testID="translate"
             label={
-              needsPlace && !place
-                ? t("place.pickFirst")
-                : !placeReady
+              !choice
+                ? t("personality.pickFirst")
+                : isCustom && customText.length < CUSTOM_SCENE_MIN
                   ? t("scene.tooShort")
-                  : !mode
-                    ? t("personality.pickFirst")
-                    : t("personality.translate", { count: cost })
+                  : t("personality.translate", { count: cost })
             }
             disabled={!ready}
             loading={starting}
@@ -296,90 +325,6 @@ export default function PersonalityScreen() {
         />
       </View>
 
-      {needsPlace ? (
-        <View style={styles.section}>
-          <AppText variant="title">{t("place.step")}</AppText>
-          <View style={styles.chips}>
-            <Chip
-              testID="place-surprise"
-              label={t("place.surprise")}
-              selected={place?.kind === "surprise"}
-              onPress={() => selectPlace({ kind: "surprise" })}
-            />
-            <Chip
-              testID="place-home"
-              label={t("place.home")}
-              selected={place?.kind === "home"}
-              onPress={() => selectPlace({ kind: "home" })}
-            />
-          </View>
-          {[
-            {
-              key: "trend",
-              title: t("scene.trending"),
-              items: ofCategory("trend"),
-            },
-            {
-              key: "natal",
-              title: t("scene.christmas"),
-              items: ofCategory("natal"),
-            },
-            {
-              key: "places",
-              title: t("scene.places"),
-              items: ofCategory(null),
-            },
-          ].map((g) =>
-            g.items.length > 0 || g.key === "places" ? (
-              <View key={g.key} style={styles.group}>
-                <AppText variant="heading">{g.title}</AppText>
-                <View style={styles.chips}>
-                  {g.items.map((s) => (
-                    <Chip
-                      key={s.id}
-                      testID={`scene-${s.id}`}
-                      label={s.name}
-                      selected={place?.kind === "scene" && place.id === s.id}
-                      onPress={() => selectPlace({ kind: "scene", id: s.id })}
-                    />
-                  ))}
-                  {g.key === "places" ? (
-                    <Chip
-                      testID="scene-custom"
-                      label={t("scene.custom")}
-                      selected={isCustom}
-                      onPress={() => selectPlace({ kind: "custom" })}
-                    />
-                  ) : null}
-                </View>
-              </View>
-            ) : null,
-          )}
-          {isCustom ? (
-            <View style={styles.group}>
-              <AppText variant="small" color={colors.inkMuted}>
-                {t("scene.customHint")}
-              </AppText>
-              <TextField
-                testID="custom-scene"
-                value={draft.customScene}
-                onChangeText={draft.setCustomScene}
-                placeholder={t("scene.customPlaceholder")}
-                maxLength={CUSTOM_SCENE_MAX}
-                counterLabel={t("result.charsLeft", {
-                  count: CUSTOM_SCENE_MAX - draft.customScene.length,
-                })}
-                returnKeyType="done"
-                autoFocus
-              />
-            </View>
-          ) : null}
-        </View>
-      ) : null}
-
-      {needsPlace ? (
-        <AppText variant="title">{t("personality.step")}</AppText>
-      ) : null}
       {list === null ? <ActivityIndicator color={colors.ink} /> : null}
       {list?.length === 0 ? (
         <AppText color={colors.inkMuted}>{t("result.network")}</AppText>
@@ -389,38 +334,81 @@ export default function PersonalityScreen() {
         {list?.length
           ? cards.map((c, index) => {
               const selected = isSelected(c.choice);
+              const birthday =
+                selected &&
+                c.choice.kind === "scene" &&
+                isBirthday(c.choice.id);
+              const custom = selected && c.choice.kind === "custom";
               return (
-                <Pressable
-                  key={c.id}
-                  testID={`personality-${c.id}`}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected }}
-                  accessibilityLabel={`${c.name}. ${c.tagline}`}
-                  onPress={() => select(c.choice)}
-                  style={({ pressed }) => [
-                    styles.card,
-                    {
-                      backgroundColor:
-                        index === 0
-                          ? colors.surface
-                          : colors.accents[(index - 1) % colors.accents.length],
-                    },
-                    selected && styles.cardSelected,
-                    pressed && styles.cardPressed,
-                  ]}
-                >
-                  <AppText variant="heading">{c.name}</AppText>
-                  <AppText variant="small" color={colors.ink}>
-                    {c.tagline}
-                  </AppText>
-                  {selected ? (
-                    <View style={styles.badge}>
-                      <AppText variant="smallStrong" color={colors.onPrimary}>
-                        {t("personality.selected")}
+                <View key={c.key} style={styles.cardBlock}>
+                  <Pressable
+                    testID={`personality-${c.key}`}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`${c.name}. ${c.tagline}`}
+                    onPress={() => select(c.choice)}
+                    style={({ pressed }) => [
+                      styles.card,
+                      {
+                        backgroundColor:
+                          c.choice.kind === "surprise" ||
+                          c.choice.kind === "custom"
+                            ? colors.surface
+                            : colors.accents[index % colors.accents.length],
+                      },
+                      selected && styles.cardSelected,
+                      pressed && styles.cardPressed,
+                    ]}
+                  >
+                    <AppText variant="heading">{c.name}</AppText>
+                    {c.tagline ? (
+                      <AppText variant="small" color={colors.ink}>
+                        {c.tagline}
                       </AppText>
+                    ) : null}
+                    {selected ? (
+                      <View style={styles.badge}>
+                        <AppText variant="smallStrong" color={colors.onPrimary}>
+                          {t("personality.selected")}
+                        </AppText>
+                      </View>
+                    ) : null}
+                  </Pressable>
+                  {birthday ? (
+                    <View style={styles.extra}>
+                      <AppText variant="small" color={colors.inkMuted}>
+                        {t("personality.recipientLabel")}
+                      </AppText>
+                      <TextField
+                        testID="recipient"
+                        value={draft.recipient}
+                        onChangeText={draft.setRecipient}
+                        placeholder={t("personality.recipientPlaceholder")}
+                        maxLength={RECIPIENT_MAX}
+                        returnKeyType="done"
+                      />
                     </View>
                   ) : null}
-                </Pressable>
+                  {custom ? (
+                    <View style={styles.extra}>
+                      <AppText variant="small" color={colors.inkMuted}>
+                        {t("scene.customHint")}
+                      </AppText>
+                      <TextField
+                        testID="custom-scene"
+                        value={draft.customScene}
+                        onChangeText={draft.setCustomScene}
+                        placeholder={t("scene.customPlaceholder")}
+                        maxLength={CUSTOM_SCENE_MAX}
+                        counterLabel={t("result.charsLeft", {
+                          count: CUSTOM_SCENE_MAX - draft.customScene.length,
+                        })}
+                        returnKeyType="done"
+                        autoFocus
+                      />
+                    </View>
+                  ) : null}
+                </View>
               );
             })
           : null}
@@ -440,7 +428,6 @@ const styles = StyleSheet.create({
   },
   headerText: { flex: 1, gap: space.xs },
   group: { gap: space.md },
-  section: { gap: space.lg },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
   footer: { gap: space.md },
   comics: { gap: space.sm },
@@ -449,6 +436,7 @@ const styles = StyleSheet.create({
     paddingVertical: space.xxs,
     paddingHorizontal: space.xxs,
   },
+  cardBlock: { gap: space.sm },
   card: {
     padding: space.lg,
     gap: space.xs,
@@ -462,6 +450,7 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.02 }],
   },
   cardPressed: { opacity: 0.85 },
+  extra: { gap: space.sm, paddingHorizontal: space.xs },
   badge: {
     alignSelf: "flex-start",
     marginTop: space.xs,

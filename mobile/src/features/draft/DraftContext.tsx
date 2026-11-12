@@ -3,30 +3,34 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 import type { PickedPhoto } from '@/lib/photos';
 
 /**
- * Step 1, where the pet is: a scene (Natal, beach…), one typed by the person,
- * "at home" (no scene: the mode's own place) or a surprise.
+ * Everything is a "Modo" (product owner's decision): one list, one choice.
+ * A mode (Diva, Chefe…), a scene shown as a mode (Compras, Aniversário, Praia…),
+ * "Natal" (one Christmas scene at random), one typed by the person, or a surprise.
  */
-export type PlaceChoice = { kind: 'surprise' } | { kind: 'home' } | { kind: 'scene'; id: string } | { kind: 'custom' };
-
-/** Step 2, the pet's mode, or a surprise. */
-export type ModeChoice = { kind: 'surprise' } | { kind: 'mode'; id: string };
+export type StyleChoice =
+  | { kind: 'surprise' }
+  | { kind: 'mode'; id: string }
+  | { kind: 'scene'; id: string }
+  | { kind: 'natal' }
+  | { kind: 'custom' };
 
 /** The photo and choices made before a translation exists. */
 type Draft = {
   photo: PickedPhoto | null;
-  place: PlaceChoice | null;
-  mode: ModeChoice | null;
+  choice: StyleChoice | null;
+  /** Aniversário: who the pet wishes a happy birthday to (optional). */
+  recipient: string;
   /** Optional funny extra (glasses, big nose…), free. */
   comicId: string | null;
   customScene: string;
 };
 
-const EMPTY: Draft = { photo: null, place: null, mode: null, comicId: null, customScene: '' };
+const EMPTY: Draft = { photo: null, choice: null, recipient: '', comicId: null, customScene: '' };
 
 type DraftApi = Draft & {
   setPhoto(photo: PickedPhoto): void;
-  setPlace(place: PlaceChoice): void;
-  setMode(mode: ModeChoice): void;
+  setChoice(choice: StyleChoice): void;
+  setRecipient(name: string): void;
   setComic(id: string | null): void;
   setCustomScene(text: string): void;
   reset(): void;
@@ -40,8 +44,8 @@ export function DraftProvider({ children }: { children: ReactNode }) {
   const api: DraftApi = {
     ...draft,
     setPhoto: (photo) => setDraft((d) => ({ ...d, photo })),
-    setPlace: (place) => setDraft((d) => ({ ...d, place })),
-    setMode: (mode) => setDraft((d) => ({ ...d, mode })),
+    setChoice: (choice) => setDraft((d) => ({ ...d, choice })),
+    setRecipient: (recipient) => setDraft((d) => ({ ...d, recipient })),
     setComic: (comicId) => setDraft((d) => ({ ...d, comicId })),
     setCustomScene: (customScene) => setDraft((d) => ({ ...d, customScene })),
     reset: () => setDraft(EMPTY),

@@ -517,3 +517,8 @@ Deno.test('starred lines from users are style examples for the AI', async () => 
   );
   assert.deepEqual(got, ['Sofá meu.']);
 });
+
+Deno.test('birthday: the line wishes a happy birthday to the name the owner typed', () => {
+  assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [], recipient: 'Rita' }), /happy birthday to <name>Rita<\/name>/);
+  assert.doesNotMatch(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [] }), /happy birthday to/);
+});

@@ -48,6 +48,8 @@ export interface PhraseWriter {
     petCount?: number;
     /** Lines people loved: imitate their style, never copy them. */
     examples?: string[];
+    /** Aniversário: the birthday person's name. */
+    recipient?: string;
   }): Promise<PhraseResult>;
 }
 
@@ -308,7 +310,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
             { type: 'image', source: { type: 'url', url: args.imageUrl } },
             {
               type: 'text',
-              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name, petCount: args.petCount, examples: args.examples }), reminder]
+              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name, petCount: args.petCount, examples: args.examples, recipient: args.recipient }), reminder]
                 .filter(Boolean)
                 .join('\n\n'),
             },

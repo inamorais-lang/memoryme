@@ -134,7 +134,7 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
     async listScenes(language, market) {
       const { data, error } = await supabase
         .from('scenes')
-        .select('id, name, kind, category')
+        .select('id, name, kind, category, tagline')
         .eq('language', language)
         .or(`markets.is.null,markets.cs.{${market}}`)
         .order('sort_order');

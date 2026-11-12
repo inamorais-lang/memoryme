@@ -60,6 +60,8 @@ export type Generation = {
   /** From the owner, for the line only (grammatical gender, the pet's name). */
   petSex?: PetSex;
   petName?: string;
+  /** Aniversário: who the pet wishes a happy birthday to (typed by the owner). */
+  recipientName?: string;
 };
 
 export type Choice = {
@@ -246,6 +248,7 @@ export async function runGeneration(
       exclude: [],
       sex: gen.petSex,
       name: gen.petName,
+      recipient: gen.recipientName,
       petCount: check.petCount,
       examples: await (store.phraseExamples?.(prompts.language) ?? Promise.resolve([])).catch(() => []),
     });

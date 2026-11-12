@@ -1,5 +1,5 @@
 // POST { originalPath, aiConsent: true, personalityId? | sceneId? | customScene?, comicId?, language?, spelling?: 'GB' | 'US',
-//        petSex?: 'male' | 'female', petName? } → 202 { generationId }
+//        petSex?: 'male' | 'female', petName?, recipientName? (Aniversário: who the pet wishes a happy birthday to) } → 202 { generationId }
 // One choice (a mode, a place scene or a custom scene) plus an optional funny extra (comicId, free).
 // customScene ("Criar cenário", 3–80 chars) costs 2 credits instead of 1.
 // Spends 1 credit on the server (atomic, rate limited), then makes the image
@@ -37,6 +37,7 @@ export default {
     const spelling = body?.spelling === 'US' || body?.spelling === 'GB' ? body.spelling : undefined;
     const petSex = body?.petSex === 'male' || body?.petSex === 'female' ? body.petSex : undefined;
     const petName = cleanPetName(body?.petName);
+    const recipientName = cleanPetName(body?.recipientName);
     const customScene = typeof rawScene === 'string' ? rawScene.replace(/\s+/g, ' ').trim() || undefined : undefined;
 
     // Build the AI clients first: a missing secret must fail before a credit is spent.
@@ -71,17 +72,17 @@ export default {
       .update({ ai_consent_at: new Date().toISOString() })
       .eq('id', userId)
       .is('ai_consent_at', null);
-    if (spelling || petSex || petName) {
+    if (spelling || petSex || petName || recipientName) {
       await ctx.supabaseAdmin
         .from('generations')
-        .update({ spelling, pet_sex: petSex ?? null, pet_name: petName ?? null })
+        .update({ spelling, pet_sex: petSex ?? null, pet_name: petName ?? null, recipient_name: recipientName ?? null })
         .eq('id', generationId);
     }
 
     EdgeRuntime.waitUntil(
       runGeneration(
         { store: supabaseStore(ctx.supabaseAdmin), phrases, images, faithfulImages, crop: (url, photo) => cropToPhoto(url, photo) },
-        { id: generationId, userId, personalityId, originalPath, sceneId, customScene, comicId, language, spelling, petSex, petName },
+        { id: generationId, userId, personalityId, originalPath, sceneId, customScene, comicId, language, spelling, petSex, petName, recipientName },
       ),
     );
     return json({ generationId }, 202);

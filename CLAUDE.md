@@ -31,7 +31,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | "Tema do momento" (🔥 Em alta, no topo do ecrã de escolha): a dona escreve o tema na página de admin; `admin-trends` → Claude (`describeTrend`) recusa pessoas reais, marcas, política e tragédias e cria nome (4 línguas), cenário e tom de frase; guardado em `scenes` com `category = 'trend'` (ids `xx-trend-xxxxxx`) e `markets` (países escolhidos; a app só mostra os do país da pessoa, `listScenes(language, market)`), 1 crédito; "Terminar" põe `active = false`. Temas escolhidos à mão, nunca automáticos | Decisão do dono do produto: ir à boleia do que é viral sem riscos |
 | Saldo de créditos só no servidor; validação própria das transações da Apple | O Superwall não guarda saldos de consumíveis |
 | Personalidades configuradas no servidor (a partir da Fase 2) | Afinar sem lançar uma nova versão |
-| Escolha de **cenário + modo numa só página** (`app/personality.tsx`, "Como está o teu patudo hoje?"; pedido do dono do produto, mais combinações = mais consumo; comparou com uma lista única de "Estilos" e preferiu esta): macho/fêmea, 1 · Onde está?: 🎲 Surpreende-me, 🏠 No sítio dele (sem cenário: fica o sítio do modo), 🔥 Em alta, Natal (`category = 'natal'`; esconder em janeiro com `active = false`), Lugares (Praia, Snowboard, "Criar cenário" 3–80 caracteres a 2 créditos); 2 · Em que modo?: 🎲 Surpreende-me + 18 modos + "Toque engraçado" opcional e grátis (`kind = 'comic'`: sorriso natural, olhos arregalados, óculos, cabelo novo, narigudo, pose ridícula; `addon_prompt`). O "Surpreende-me" é sorteado na app ao criar (o cenário pode sair "No sítio dele"); o resultado mostra "Modo · Cenário". Cenário + modo: o cenário dá o sítio e a pose, o modo só a roupa/acessório/atitude (`personalities.outfit_prompt`, `outfit_prompt_male`; o `image_prompt` completo trazia o sítio do modo e ganhava ao cenário) e o tom da frase (`combinedStyle`/`combinedVoice` em `pipeline.ts`). Sem servidor (modo local) só aparece o modo | Pedido do dono do produto |
+| **Tudo é "Modo"** (decisão do dono do produto; substitui as escolhas "onde está" + "modo"): uma só lista em `app/personality.tsx` ("Em que modo está o teu patudo hoje?"), uma só escolha: 🎲 Surpreende-me (sorteia um modo da lista na app) → 🔥 temas do momento (`category = 'trend'`) → 🎄 Natal (um cartão; sorteia uma das cenas `category = 'natal'`; esconder em janeiro com `active = false`) → cenas como modos com `scenes.tagline` (Compras `xx-compras`, todo o ano, ex-Black Friday; Aniversário `xx-aniversario`, decoração mista, com "Para quem são os parabéns? (opcional)" → `recipientName` → `generations.recipient_name`, a frase usa o nome; Dia de praia; Snowboard) → as personagens (`personalities`) → ✏️ Criar o teu modo (2 créditos). "Toque engraçado" opcional e grátis por baixo. O servidor ainda aceita cenário + modo juntos (`combinedStyle`), mas a app já não os junta | Pedido do dono do produto: mais simples |
 | Sem modo "Exagerado" (testado e retirado: pilhas de objetos confusas). Em vez disso, todas as imagens têm cara mais cómica (natural para a espécie), 2–3 dos objetos da própria cena e cores vivas | Decisão do dono do produto |
 | Idade mínima 16 anos (consentimento RGPD para a IA sem pais em PT, ES, FR, Reino Unido; acima dos 13 dos EUA) | Decisão do dono do produto |
 | 5 línguas: PT-PT, ES, FR, EN-GB, EN-US (os dois ingleses só diferem na ortografia); Termos e Privacidade nas 4 línguas | Pedido do dono do produto |
@@ -109,7 +109,7 @@ mobile/
   app.json                     nome, permissões (PT), plugins, idiomas iOS
   locales/ios/*.json           textos das permissões por idioma
   src/
-    app/                       ecrãs (Expo Router): index → personality (onde está + modo + toque engraçado, na mesma página) → (ai-consent | sign-in | credits) → result; history; settings
+    app/                       ecrãs (Expo Router): index → personality (uma lista de modos + toque engraçado) → (ai-consent | sign-in | credits) → result; history; settings
     design/                    design system: tokens.ts + AppText, Button, Screen
     i18n/                      i18next; locales/pt-PT.ts é a referência, en.ts igual em chaves
     features/
@@ -120,7 +120,7 @@ mobile/
       history/history.ts       histórico guardado no dispositivo
       store/                   compras: creditStore.ios.ts (StoreKit 2 via expo-iap; desligado na Expo Go) e creditStore.ts (web: sem compras). Cada transação vai a `verify-purchase` antes de ser fechada; as que ficaram a meio são entregues ao abrir a app com sessão (AuthContext)
       pet/petProfile.ts        macho/fêmea (opcional, guardado no dispositivo)
-      draft/DraftContext.tsx   foto + cenário (surpresa | no sítio dele | cenário | criar) + modo (surpresa | modo) + toque engraçado, antes de criar a imagem
+      draft/DraftContext.tsx   foto + escolha (surpresa | modo | cena | natal | criar) + nome do aniversariante + toque engraçado, antes de criar a imagem
     components/                ThoughtBalloon, TranslationCanvas (vista exportada como PNG)
     lib/                       fotos (câmara/galeria), exportar/partilhar/guardar, kv (SQLite | localStorage)
 ```

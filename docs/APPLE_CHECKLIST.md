@@ -51,4 +51,4 @@ Estado a 11 de novembro de 2026. Inscrição no Apple Developer Program paga a 1
 ## União Europeia (Digital Services Act)
 | Requisito | Estado |
 |---|---|
-| Declarar o estatuto de "comerciante" no App Store Connect | ❗ obrigatório para vender na UE; usar a mesma morada dos Termos (Rua Navegadores 34, 2815-856 Almada) e petbubble.ai@icloud.com; telefone 214 089 481. Como pessoa singular, a Apple mostra publicamente na App Store o nome, a **morada, o telefone e o email** que indicares |
+| Declarar o estatuto de "comerciante" no App Store Connect | ❗ obrigatório para vender na UE; usar a mesma morada dos Termos (Rua dos Navegadores, n.º 34, 2815-656 Charneca da Caparica) e petbubble.ai@icloud.com; telefone 214 089 481. Como pessoa singular, a Apple mostra publicamente na App Store o nome, a **morada, o telefone e o email** que indicares |

@@ -59,9 +59,8 @@ export default function PersonalityScreen() {
     setPet(next);
     savePetProfile(next);
   }
-  function toggleSex(sex: PetSex) {
-    if (Platform.OS !== "web") Haptics.selectionAsync();
-    updatePet({ ...pet, sex: pet.sex === sex ? undefined : sex });
+  function chooseSex(sex: PetSex | undefined) {
+    updatePet({ ...pet, sex });
   }
   const waitingForSignIn = useRef(false);
   const waitingForConsent = useRef(false);
@@ -238,14 +237,23 @@ export default function PersonalityScreen() {
           <SceneChip
             testID="pet-male"
             label={t("pet.male")}
+            tint={colors.petMale}
             selected={pet.sex === "male"}
-            onPress={() => toggleSex("male")}
+            onPress={() => chooseSex("male")}
           />
           <SceneChip
             testID="pet-female"
             label={t("pet.female")}
+            tint={colors.petFemale}
             selected={pet.sex === "female"}
-            onPress={() => toggleSex("female")}
+            onPress={() => chooseSex("female")}
+          />
+          <SceneChip
+            testID="pet-unsaid"
+            label={t("pet.unsaid")}
+            tint={colors.surface}
+            selected={!pet.sex}
+            onPress={() => chooseSex(undefined)}
           />
         </View>
       </View>
@@ -376,6 +384,8 @@ export default function PersonalityScreen() {
 
 function SceneChip(props: {
   label: string;
+  /** Coloured chip (pet sex): keeps its colour and gets an outline when selected. */
+  tint?: string;
   selected: boolean;
   onPress: () => void;
   testID: string;
@@ -391,13 +401,18 @@ function SceneChip(props: {
       }}
       style={({ pressed }) => [
         styles.chip,
-        props.selected && styles.chipSelected,
+        props.tint
+          ? [
+              { backgroundColor: props.tint },
+              props.selected && styles.chipTintSelected,
+            ]
+          : props.selected && styles.chipSelected,
         pressed && styles.cardPressed,
       ]}
     >
       <AppText
         variant="smallStrong"
-        color={props.selected ? colors.onPrimary : colors.ink}
+        color={props.selected && !props.tint ? colors.onPrimary : colors.ink}
       >
         {props.label}
       </AppText>
@@ -446,6 +461,13 @@ const styles = StyleSheet.create({
     boxShadow: shadow.sm,
   },
   chipSelected: { backgroundColor: colors.primary },
+  // Same size as an unselected chip: the outline replaces part of the padding.
+  chipTintSelected: {
+    borderWidth: border.widthBold,
+    borderColor: border.color,
+    paddingHorizontal: space.md - border.widthBold,
+    paddingVertical: space.sm - border.widthBold,
+  },
   customScene: { gap: space.sm },
   badge: {
     alignSelf: "flex-start",

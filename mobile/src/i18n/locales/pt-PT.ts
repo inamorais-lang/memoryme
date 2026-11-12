@@ -40,6 +40,7 @@ const ptPT = {
   pet: {
     male: '♂ Macho',
     female: '♀ Fêmea',
+    unsaid: 'Prefiro não dizer',
   },
   scene: {
     trending: '🔥 Em alta',

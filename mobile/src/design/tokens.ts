@@ -30,6 +30,9 @@ export const colors = {
   overlay: 'rgba(20, 20, 20, 0.55)',
   // Thought balloon: soft pastels, never white. Text stays ink.
   balloonTints: ['#FFDCEA', '#D3F1F6', '#D8F4E4', '#E6DEFF', '#FFE6D2', '#DCE8FF'],
+  // Pet sex chips: soft blue for male, soft pink for female.
+  petMale: '#C9E9FF',
+  petFemale: '#FFD1E3',
   // Personality cards.
   accents: ['#E6FF94', '#FFD1E3', '#E0D6FF', '#FFDDBF', '#C9E9FF', '#FFF3A3'],
 } as const;

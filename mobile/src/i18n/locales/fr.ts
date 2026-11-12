@@ -42,6 +42,7 @@ const fr: Strings = {
   pet: {
     male: '♂ Mâle',
     female: '♀ Femelle',
+    unsaid: 'Je préfère ne pas dire',
   },
   scene: {
     trending: '🔥 Tendance',

@@ -44,3 +44,5 @@ example
 
 # local env (project-specific values)
 .env
+credentials.json
+credentials/

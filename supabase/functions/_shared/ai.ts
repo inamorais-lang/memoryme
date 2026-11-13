@@ -52,6 +52,8 @@ export interface PhraseWriter {
     recipient?: string;
     /** Angle for the dry line, to vary it. */
     dryAngle?: string;
+    /** The mode's signature line: replaces the dry option when it is picked (owner's choice). */
+    dryLine?: string;
   }): Promise<PhraseResult>;
 }
 
@@ -381,8 +383,12 @@ export class ClaudePhraseWriter implements PhraseWriter {
     if (response.stop_reason === 'max_tokens') throw new Error('phrase_too_long');
     const text = response.content.find((block) => block.type === 'text');
     if (!text || text.type !== 'text') throw new Error('phrase_empty');
-    // About half the pictures get the dry, deadpan line (product owner: often funnier than a joke).
-    return parsePhrase(text.text, Math.random() < DEADPAN_SHARE);
+    // About half the pictures get the dry, deadpan line (product owner: often funnier than a joke);
+    // a mode can fix it to its signature line (Preguiçoso: "Deixem-me dormir…").
+    const deadpan = Math.random() < DEADPAN_SHARE;
+    const result = parsePhrase(text.text, deadpan);
+    if (deadpan && result.isPet && args.dryLine) result.phrase = args.dryLine;
+    return result;
   }
 }
 

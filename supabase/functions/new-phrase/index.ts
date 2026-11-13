@@ -51,6 +51,8 @@ export default {
         voice: prompts.voice,
         scene: prompts.style,
         exclude: row.shown_phrases ?? [],
+        // A new line must be different: the signature line only if it was not shown yet.
+        dryLine: (row.shown_phrases ?? []).includes(prompts.dryLine ?? '') ? undefined : prompts.dryLine,
         sex: gen.pet_sex === 'male' || gen.pet_sex === 'female' ? gen.pet_sex : undefined,
         name: gen.pet_name ?? undefined,
         recipient: gen.recipient_name ?? undefined,

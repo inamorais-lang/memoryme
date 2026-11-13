@@ -16,6 +16,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 - Nada de "em breve" na app.
 - Antes de cada fase: plano curto, aprovado pelo dono do produto.
 - **Perguntar sempre antes de decidir** qualquer mudança de produto ou design.
+- **Mostrar primeiro em imagem** (captura ou maquete) e só mudar a app depois de a dona aceitar; nunca reverter sem ela pedir. Explicar sempre em poucas linhas o que mudou.
 - Um commit por mudança que funcione, com mensagem clara.
 
 ## Decisões

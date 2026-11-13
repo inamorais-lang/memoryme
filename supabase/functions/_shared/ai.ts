@@ -19,6 +19,8 @@ export type PetCheck = {
   smallMarkings?: boolean;
   /** Clothes in the photo: the fast model keeps them (logos included), the faithful one takes them off. */
   wearsClothes?: boolean;
+  /** Speckled, roan, merle, brindle or grey senior face: the fast model repaints it in breed colours. */
+  subtleCoat?: boolean;
   /** Cats and dogs in the photo; with more than one, all of them are dressed up. */
   petCount?: number;
 };
@@ -280,6 +282,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
               appearance: { type: 'string' },
               small_markings: { type: 'boolean' },
               wears_clothes: { type: 'boolean' },
+              subtle_coat: { type: 'boolean' },
               pet_count: { type: 'integer' },
               photo: {
                 type: 'object',
@@ -288,7 +291,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 additionalProperties: false,
               },
             },
-            required: ['is_pet', 'appearance', 'small_markings', 'wears_clothes', 'pet_count', 'photo'],
+            required: ['is_pet', 'appearance', 'small_markings', 'wears_clothes', 'subtle_coat', 'pet_count', 'photo'],
             additionalProperties: false,
           },
         },
@@ -306,13 +309,15 @@ export class ClaudePhraseWriter implements PhraseWriter {
                 'then width and height, all between 0 and 1. If the image is a screenshot or has borders, margins, app bars or text ' +
                 'around the photograph, return only the photograph. Never cut into the photograph itself. Otherwise return 0, 0, 1, 1. ' +
                 'In "appearance", describe the animal in English (max 80 words) for an image editor that must keep it identical: ' +
-                'species, breed if clear, size and build (small, medium, large or giant; slim or sturdy), age (puppy, adult or senior), ' +
+                'species (never name a breed: the image editor then paints the breed\'s usual colours instead of this animal\'s), size and build (small, medium, large or giant; slim or sturdy), age (puppy, adult or senior), ' +
                 'the exact shade of each coat colour as it really looks (e.g. pale cream almost white, light apricot, deep red-gold; do not assume the breed\'s usual colour), ' +
                 'eye colour, and every marking with its exact place. Look closely at the face: ' +
                 'small spots or patches on the nose, lips, muzzle or chin, and whether they are on the animal\'s left or right side. ' +
                 'Markings are often asymmetric: say so. Then chest, paws, tail. ' +
                 'Set "small_markings" to true only if the face has a small spot, smudge or patch (on the nose, lips, muzzle or chin) ' +
                 'that an image editor could easily drop; false for plain faces and for simple symmetric patterns. ' +
+                'Set "subtle_coat" to true if the coat or face has colours an image editor tends to "correct": speckled, ticked or roan fur, merle, brindle, ' +
+                'or a grey, silver or faded senior face; false for plain or clearly patched coats. ' +
                 'Set "wears_clothes" to true if the animal wears any clothing (jumper, hoodie, coat, costume, bandana), false otherwise. ' +
                 'In "pet_count", give how many cats and dogs are clearly visible. If there are several, describe each one in "appearance" ' +
                 '(left to right, with its size compared to the others; max 140 words) and set the flags if any of them qualifies.',
@@ -334,6 +339,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
       ...(appearance ? { appearance } : {}),
       smallMarkings: data.small_markings === true,
       wearsClothes: data.wears_clothes === true,
+      subtleCoat: data.subtle_coat === true,
       petCount: Number.isInteger(data.pet_count) && data.pet_count > 1 ? Math.min(data.pet_count, 6) : 1,
     };
   }

@@ -44,6 +44,7 @@ export interface Store {
   /** Waiting screen: which step the picture is at. Best effort, never fails the picture. */
   setStage?(generationId: string, stage: 'painting' | 'writing', imagePath?: string): Promise<void>;
   setModel?(generationId: string, model: 'fast' | 'faithful'): Promise<void>;
+  setCheck?(generationId: string, info: Record<string, unknown>): Promise<void>;
   /** Privacy: the original photo is only needed to make the picture. */
   removeOriginal(path: string): Promise<void>;
 }
@@ -203,6 +204,8 @@ export async function runGeneration(
     const originalUrl = await store.signedUrl('originals', gen.originalPath);
 
     const check = await phrases.isPet(originalUrl);
+    // Diagnostics (no personal data: only the animal): why a picture went to one model or the other.
+    store.setCheck?.(gen.id, { appearance: check.appearance, smallMarkings: check.smallMarkings, wearsClothes: check.wearsClothes, subtleCoat: check.subtleCoat, petCount: check.petCount }).catch(() => {});
     if (!check.isPet) {
       await store.fail(gen.id, 'not_a_pet');
       return 'not_a_pet';
@@ -247,7 +250,8 @@ export async function runGeneration(
     let image;
     let model: 'fast' | 'faithful' = 'faithful';
     // Several pets: the fast model split the outfit between them and changed faces.
-    if (faithfulImages && (prompts.faithful || check.smallMarkings || check.wearsClothes || (check.petCount ?? 1) > 1)) {
+    // Subtle coats (speckled, roan, grey senior faces): the fast model repainted them in the breed's usual colours.
+    if (faithfulImages && (prompts.faithful || check.smallMarkings || check.wearsClothes || check.subtleCoat || (check.petCount ?? 1) > 1)) {
       try {
         image = await faithfulImages.edit(request);
       } catch (error) {

@@ -83,6 +83,9 @@ export function supabaseStore(admin: SupabaseClient): Store {
       // A different handful each time, so the AI does not lean on the same few.
       return all.sort(() => Math.random() - 0.5).slice(0, 8);
     },
+    async setCheck(generationId, info) {
+      await admin.from('generations').update({ check_info: info }).eq('id', generationId);
+    },
     async setModel(generationId, model) {
       await admin.from('generations').update({ image_model: model }).eq('id', generationId);
     },

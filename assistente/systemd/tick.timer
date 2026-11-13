@@ -1,0 +1,10 @@
+[Unit]
+Description=__NAME__: tick a cada minuto
+
+[Timer]
+OnBootSec=30s
+OnCalendar=*-*-* *:*:05
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

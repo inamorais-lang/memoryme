@@ -1,0 +1,11 @@
+[Unit]
+Description=__NAME__: rotinas agendadas (claude -p, só leitura)
+
+[Service]
+Type=oneshot
+WorkingDirectory=__ROOT__
+Environment=HOME=__HOME__
+ExecStart=__ROOT__/bin/scheduler.sh routines
+TimeoutStartSec=65min
+StandardOutput=append:__ROOT__/logs/routines.log
+StandardError=append:__ROOT__/logs/routines.log

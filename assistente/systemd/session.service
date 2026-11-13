@@ -1,0 +1,19 @@
+[Unit]
+Description=__NAME__: sessão Claude Code ligada ao Telegram
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=__ROOT__
+Environment=HOME=__HOME__
+Environment=TERM=xterm-256color
+ExecStart=__ROOT__/bin/run-session.sh
+Restart=always
+RestartSec=30
+StandardOutput=append:__ROOT__/logs/session.log
+StandardError=append:__ROOT__/logs/session.log
+
+[Install]
+WantedBy=default.target

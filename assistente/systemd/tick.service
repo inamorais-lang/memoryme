@@ -1,0 +1,11 @@
+[Unit]
+Description=__NAME__: lembretes, reenvios e verificação de saúde
+
+[Service]
+Type=oneshot
+WorkingDirectory=__ROOT__
+Environment=HOME=__HOME__
+ExecStart=__ROOT__/bin/scheduler.sh tick
+TimeoutStartSec=4min
+StandardOutput=append:__ROOT__/logs/tick.log
+StandardError=append:__ROOT__/logs/tick.log

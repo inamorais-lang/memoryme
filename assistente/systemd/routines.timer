@@ -1,0 +1,10 @@
+[Unit]
+Description=__NAME__: verificar rotinas a cada minuto
+
+[Timer]
+OnBootSec=45s
+OnCalendar=*-*-* *:*:10
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

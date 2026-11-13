@@ -168,9 +168,9 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
     // The breed name and the vivid-colour rule used to turn a pale cream golden into a yellow one.
     'The fur keeps exactly the same shade and tone as in the photo: do not warm, darken, lighten or saturate it, even under coloured lights, and never change it towards the usual colour of the breed.',
     // No concrete examples here: the image model copies them into every scene.
-    'Generous but clear: show two or three of the objects already named in the style above instead of one, neatly arranged so each is easy to recognise. Add no other objects and no cluttered piles.',
+    'Generous but clear: show two or three of the objects already named in the style above instead of one, neatly arranged so each is easy to recognise. Add no other objects and no cluttered piles, unless the style above asks for a mess: then the mess is the joke and fills the scene.',
     'No glasses or sunglasses unless the style above asks for them.',
-    'Never draw speech bubbles, thought bubbles, clouds of thought, text, letters, numbers, captions, logos or watermarks. If the source photo has any of these, or app buttons, a dimmed or washed-out overlay, remove them and show the pet with natural, full colours.',
+    'Never draw speech bubbles, thought bubbles, clouds of thought, floating question or exclamation marks, symbols, text, letters, numbers, captions, logos or watermarks. If the source photo has any of these, or app buttons, a dimmed or washed-out overlay, remove them and show the pet with natural, full colours.',
     exaggerated
       ? 'Apart from the props asked for above, do not give the animal human features, and never make it resemble a real person.'
       : 'Do not give the animal human facial features, and never make it resemble a real person.',

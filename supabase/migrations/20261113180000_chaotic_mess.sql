@@ -1,0 +1,4 @@
+-- Caótico: looked like a calm party. Owner: it must look truly chaotic, the pet caused the mess.
+update public.personalities set image_prompt =
+  'The pet has just turned a bright living room completely upside down and stands proudly in the middle of the chaos, caught in the act, with a wild, mischievous, very pleased look and its fur a little ruffled. It wears a rainbow party hat knocked askew, a loose bow tie hanging crooked and funny star-shaped sunglasses slipping down its nose. Around it: a roll of toilet paper unrolled across the whole floor and draped over the sofa, sofa cushions thrown on the floor, a burst pillow with feathers floating in the air, a knocked-over plant with soil spilled on the rug, rainbow confetti and streamers everywhere. Bright, colourful and funny, clearly a disaster it is proud of.'
+where id in ('pt-caotico', 'en-caotico', 'es-caotico', 'fr-caotico');

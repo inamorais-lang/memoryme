@@ -31,6 +31,7 @@ const en: Strings = {
     saveBody: 'To save the picture to your camera roll, allow photo access in Settings.',
   },
   personality: {
+    changePhoto: '📷 Change photo',
     screenTitle: 'Mood',
     title: 'What mood is your pet in today?',
     subtitle: 'Pick a mood.',

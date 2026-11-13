@@ -29,6 +29,7 @@ const ptPT = {
     saveBody: 'Para guardares a imagem no rolo da câmara, permite o acesso às fotos nas Definições.',
   },
   personality: {
+    changePhoto: '📷 Trocar foto',
     screenTitle: 'Modo',
     title: 'Em que modo está o teu patudo hoje?',
     subtitle: 'Escolhe um modo.',

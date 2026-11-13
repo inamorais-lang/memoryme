@@ -31,6 +31,7 @@ const fr: Strings = {
     saveBody: 'Pour enregistrer l’image dans ta pellicule, autorise l’accès aux photos dans les Réglages.',
   },
   personality: {
+    changePhoto: '📷 Changer de photo',
     screenTitle: 'Humeur',
     title: 'Dans quelle humeur est ton compagnon aujourd’hui ?',
     subtitle: 'Choisis une humeur.',

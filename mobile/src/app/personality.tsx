@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Alert,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -46,6 +47,7 @@ import {
   savePetProfile,
 } from "@/features/pet/petProfile";
 import { currentLanguage, currentMarket } from "@/i18n";
+import { pickPhoto, takePhoto, type PickOutcome } from "@/lib/photos";
 
 /** The person's own birthday message: same limit as the balloon. */
 const RECIPIENT_MAX = CUSTOM_PHRASE_MAX;
@@ -244,6 +246,33 @@ export default function PersonalityScreen() {
     }
   }, [auth.session, start]);
 
+  async function applyPhoto(outcome: PickOutcome, deniedTitle: string, deniedBody: string) {
+    if (outcome.status === "denied") {
+      Alert.alert(deniedTitle, deniedBody, [
+        { text: t("common.cancel"), style: "cancel" },
+        { text: t("common.openSettings"), onPress: () => Linking.openSettings() },
+      ]);
+      return;
+    }
+    if (outcome.status === "picked") draft.setPhoto(outcome.photo);
+  }
+
+  function changePhoto() {
+    Alert.alert(t("personality.changePhoto"), undefined, [
+      {
+        text: t("home.takePhoto"),
+        onPress: async () =>
+          applyPhoto(await takePhoto(), t("permissions.cameraTitle"), t("permissions.cameraBody")),
+      },
+      {
+        text: t("home.pickPhoto"),
+        onPress: async () =>
+          applyPhoto(await pickPhoto(), t("permissions.photosTitle"), t("permissions.photosBody")),
+      },
+      { text: t("common.cancel"), style: "cancel" },
+    ]);
+  }
+
   if (!draft.photo) return <Redirect href="/" />;
 
   function select(next: StyleChoice) {
@@ -301,11 +330,20 @@ export default function PersonalityScreen() {
       }
     >
       <View style={styles.header}>
-        <Image
-          source={{ uri: draft.photo.uri }}
-          style={styles.thumb}
-          contentFit="cover"
-        />
+        <View style={styles.photoColumn}>
+          <Image
+            source={{ uri: draft.photo.uri }}
+            style={styles.thumb}
+            contentFit="cover"
+          />
+          {/* Owner (option A): change the photo here; the chosen mode stays. */}
+          <Button
+            testID="change-photo"
+            variant="mini"
+            label={t("personality.changePhoto")}
+            onPress={changePhoto}
+          />
+        </View>
         <View style={styles.headerText}>
           <AppText variant="title">{t("personality.title")}</AppText>
           <AppText color={colors.inkMuted}>{t("personality.subtitle")}</AppText>
@@ -457,6 +495,7 @@ export default function PersonalityScreen() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: "row", gap: space.lg, alignItems: "center" },
+  photoColumn: { alignItems: "center", gap: space.md },
   thumb: {
     width: 84,
     height: 84,

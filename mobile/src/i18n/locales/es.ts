@@ -31,6 +31,7 @@ const es: Strings = {
     saveBody: 'Para guardar la imagen en el carrete, permite el acceso a las fotos en Ajustes.',
   },
   personality: {
+    changePhoto: '📷 Cambiar foto',
     screenTitle: 'Modo',
     title: '¿En qué modo está hoy tu mascota?',
     subtitle: 'Elige un modo.',

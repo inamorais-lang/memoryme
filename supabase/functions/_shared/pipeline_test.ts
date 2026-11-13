@@ -1,7 +1,7 @@
 // Run: deno test supabase/functions/_shared
 import assert from 'node:assert/strict';
 
-import { falInput, parseHead, parsePhrase, type ImageEditor, type PhraseWriter } from './ai.ts';
+import { falInput, imageSource, parseHead, parsePhrase, type ImageEditor, type PhraseWriter } from './ai.ts';
 import { httpErrorFor, runGeneration, safeReason, withCurrency, type Store } from './pipeline.ts';
 import { cleanPetName, imageEditPrompt, phraseSystemPrompt, phraseUserPrompt } from './prompts.ts';
 
@@ -124,7 +124,8 @@ Deno.test('the line is written from the final picture, not the original photo', 
     },
     gen,
   );
-  assert.equal(seen, 'https://signed/generated/u1/g1.jpg');
+  // The final picture's own bytes (okImage = [1, 2, 3]), not the original photo's URL.
+  assert.equal(seen, 'data:image/jpeg;base64,AQID');
 });
 
 Deno.test('custom scene: a refused scene refunds and never reaches the image model', async () => {
@@ -529,4 +530,19 @@ Deno.test('dry line: sometimes the third, deadpan option is used instead of a jo
   assert.equal(parsePhrase(raw, true).phrase, 'Hoje é dia de festa.');
   assert.equal(parsePhrase(JSON.stringify({ is_pet: true, phrases: ['Só uma.'] }), true).phrase, 'Só uma.');
   assert.match(phraseSystemPrompt('pt-PT'), /The third option is NOT a joke/);
+});
+
+Deno.test('speed: the picture goes to the line writer inline and is shown while the line is written', async () => {
+  assert.deepEqual(imageSource('data:image/jpeg;base64,QUJD'), { type: 'base64', media_type: 'image/jpeg', data: 'QUJD' });
+  assert.deepEqual(imageSource('https://x/y.jpg'), { type: 'url', url: 'https://x/y.jpg' });
+  const { store } = fakeStore();
+  const stages: string[] = [];
+  store.setStage = async (_id, stage, path) => void stages.push(`${stage} ${path ?? ''}`.trim());
+  let seen = '';
+  await runGeneration(
+    { store, phrases: { ...phrases({ isPet: true, phrase: 'x' }), write: async (a) => ((seen = a.imageUrl), { isPet: true, phrase: 'x' }) }, images: okImage, log: quiet },
+    gen,
+  );
+  assert.match(seen, /^data:image\/jpeg;base64,/);
+  assert.deepEqual(stages, ['painting', 'writing u1/g1.jpg']);
 });

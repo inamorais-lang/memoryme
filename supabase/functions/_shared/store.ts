@@ -71,8 +71,13 @@ export function supabaseStore(admin: SupabaseClient): Store {
       // A different handful each time, so the AI does not lean on the same few.
       return all.sort(() => Math.random() - 0.5).slice(0, 8);
     },
-    async setStage(generationId, stage) {
-      await admin.from('generations').update({ stage }).eq('id', generationId).eq('status', 'pending');
+    async setStage(generationId, stage, imagePath) {
+      // With the picture saved, the app already shows it while the line is written.
+      await admin
+        .from('generations')
+        .update(imagePath ? { stage, image_path: imagePath } : { stage })
+        .eq('id', generationId)
+        .eq('status', 'pending');
     },
     async fail(generationId, reason) {
       const { data, error } = await admin.rpc('fail_generation', {

@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  ActivityIndicator,
   Alert,
   AppState,
   Linking,
@@ -38,7 +39,7 @@ import {
   shareImage,
 } from "@/lib/exportImage";
 
-const POLL_MS = 2000;
+const POLL_MS = 1000;
 /** One status request never waits longer than this. */
 const REQUEST_MS = 8000;
 
@@ -328,7 +329,9 @@ export default function ResultScreen() {
     );
   }
 
-  if (status === "loading" || !item?.imageUri) {
+  // The picture shows as soon as it is saved; the line follows a few seconds later.
+  const lineComing = status === "loading" && !!item?.imageUri;
+  if (!item?.imageUri) {
     const photo = draft.photo;
     return (
       <Screen scroll={false}>
@@ -358,9 +361,11 @@ export default function ResultScreen() {
       : item.head
         ? undefined
         : BALLOON_CORNERS[item.balloonPosition === "bottom" ? 3 : 0];
-  const shownPhrase = editing
-    ? draftText || t("result.writePlaceholder")
-    : (item.customPhrase ?? item.phrase);
+  const shownPhrase = lineComing
+    ? (item.customPhrase ?? "…")
+    : editing
+      ? draftText || t("result.writePlaceholder")
+      : (item.customPhrase ?? item.phrase);
   const saved = savedLook === look;
   const charsLeft = CUSTOM_PHRASE_MAX - draftText.length;
 
@@ -490,7 +495,23 @@ export default function ResultScreen() {
 
   return (
     // No scroll here: a vertical drag on the balloon must move the balloon, not the page.
-    <Screen scroll={false} footer={editing ? writingFooter : actionsFooter}>
+    <Screen
+      scroll={false}
+      footer={
+        lineComing ? (
+          <View style={styles.lineComing} testID="line-coming">
+            <ActivityIndicator color={colors.ink} />
+            <AppText variant="bodyStrong">
+              {t("result.wait.steps.writing")}
+            </AppText>
+          </View>
+        ) : editing ? (
+          writingFooter
+        ) : (
+          actionsFooter
+        )
+      }
+    >
       {/* The 4:5 picture takes the room left between the title and the buttons, never more. */}
       <View
         style={styles.canvasRoom}
@@ -506,7 +527,7 @@ export default function ResultScreen() {
           head={item.head}
           prop={item.prop}
           body={item.body}
-          onBalloonMove={placeBalloon}
+          onBalloonMove={lineComing ? undefined : placeBalloon}
           maxHeight={canvasRoom > 0 ? canvasRoom : canvasMaxHeight}
           balloonTint={tintFor(item.id) + tintShift}
           onBalloonPress={() => setTintShift((n) => n + 1)}
@@ -533,6 +554,13 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", gap: space.sm },
   flex: { flex: 1 },
   report: { alignSelf: "center", paddingTop: space.xs },
+  lineComing: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: space.sm,
+    paddingVertical: space.lg,
+  },
   secondary: {
     flexDirection: "row",
     justifyContent: "center",

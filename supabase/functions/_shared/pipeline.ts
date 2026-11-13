@@ -36,7 +36,7 @@ export interface Store {
   /** Lines people wrote, starred by the owner: style examples for the AI (optional). */
   phraseExamples?(language: Language): Promise<string[]>;
   /** Waiting screen: which step the picture is at. Best effort, never fails the picture. */
-  setStage?(generationId: string, stage: 'painting' | 'writing'): Promise<void>;
+  setStage?(generationId: string, stage: 'painting' | 'writing', imagePath?: string): Promise<void>;
   /** Privacy: the original photo is only needed to make the picture. */
   removeOriginal(path: string): Promise<void>;
 }
@@ -91,6 +91,15 @@ export function combinedVoice(modeVoice: string, sceneVoice: string | null): str
  * Scene prompts may say "{currency} banknotes": euros in Portugal, Spain and France,
  * pounds in the UK (English with British spelling), dollars elsewhere.
  */
+/** Pictures up to this size go to the line writer inline (no second download). */
+const INLINE_IMAGE_MAX = 3_500_000;
+
+export function toDataUri(bytes: Uint8Array, contentType: string): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return `data:${contentType.split(';')[0]};base64,${btoa(binary)}`;
+}
+
 export function withCurrency(style: string, language: Language, spelling?: Spelling): string {
   const currency = language !== 'en' ? 'euro' : spelling === 'GB' ? 'British pound sterling' : 'US dollar';
   return style.replaceAll('{currency}', currency);
@@ -235,12 +244,18 @@ export async function runGeneration(
     }
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
-    await store.upload('generated', imagePath, image.bytes, image.contentType);
+    // Speed: the picture is saved (and shown in the app as soon as it is) while the line is
+    // being written from the same bytes, instead of one after the other.
+    const saved = store
+      .upload('generated', imagePath, image.bytes, image.contentType)
+      .then(() => store.setStage?.(gen.id, 'writing', imagePath).catch(() => {}));
+    saved.catch(() => {});
 
-    await store.setStage?.(gen.id, 'writing').catch(() => {});
     // The line is written last, looking at the final picture, so it matches what is really there.
-    const phrase = await phrases.write({
-      imageUrl: await store.signedUrl('generated', imagePath),
+    const phraseImage =
+      image.bytes.length <= INLINE_IMAGE_MAX ? toDataUri(image.bytes, image.contentType) : (await saved, await store.signedUrl('generated', imagePath));
+    const phrasePromise = phrases.write({
+      imageUrl: phraseImage,
       language: prompts.language,
       spelling: gen.spelling,
       voice: prompts.voice,
@@ -252,6 +267,7 @@ export async function runGeneration(
       petCount: check.petCount,
       examples: await (store.phraseExamples?.(prompts.language) ?? Promise.resolve([])).catch(() => []),
     });
+    const [phrase] = await Promise.all([phrasePromise, saved]);
     if (!phrase.phrase) throw new Error(phrase.isPet ? 'phrase_empty' : 'phrase_no_pet');
 
     const finished = await store.finish(gen.id, imagePath, phrase.phrase, phrase.head, phrase.prop, phrase.body);

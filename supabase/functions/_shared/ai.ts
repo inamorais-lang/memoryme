@@ -94,6 +94,17 @@ const PHRASE_SCHEMA = {
   additionalProperties: false,
 };
 
+/** A picture for Claude: a URL, or the picture itself as a data URI (saves a download). */
+export function imageSource(
+  url: string,
+):
+  | { type: 'base64'; media_type: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'; data: string }
+  | { type: 'url'; url: string } {
+  const m = /^data:(image\/(?:jpeg|png|webp|gif));base64,(.+)$/.exec(url);
+  if (!m) return { type: 'url', url };
+  return { type: 'base64', media_type: m[1] as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif', data: m[2] };
+}
+
 export class ClaudePhraseWriter implements PhraseWriter {
   private client: Anthropic;
 
@@ -309,7 +320,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
         {
           role: 'user',
           content: [
-            { type: 'image', source: { type: 'url', url: args.imageUrl } },
+            { type: 'image', source: imageSource(args.imageUrl) },
             {
               type: 'text',
               text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name, petCount: args.petCount, examples: args.examples, recipient: args.recipient }), reminder]

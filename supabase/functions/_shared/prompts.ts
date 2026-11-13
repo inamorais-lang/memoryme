@@ -170,7 +170,8 @@ export function imageEditPrompt(style: string, exaggerated = false, appearance?:
     // No concrete examples here: the image model copies them into every scene.
     'Generous but clear: show two or three of the objects already named in the style above instead of one, neatly arranged so each is easy to recognise. Add no other objects and no cluttered piles, unless the style above asks for a mess: then the mess is the joke and fills the scene.',
     'No glasses or sunglasses unless the style above asks for them.',
-    'Never draw speech bubbles, thought bubbles, clouds of thought, floating question or exclamation marks, symbols, text, letters, numbers, captions, logos or watermarks. If the source photo has any of these, or app buttons, a dimmed or washed-out overlay, remove them and show the pet with natural, full colours.',
+    // Naming "thought bubbles" here made the fast model draw them (it reads the words, not the "never").
+    'The result is a clean photograph with nothing drawn on top of it: no text, letters, numbers, captions, logos, watermarks, drawn shapes or symbols, and an empty sky or wall where nothing is happening. If the source photo has any graphic overlay (app buttons, drawn shapes, text, a dimmed or washed-out layer), remove it and show the pet with natural, full colours.',
     exaggerated
       ? 'Apart from the props asked for above, do not give the animal human features, and never make it resemble a real person.'
       : 'Do not give the animal human facial features, and never make it resemble a real person.',

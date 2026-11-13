@@ -321,7 +321,7 @@ Deno.test('prompts carry the pet-logic, safety and language rules', () => {
   assert.match(imageEditPrompt('pearls'), /top third/);
   assert.match(imageEditPrompt('pearls'), /Never dark/);
   assert.match(imageEditPrompt('pearls'), /never make it resemble a real person/);
-  assert.match(imageEditPrompt('pearls'), /Never draw speech bubbles/);
+  assert.match(imageEditPrompt('pearls'), /nothing drawn on top of it/);
   assert.match(imageEditPrompt('pearls'), /wholesome, family-friendly picture/);
   assert.match(imageEditPrompt('pearls'), /same proportion to the head/);
 });

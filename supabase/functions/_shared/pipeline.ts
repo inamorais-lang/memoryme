@@ -247,7 +247,9 @@ export async function runGeneration(
     let image;
     let model: 'fast' | 'faithful' = 'faithful';
     // Several pets: the fast model split the outfit between them and changed faces.
-    if (faithfulImages && (prompts.faithful || check.smallMarkings || check.wearsClothes || (check.petCount ?? 1) > 1)) {
+    // Owner (13/11): the faithful model for every picture — the fast one changed faces (e.g. an old grey dog came out orange).
+    // The fast model stays as the fallback when the faithful one fails or is too slow.
+    if (faithfulImages) {
       try {
         image = await faithfulImages.edit(request);
       } catch (error) {

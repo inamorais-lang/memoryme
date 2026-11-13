@@ -4,7 +4,7 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 
 - Produto: `docs/PRD.md`
 - Fases: `docs/ROADMAP.md`
-- Estado atual: **Fase 3 em curso** (aprovada). Feito: servidor de compras, paywall com StoreKit 2, dois modelos de imagem. Falta: onboarding, PostHog, Sentry, revogar o token da Apple ao apagar a conta, link da App Store na partilha, EAS Build → TestFlight (precisa da conta Apple Developer).
+- Estado atual: **Fase 3 em curso** (plano final aprovado a 13/11/2026). Feito: servidor de compras, paywall com StoreKit 2, dois modelos de imagem. Falta: preparar a Apple (identificador, app no App Store Connect, chave da API, chave Sign in with Apple) → EAS Build → TestFlight, packs no App Store Connect + URL das notificações, revogar o token da Apple ao apagar a conta, link da App Store na partilha, Sentry. **Sem onboarding e sem PostHog** (decisão do dono do produto).
 
 ## Regras não negociáveis
 - Chaves secretas (IA, service role do Supabase) **só** em Supabase Edge Functions. Nunca no código da app nem em variáveis `EXPO_PUBLIC_*`.

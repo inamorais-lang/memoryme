@@ -43,6 +43,7 @@ export interface Store {
   phraseExamples?(language: Language): Promise<string[]>;
   /** Waiting screen: which step the picture is at. Best effort, never fails the picture. */
   setStage?(generationId: string, stage: 'painting' | 'writing', imagePath?: string): Promise<void>;
+  setModel?(generationId: string, model: 'fast' | 'faithful'): Promise<void>;
   /** Privacy: the original photo is only needed to make the picture. */
   removeOriginal(path: string): Promise<void>;
 }
@@ -244,6 +245,7 @@ export async function runGeneration(
     };
     await store.setStage?.(gen.id, 'painting').catch(() => {});
     let image;
+    let model: 'fast' | 'faithful' = 'faithful';
     // Several pets: the fast model split the outfit between them and changed faces.
     if (faithfulImages && (prompts.faithful || check.smallMarkings || check.wearsClothes || (check.petCount ?? 1) > 1)) {
       try {
@@ -255,14 +257,18 @@ export async function runGeneration(
     }
     if (!image) {
       try {
+        model = 'fast';
         image = await images.edit(request);
       } catch (error) {
         // The fast model's safety filter sometimes blocks a harmless picture: the other model may not.
         if (!(error instanceof Error) || error.message !== 'image_blocked' || !faithfulImages) throw error;
         log(`fast model blocked ${gen.id}; trying the faithful one`);
+        model = 'faithful';
         image = await faithfulImages.edit(request);
       }
     }
+    // Admin statistics: which model made the picture (cost per day).
+    store.setModel?.(gen.id, model).catch(() => {});
     const ext = image.contentType.includes('png') ? 'png' : image.contentType.includes('webp') ? 'webp' : 'jpg';
     const imagePath = `${gen.userId}/${gen.id}.${ext}`;
     // Speed: the picture is saved (and shown in the app as soon as it is) while the line is

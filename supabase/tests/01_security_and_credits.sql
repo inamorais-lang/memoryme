@@ -330,3 +330,14 @@ update public.profiles set credits = 3, last_seen_at = now() - interval '8 days'
 select test.check((select count(*) = 1 from public.credit_reminder_targets()), 'away 7+ days with credits: reminded');
 select public.mark_credit_reminded(array['bbbbbbbb-0000-0000-0000-000000000002'::uuid]);
 select test.check((select count(*) = 0 from public.credit_reminder_targets()), 'reminded only once per absence');
+
+-- ───────── Estatísticas (admin) ─────────
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
+select test.expect_error($$select public.admin_stats('aaaaaaaa-0000-0000-0000-000000000001')$$, 'permission denied');
+select test.check(true, 'users cannot read the statistics');
+reset role;
+select test.expect_error($$select public.admin_stats('aaaaaaaa-0000-0000-0000-000000000001')$$, 'not_admin');
+select test.check(true, 'statistics only for admins');
+insert into private.admins (user_id) values ('bbbbbbbb-0000-0000-0000-000000000002') on conflict do nothing;
+select test.check((select (public.admin_stats('bbbbbbbb-0000-0000-0000-000000000002', 7)->'totals'->>'accounts')::int >= 2), 'the admin sees the statistics');

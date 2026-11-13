@@ -51,7 +51,6 @@ App iOS que "traduz" o pensamento de um gato ou cão: foto + personalidade → f
 | Fontes: Bricolage Grotesque (títulos e balão) + DM Sans (texto) | Moderna e irreverente, não parecer "feito por IA" |
 | Ordem: confirmar que há animal (Claude, barato) → imagem (fal) → frase escrita a olhar para a imagem final | Foto sem animal nunca chega ao modelo caro; a frase bate certo com o que está na imagem |
 | Imagem por fal.ai com modelo configurável | Uma só chave para comparar modelos; trocar sem nova versão |
-| **Modelo fiel em todas as imagens** (decisão do dono do produto, 13/11, depois de comparar com a foto de um cão velho cinzento que o rápido pôs com a cara laranja): GPT Image em todos os modos, ~40 s e ~0,12 $; o rápido fica só como reserva se o fiel falhar ou demorar | Fidelidade ao animal acima de tudo |
 | Dois modelos de imagem, escolhidos sozinhos pelo servidor: rápido (`IMAGE_MODEL`, FLUX Kontext Pro, ~20 s, 0,04 $) por defeito; fiel (`IMAGE_MODEL_FAITHFUL`, GPT Image 2, ~40–60 s) quando o "há animal?" vê manchas pequenas na cara (`small_markings`) ou roupa vestida (`wears_clothes`), no Criar cenário e nos cenários com `scenes.faithful` (Pose ridícula). Se o fiel falhar ou passar de 90 s, usa o rápido. Espera na app: "até 1 minuto" | Decisão do dono do produto ("automático por caso"): o rápido apagava manchas pequenas e ignorava poses |
 | Login com a Apple testável na Expo Go (client ID `host.exp.Exponent`) | Conta Apple Developer só é precisa na Fase 3 |
 

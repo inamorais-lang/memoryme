@@ -392,8 +392,8 @@ function modelRun(
   ).then((outcome) => ({ outcome, used }));
 }
 
-Deno.test('image model: the faithful one for every picture (owner, 13/11)', async () => {
-  assert.deepEqual((await modelRun({})).used, ['faithful']);
+Deno.test('image model: the fast one by default', async () => {
+  assert.deepEqual((await modelRun({})).used, ['fast']);
 });
 
 Deno.test('image model: the faithful one for small markings, custom scenes and pose changes', async () => {

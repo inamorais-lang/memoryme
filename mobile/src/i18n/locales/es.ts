@@ -66,6 +66,7 @@ const es: Strings = {
     invalid: 'Ese escenario no es válido. Escribe entre 3 y 80 caracteres.',
   },
   result: {
+    newMode: 'Nuevo modo',
     screenTitle: 'Tu imagen',
     wait: {
       steps: {

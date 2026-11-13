@@ -23,9 +23,11 @@ type Draft = {
   /** Optional funny extra (glasses, big nose…), free. */
   comicId: string | null;
   customScene: string;
+  /** The picture just made from this photo: only it offers "Novo modo" (the photo is still on the phone). */
+  lastId: string | null;
 };
 
-const EMPTY: Draft = { photo: null, choice: null, recipient: '', comicId: null, customScene: '' };
+const EMPTY: Draft = { photo: null, choice: null, recipient: '', comicId: null, customScene: '', lastId: null };
 
 type DraftApi = Draft & {
   setPhoto(photo: PickedPhoto): void;
@@ -33,6 +35,7 @@ type DraftApi = Draft & {
   setRecipient(name: string): void;
   setComic(id: string | null): void;
   setCustomScene(text: string): void;
+  setLastId(id: string): void;
   reset(): void;
 };
 
@@ -48,6 +51,7 @@ export function DraftProvider({ children }: { children: ReactNode }) {
     setRecipient: (recipient) => setDraft((d) => ({ ...d, recipient })),
     setComic: (comicId) => setDraft((d) => ({ ...d, comicId })),
     setCustomScene: (customScene) => setDraft((d) => ({ ...d, customScene })),
+    setLastId: (lastId) => setDraft((d) => ({ ...d, lastId })),
     reset: () => setDraft(EMPTY),
   };
 

@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { haptics } from "@/lib/haptics";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -22,7 +22,16 @@ import {
   type BalloonSpot,
   type CanvasRef,
 } from "@/components/TranslationCanvas";
-import { AppText, Button, colors, Screen, space, TextField } from "@/design";
+import {
+  AppText,
+  Button,
+  colors,
+  layout,
+  radius,
+  Screen,
+  space,
+  TextField,
+} from "@/design";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   backend,
@@ -524,6 +533,26 @@ export default function ResultScreen() {
         )
       }
     >
+      {/* Owner: "Novo modo" (lime with pink letters, like the logo) — same photo, another mode.
+          Only right after making it: the original photo is still on the phone. */}
+      {draft.photo && draft.lastId === item.id ? (
+        <Stack.Screen
+          options={{
+            headerRight: () => (
+              <Pressable
+                testID="new-mode"
+                accessibilityRole="button"
+                onPress={() => router.navigate("/personality")}
+                style={({ pressed }) => [styles.newMode, pressed && styles.newModePressed]}
+              >
+                <AppText variant="smallStrong" color={colors.primary}>
+                  {t("result.newMode")}
+                </AppText>
+              </Pressable>
+            ),
+          }}
+        />
+      ) : null}
       {/* The 4:5 picture takes the room left between the title and the buttons, never more. */}
       <View
         style={styles.canvasRoom}
@@ -555,6 +584,14 @@ export default function ResultScreen() {
 }
 
 const styles = StyleSheet.create({
+  newMode: {
+    minHeight: layout.buttonHeightMini,
+    paddingHorizontal: space.md,
+    justifyContent: "center",
+    borderRadius: radius.pill,
+    backgroundColor: colors.secondary,
+  },
+  newModePressed: { backgroundColor: colors.secondaryPressed },
   dimmed: { opacity: 0.6 },
   canvasRoom: {
     flex: 1,

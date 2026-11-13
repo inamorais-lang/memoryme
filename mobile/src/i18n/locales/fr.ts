@@ -66,6 +66,7 @@ const fr: Strings = {
     invalid: 'Ce décor n’est pas valable. Écris entre 3 et 80 caractères.',
   },
   result: {
+    newMode: 'Nouveau mode',
     screenTitle: 'Ton image',
     wait: {
       steps: {

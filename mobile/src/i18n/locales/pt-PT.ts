@@ -64,6 +64,7 @@ const ptPT = {
     invalid: 'Esse cenário não é válido. Escreve entre 3 e 80 caracteres.',
   },
   result: {
+    newMode: 'Novo modo',
     screenTitle: 'A tua imagem',
     wait: {
       steps: {

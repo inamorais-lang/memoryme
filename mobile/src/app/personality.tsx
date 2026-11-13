@@ -209,6 +209,7 @@ export default function PersonalityScreen() {
     setStarting(true);
     try {
       const id = await backend.createTranslation(draft.photo, request);
+      draft.setLastId(id);
       router.push({ pathname: "/result", params: { id } });
     } catch (e) {
       const code = e instanceof BackendError ? e.code : "server_error";

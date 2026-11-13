@@ -66,6 +66,7 @@ const en: Strings = {
     invalid: "That scene isn't valid. Use 3 to 80 characters.",
   },
   result: {
+    newMode: 'New mode',
     screenTitle: 'Your picture',
     wait: {
       steps: {

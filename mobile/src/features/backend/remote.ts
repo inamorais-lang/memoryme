@@ -170,6 +170,16 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
       if (error) throw await toBackendError(error);
       return data.phrase as string;
     },
+    async registerPush(token, language, market, enabled) {
+      const { error } = await supabase.rpc('register_push_token', { p_token: token, p_language: language, p_market: market, p_enabled: enabled });
+      if (error) throw new BackendError('network');
+    },
+    async unregisterPush(token) {
+      await supabase.rpc('unregister_push_token', { p_token: token });
+    },
+    async touchSeen() {
+      await supabase.rpc('touch_seen');
+    },
     async setBalloonSpot(id, x, y) {
       const { error } = await supabase.from('generations').update({ balloon_x: x, balloon_y: y }).eq('id', id);
       if (error) throw new BackendError('network');

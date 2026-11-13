@@ -301,3 +301,32 @@ set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
 select test.expect_error($$select * from public.phrase_examples$$, 'permission denied');
 select test.check(true, 'users cannot read the phrase examples');
 reset role;
+
+-- ───────── Notificações ─────────
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
+select public.register_push_token('ExponentPushToken[aaaaaaaaaaaaaaaa]', 'pt-PT', 'PT');
+select public.touch_seen();
+select test.expect_error($$select * from public.push_tokens$$, 'permission denied');
+select test.check(true, 'users cannot read push tokens');
+select test.expect_error($$select public.register_push_token('not-a-token', 'pt-PT', 'PT')$$, 'push_tokens_token_check');
+select test.check(true, 'only Expo push tokens are accepted');
+select test.expect_error($$select * from public.credit_reminder_targets()$$, 'permission denied');
+select test.check(true, 'users cannot list reminder targets');
+select test.expect_error($$select * from public.admin_push_targets('aaaaaaaa-0000-0000-0000-000000000001', array['PT'])$$, 'permission denied');
+select test.check(true, 'users cannot send news');
+-- The same device signs in with another account: the token moves to it.
+set request.jwt.claim.sub = 'bbbbbbbb-0000-0000-0000-000000000002';
+select public.register_push_token('ExponentPushToken[aaaaaaaaaaaaaaaa]', 'en', 'GB');
+reset role;
+select test.check((select user_id = 'bbbbbbbb-0000-0000-0000-000000000002' and language = 'en' from public.push_tokens), 'a device token follows the account signed in');
+set role authenticated;
+set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
+select public.unregister_push_token('ExponentPushToken[aaaaaaaaaaaaaaaa]');
+reset role;
+select test.check((select count(*) = 1 from public.push_tokens), 'a user cannot remove another account''s token');
+-- Reminder: credits left and away for 8 days.
+update public.profiles set credits = 3, last_seen_at = now() - interval '8 days', credits_reminder_at = null where id = 'bbbbbbbb-0000-0000-0000-000000000002';
+select test.check((select count(*) = 1 from public.credit_reminder_targets()), 'away 7+ days with credits: reminded');
+select public.mark_credit_reminded(array['bbbbbbbb-0000-0000-0000-000000000002'::uuid]);
+select test.check((select count(*) = 0 from public.credit_reminder_targets()), 'reminded only once per absence');

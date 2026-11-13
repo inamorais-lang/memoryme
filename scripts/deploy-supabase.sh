@@ -36,11 +36,11 @@ for file in supabase/migrations/*.sql; do
 done
 
 echo "→ deploying Edge Functions"
-for fn in generate new-phrase delete-account delete-image verify-purchase admin-grant admin-trends admin-reports admin-phrases; do
+for fn in generate new-phrase delete-account delete-image verify-purchase admin-grant admin-trends admin-reports admin-phrases admin-push; do
   npx -y supabase@2 functions deploy "$fn" --project-ref "$REF" --use-api
 done
 # Called by pg_cron (no user JWT; it can only delete originals older than 23 h).
-for fn in cleanup-originals apple-notifications; do
+for fn in cleanup-originals apple-notifications push-reminders; do
   npx -y supabase@2 functions deploy "$fn" --project-ref "$REF" --use-api --no-verify-jwt
 done
 

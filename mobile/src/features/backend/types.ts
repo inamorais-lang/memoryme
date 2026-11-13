@@ -108,6 +108,11 @@ export interface Backend {
   deleteTranslation(id: string): Promise<void>;
   /** Flags a picture as objectionable (the admin page lists it). No-op without the server. */
   reportTranslation(id: string): Promise<void>;
+  /** Push notifications: this device's token for the signed-in user (no-op without the server). */
+  registerPush(token: string, language: AppLanguage, market: Market, enabled: boolean): Promise<void>;
+  unregisterPush(token: string): Promise<void>;
+  /** The app was opened (the credits reminder counts from here). */
+  touchSeen(): Promise<void>;
   /** Credit packs on sale (product id + credits), in display order; empty without the server. */
   listPacks(): Promise<{ productId: string; credits: number }[]>;
   /** Hands a signed App Store transaction to the server, which adds its credits once. */

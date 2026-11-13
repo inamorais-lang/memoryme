@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Animated, Easing, StyleSheet, View } from "react-native";
 
-import { AppText, colors, radius, space } from "@/design";
+import { AppText, Button, colors, radius, shadow, space } from "@/design";
+import { declinePushOffer, enablePush, shouldOfferPush } from "@/features/push/push";
 
 export type WaitStage = "checking" | "painting" | "writing";
 
@@ -31,6 +32,12 @@ export function WaitingProgress({ stage = "checking" }: { stage?: WaitStage }) {
   const [progress] = useState(() => new Animated.Value(RANGE.checking[0]));
   const [joke, setJoke] = useState(0);
   const current = ORDER.indexOf(stage);
+
+  // Owner-approved: the only place the app offers notifications, once, before Apple's prompt.
+  const [offer, setOffer] = useState(false);
+  useEffect(() => {
+    shouldOfferPush().then(setOffer);
+  }, []);
 
   // Each step eases the bar towards its end; a new step starts from its own start.
   useEffect(() => {
@@ -97,6 +104,35 @@ export function WaitingProgress({ stage = "checking" }: { stage?: WaitStage }) {
       <AppText variant="small" color={colors.inkMuted} align="center">
         {t("result.wait.hint")}
       </AppText>
+      {offer ? (
+        <View style={styles.offer} testID="push-offer">
+          <AppText variant="bodyStrong" align="center">
+            {t("result.wait.pushOffer")}
+          </AppText>
+          <View style={styles.offerButtons}>
+            <View style={styles.flex}>
+              <Button
+                variant="secondary"
+                label={t("result.wait.pushYes")}
+                onPress={() => {
+                  setOffer(false);
+                  enablePush();
+                }}
+              />
+            </View>
+            <View style={styles.flex}>
+              <Button
+                variant="tertiary"
+                label={t("result.wait.pushNo")}
+                onPress={() => {
+                  setOffer(false);
+                  declinePushOffer();
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -105,6 +141,15 @@ const DOT = space.xl + space.xxs;
 
 const styles = StyleSheet.create({
   root: { gap: space.lg, paddingTop: space.lg },
+  offer: {
+    gap: space.md,
+    padding: space.lg,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    boxShadow: shadow.sm,
+  },
+  offerButtons: { flexDirection: "row", gap: space.sm },
+  flex: { flex: 1 },
   bar: {
     height: space.md,
     borderRadius: radius.pill,

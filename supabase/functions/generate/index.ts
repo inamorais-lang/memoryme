@@ -10,6 +10,7 @@ import { faithfulImageEditor, imageEditor, json, phraseWriter } from '../_shared
 import { cropToPhoto } from '../_shared/crop.ts';
 import { httpErrorFor, runGeneration } from '../_shared/pipeline.ts';
 import { cleanPetName } from '../_shared/prompts.ts';
+import { readyMessage, sendPush } from '../_shared/push.ts';
 import { supabaseStore } from '../_shared/store.ts';
 
 // Provided by the Supabase Edge Runtime.
@@ -81,11 +82,20 @@ export default {
         .eq('id', generationId);
     }
 
+    const admin = ctx.supabaseAdmin;
     EdgeRuntime.waitUntil(
       runGeneration(
         { store: supabaseStore(ctx.supabaseAdmin), phrases, images, faithfulImages, crop: (url, photo) => cropToPhoto(url, photo) },
         { id: generationId, userId, personalityId, originalPath, sceneId, customScene, comicId, language, spelling, petSex, petName, recipientName },
-      ),
+      ).then(async (outcome) => {
+        // "Picture ready" on the user's devices (the app hides it while it is open).
+        if (outcome !== 'succeeded') return;
+        const { data } = await admin.rpc('user_push_tokens', { p_user_id: userId });
+        const tokens = (data ?? []) as { token: string; language: string }[];
+        if (tokens.length === 0) return;
+        const { dead } = await sendPush(tokens.map((t) => readyMessage(t.token, t.language, generationId)));
+        if (dead.length) await admin.rpc('drop_push_tokens', { p_tokens: dead });
+      }).catch((e) => console.error('ready push', e)),
     );
     return json({ generationId }, 202);
   }),

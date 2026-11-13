@@ -5,6 +5,7 @@ import { t as translate } from 'i18next';
 import { Alert, AppState, Platform } from 'react-native';
 
 import { backend } from '@/features/backend';
+import { forgetPush, syncPush } from '@/features/push/push';
 import { creditStore } from '@/features/store/creditStore';
 import { supabase } from '@/lib/supabase';
 
@@ -67,6 +68,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // redeemed in Apple's sheet or in the App Store: hand them to the server whenever the app opens
   // or comes back to the front. Each transaction adds credits only once.
   const userId = session?.user.id;
+  // Keeps this device's push token on the right account, language and country.
+  useEffect(() => {
+    if (userId) syncPush();
+  }, [userId]);
+
   useEffect(() => {
     if (!userId || !creditStore.available) return;
     const collect = () =>
@@ -105,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signOut() {
+    await forgetPush();
     await supabase?.auth.signOut();
     setCredits(null);
   }

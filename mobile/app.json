@@ -79,7 +79,13 @@
       "expo-secure-store",
       "expo-apple-authentication",
       "expo-iap",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-notifications",
+        {
+          "color": "#FF3D81"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

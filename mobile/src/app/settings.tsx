@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, Linking, StyleSheet, View } from "react-native";
 
 import {
   AppText,
@@ -16,6 +16,7 @@ import { LegalLinks } from "@/components/LegalLinks";
 import { useAuth } from "@/features/auth/AuthContext";
 import { hasAiConsent, setAiConsent } from "@/features/consent/aiConsent";
 import { creditStore } from "@/features/store/creditStore";
+import { pushStatus, pushSupported, setPushOn } from "@/features/push/push";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -31,6 +32,19 @@ export default function SettingsScreen() {
   useEffect(() => {
     hasAiConsent().then(setAiConsentState);
   }, []);
+
+  const [push, setPush] = useState<"on" | "off" | "blocked">("off");
+  useEffect(() => {
+    pushStatus().then(setPush);
+  }, []);
+
+  async function togglePush() {
+    if (push === "blocked") {
+      Linking.openSettings();
+      return;
+    }
+    setPush(await setPushOn(push !== "on"));
+  }
 
   async function withdraw() {
     await setAiConsent(false);
@@ -139,6 +153,23 @@ export default function SettingsScreen() {
           />
         )}
       </View>
+
+      {pushSupported && auth.session ? (
+        <View style={styles.card}>
+          <AppText variant="smallStrong" color={colors.inkMuted}>
+            {t("settings.push.title")}
+          </AppText>
+          <AppText variant="small" color={colors.inkMuted}>
+            {t(`settings.push.${push}`)}
+          </AppText>
+          <Button
+            testID="push-toggle"
+            variant="tertiary"
+            label={t(push === "on" ? "settings.push.turnOff" : push === "off" ? "settings.push.turnOn" : "settings.push.openSettings")}
+            onPress={togglePush}
+          />
+        </View>
+      ) : null}
 
       <View style={styles.card}>
         <AppText variant="smallStrong" color={colors.inkMuted}>

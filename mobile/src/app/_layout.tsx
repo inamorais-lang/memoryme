@@ -11,7 +11,7 @@ import {
   BricolageGrotesque_800ExtraBold,
   useFonts,
 } from "@expo-google-fonts/bricolage-grotesque";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -22,6 +22,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { colors, fonts } from "@/design";
 import { AuthProvider } from "@/features/auth/AuthContext";
 import { DraftProvider } from "@/features/draft/DraftContext";
+import { onPushTap } from "@/features/push/push";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -39,6 +40,12 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded || error) SplashScreen.hideAsync();
   }, [loaded, error]);
+
+  // Tapping "your picture is ready" opens that picture.
+  useEffect(
+    () => onPushTap((id) => router.push({ pathname: "/result", params: { id } })),
+    [],
+  );
 
   if (!loaded && !error) return null;
 

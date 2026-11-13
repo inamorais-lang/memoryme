@@ -80,6 +80,29 @@
     <div id="trends"></div>
   </section>
 
+  <section class="card" id="step-push" hidden>
+    <h2 style="margin:0;font:700 20px 'Bricolage Grotesque',sans-serif">📣 Notificações</h2>
+    <p class="muted" style="margin:0">Escreve em português; a IA traduz para inglês, espanhol e francês. Só chega a quem ligou as notificações, nos países escolhidos. No máximo 1 por semana.</p>
+    <label>Título
+      <input id="pushTitle" maxlength="60" placeholder="Ex.: 🎄 Chegou o modo Natal!">
+    </label>
+    <label>Mensagem
+      <input id="pushBody" maxlength="180" placeholder="Ex.: Veste o teu patudo para o postal de Natal.">
+    </label>
+    <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px">
+      <legend style="font-weight:600;font-size:14px;margin-bottom:6px">Países</legend>
+      <div class="row" style="flex-wrap:wrap;justify-content:flex-start">
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="pushMarket" value="PT" style="width:auto"> Portugal</label>
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="pushMarket" value="ES" style="width:auto"> Espanha</label>
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="pushMarket" value="FR" style="width:auto"> França</label>
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="pushMarket" value="GB" style="width:auto"> Reino Unido</label>
+        <label style="display:flex;gap:6px;align-items:center;font-weight:400"><input type="checkbox" name="pushMarket" value="US" style="width:auto"> EUA</label>
+      </div>
+    </fieldset>
+    <button class="primary" id="sendPush">Enviar notificação</button>
+    <div id="broadcasts"></div>
+  </section>
+
   <section class="card" id="step-phrases" hidden>
     <h2 style="margin:0;font:700 20px 'Bricolage Grotesque',sans-serif">⭐ Frases-modelo</h2>
     <p class="muted" style="margin:0">Escreve as tuas ou marca ⭐ nas que as pessoas escreveram na app (sem nome nem conta). Todas as ⭐ são exemplos de estilo para a IA (imita, não copia).</p>
@@ -120,6 +143,7 @@
     $('step-trends').hidden = step !== 'step-grant';
     $('step-reports').hidden = step !== 'step-grant';
     $('step-phrases').hidden = step !== 'step-grant';
+    $('step-push').hidden = step !== 'step-grant';
   }
 
   async function call(body, fn = 'admin-grant') {
@@ -140,6 +164,7 @@
       loadTrends();
       loadReports();
       loadPhrases();
+      loadBroadcasts();
     } catch { say('Não foi possível ligar ao servidor.', true); }
   }
 
@@ -168,6 +193,36 @@
     } catch (e) {
       say(ERRORS[e.message] ?? 'Não foi possível dar os créditos.', true);
     } finally { $('grant').disabled = false; }
+  };
+
+  async function loadBroadcasts() {
+    try {
+      const { broadcasts } = await call({ list: true }, 'admin-push');
+      const box = $('broadcasts'); box.innerHTML = '';
+      for (const b of broadcasts) {
+        const row = document.createElement('div'); row.className = 'muted';
+        row.textContent = new Date(b.sent_at).toLocaleString('pt-PT') + ' · ' + b.markets.join(', ') + ' · ' + b.sent_count + ' enviadas · ' + (b.texts?.['pt-PT']?.title ?? '');
+        box.append(row);
+      }
+    } catch { /* the list is optional */ }
+  }
+
+  $('sendPush').onclick = async () => {
+    const title = $('pushTitle').value.trim();
+    const body = $('pushBody').value.trim();
+    const markets = [...document.querySelectorAll('input[name=pushMarket]:checked')].map((i) => i.value);
+    if (!title || !body) return say('Escreve o título e a mensagem.', true);
+    if (markets.length === 0) return say('Escolhe pelo menos um país.', true);
+    if (!confirm(`Enviar "${title}" para ${markets.join(', ')}? Só podes enviar outra daqui a 7 dias.`)) return;
+    $('sendPush').disabled = true;
+    try {
+      const r = await call({ title, body, markets }, 'admin-push');
+      say(`Enviada para ${r.sent} telemóvel(is). EN: "${r.texts.en.title}" · ES: "${r.texts.es.title}" · FR: "${r.texts.fr.title}"`);
+      $('pushTitle').value = ''; $('pushBody').value = '';
+      loadBroadcasts();
+    } catch (e) {
+      say(e.message === 'too_soon' ? 'Já enviaste uma notificação nos últimos 7 dias.' : e.message === 'translation_failed' ? 'A tradução falhou. Tenta outra vez.' : 'Não foi possível enviar.', true);
+    } finally { $('sendPush').disabled = false; }
   };
 
   async function loadTrends() {

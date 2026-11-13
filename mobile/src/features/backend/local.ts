@@ -83,6 +83,9 @@ export const localBackend: Backend = {
     await updateTranslation(id, { phrase, shownPhrases: [...t.shownPhrases, phrase], freeRetryUsed: true });
     return phrase;
   },
+  async registerPush() {},
+  async unregisterPush() {},
+  async touchSeen() {},
   async setBalloonSpot(id, x, y) {
     await updateTranslation(id, { balloonX: x, balloonY: y });
   },

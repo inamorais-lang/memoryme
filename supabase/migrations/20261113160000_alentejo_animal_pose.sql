@@ -1,0 +1,4 @@
+-- Alentejano: a cat looked like a big wild feline sitting like a man in trousers. The pet rests like a real animal, no trousers.
+update public.personalities set image_prompt =
+  'Dress the pet as a traditional Alentejo countryman: a long brown wool capote (a heavy shepherd''s cape-coat with a sheepskin collar) draped over its back and shoulders, a flat black wool beret (boina) on its head, a red neckerchief, and a long golden stalk of straw, clearly visible, held in the corner of its mouth and sticking out to the side. No trousers or shoes: it rests like a real animal, lying or sitting on its haunches with its own small paws in front, never sitting like a person. Place it resting calmly in the shade of a cork oak on the golden Alentejo plain on a hot summer afternoon, a whitewashed farmhouse with a blue stripe in the distance, a clay water jug beside it. Peaceful, sunny, unhurried.'
+where id = 'pt-alentejo';

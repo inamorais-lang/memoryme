@@ -47,6 +47,9 @@ const en: Strings = {
     customTagline: 'Write anything you like',
     recipientLabel: 'Your birthday message (optional). Leave it empty and your pet writes one.',
     recipientPlaceholder: 'E.g. Happy birthday, Emma! 🎉',
+    outfits: {
+      sevillana: { female: '💃 Flamenco dress', male: '🕺 Traje corto' },
+    },
   },
   pet: {
     male: '♂ Male',

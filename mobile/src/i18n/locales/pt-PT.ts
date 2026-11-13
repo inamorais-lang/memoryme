@@ -45,6 +45,9 @@ const ptPT = {
     customTagline: 'Escreves o que quiseres',
     recipientLabel: 'A tua mensagem de parabéns (opcional). Sem mensagem, o teu patudo escreve uma.',
     recipientPlaceholder: 'Ex.: Parabéns, Mariana! 🎉',
+    outfits: {
+      sevillana: { female: '💃 Vestido de flamenca', male: '🕺 Traje corto' },
+    },
   },
   pet: {
     male: '♂ Macho',

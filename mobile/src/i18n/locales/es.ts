@@ -47,6 +47,9 @@ const es: Strings = {
     customTagline: 'Escribe lo que quieras',
     recipientLabel: 'Tu mensaje de felicitación (opcional). Si lo dejas vacío, tu mascota escribe uno.',
     recipientPlaceholder: 'Ej.: ¡Feliz cumpleaños, Lucía! 🎉',
+    outfits: {
+      sevillana: { female: '💃 Traje de flamenca', male: '🕺 Traje corto' },
+    },
   },
   pet: {
     male: '♂ Macho',

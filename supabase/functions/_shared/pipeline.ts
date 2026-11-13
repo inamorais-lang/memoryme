@@ -12,6 +12,8 @@ export type PersonalityPrompts = {
   /** Outfit, signature prop and attitude only (no place): used with a scene. */
   outfit?: string;
   outfitMale?: string;
+  /** Detailed outfits the fast model gets wrong (e.g. the Sevillana dress). */
+  faithful?: boolean;
 };
 
 /** 'place': chosen instead of a mode (own phrase tone). 'comic': optional funny extra. */
@@ -152,7 +154,7 @@ export async function resolvePrompts(
     style: addon ? `${base.style} ${addon}` : base.style,
     exaggerated: Boolean(comic),
     // Custom scenes and pose changes come out much better with the faithful model.
-    faithful: Boolean(choice.customStyle) || Boolean(scene?.faithful) || Boolean(comic?.faithful),
+    faithful: Boolean(choice.customStyle) || Boolean(scene?.faithful) || Boolean(comic?.faithful) || Boolean(personality?.faithful),
   };
 }
 

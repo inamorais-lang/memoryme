@@ -50,6 +50,8 @@ import { currentLanguage, currentMarket } from "@/i18n";
 /** The person's own birthday message: same limit as the balloon. */
 const RECIPIENT_MAX = CUSTOM_PHRASE_MAX;
 const isBirthday = (id: string) => id.endsWith("-aniversario");
+/** Modes whose outfit changes with the sex (labels in i18n `personality.outfits`). */
+const hasOutfitChoice = (id: string) => id.endsWith("-sevillana");
 
 type Card = {
   key: string;
@@ -344,6 +346,11 @@ export default function PersonalityScreen() {
         {list?.length
           ? cards.map((c, index) => {
               const selected = isSelected(c.choice);
+              // Modes with a male and a female outfit: choose it right there (same as Macho/Fêmea).
+              const outfitChoice =
+                selected &&
+                c.choice.kind === "mode" &&
+                hasOutfitChoice(c.choice.id);
               const birthday =
                 selected &&
                 c.choice.kind === "scene" &&
@@ -384,6 +391,24 @@ export default function PersonalityScreen() {
                       </View>
                     ) : null}
                   </Pressable>
+                  {outfitChoice ? (
+                    <View style={styles.chips}>
+                      <Chip
+                        testID="outfit-female"
+                        label={t("personality.outfits.sevillana.female")}
+                        tint={colors.petFemale}
+                        selected={pet.sex !== "male"}
+                        onPress={() => chooseSex("female")}
+                      />
+                      <Chip
+                        testID="outfit-male"
+                        label={t("personality.outfits.sevillana.male")}
+                        tint={colors.petMale}
+                        selected={pet.sex === "male"}
+                        onPress={() => chooseSex("male")}
+                      />
+                    </View>
+                  ) : null}
                   {birthday ? (
                     <View style={styles.extra}>
                       <AppText variant="small" color={colors.inkMuted}>

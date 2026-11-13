@@ -47,6 +47,9 @@ const fr: Strings = {
     customTagline: 'Écris ce que tu veux',
     recipientLabel: 'Ton message d’anniversaire (facultatif). Sans message, ton compagnon en écrit un.',
     recipientPlaceholder: 'Ex. : Joyeux anniversaire, Léa ! 🎉',
+    outfits: {
+      sevillana: { female: '💃 Robe de flamenca', male: '🕺 Traje corto' },
+    },
   },
   pet: {
     male: '♂ Mâle',

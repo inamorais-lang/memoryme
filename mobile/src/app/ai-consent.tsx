@@ -35,7 +35,6 @@ export default function AiConsentScreen() {
       }>
       <AppText variant="title">{t('consent.title')}</AppText>
       <AppText>{t('consent.body')}</AppText>
-      <AppText color={colors.inkMuted}>{t('consent.details')}</AppText>
     </Screen>
   );
 }

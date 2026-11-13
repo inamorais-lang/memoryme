@@ -130,8 +130,7 @@ const ptPT = {
   consent: {
     screenTitle: 'Antes de começar',
     title: 'A tua foto vai para a IA',
-    body: 'Para criar a imagem, a tua foto é enviada para serviços de inteligência artificial (fal.ai e Anthropic, nos EUA), que a transformam e escrevem a frase.',
-    details: 'A foto original é apagada dos nossos servidores em menos de 24 horas. A Anthropic não a pode usar para treinar modelos; a fal.ai só a usa para criar a imagem. Usa fotos do teu animal: se aparecerem pessoas, também são enviadas. Podes retirar esta autorização nas Definições.',
+    body: 'Usamos a fal.ai e a Anthropic (EUA) para criar a imagem e a frase. A foto original é apagada em 24 h e nunca serve para treinar a IA.',
     accept: 'Aceitar e continuar',
     notNow: 'Agora não',
     withdraw: 'Retirar autorização da IA',

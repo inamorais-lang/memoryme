@@ -9,7 +9,8 @@
       "autoIncrement": true,
       "ios": {
         "resourceClass": "default"
-      }
+      },
+      "channel": "production"
     }
   },
   "submit": {

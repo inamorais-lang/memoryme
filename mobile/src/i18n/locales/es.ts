@@ -132,8 +132,7 @@ const es: Strings = {
   consent: {
     screenTitle: 'Antes de empezar',
     title: 'Tu foto va a la IA',
-    body: 'Para crear la imagen, tu foto se envía a servicios de inteligencia artificial (fal.ai y Anthropic, en EE. UU.), que la transforman y escriben la frase.',
-    details: 'La foto original se borra de nuestros servidores en menos de 24 horas. Anthropic no puede usarla para entrenar modelos; fal.ai solo la usa para crear la imagen. Usa fotos de tu mascota: si salen personas, también se envían. Puedes retirar este permiso en Ajustes.',
+    body: 'Usamos fal.ai y Anthropic (EE. UU.) para crear la imagen y la frase. La foto original se borra en 24 h y nunca sirve para entrenar la IA.',
     accept: 'Aceptar y continuar',
     notNow: 'Ahora no',
     withdraw: 'Retirar el permiso de la IA',

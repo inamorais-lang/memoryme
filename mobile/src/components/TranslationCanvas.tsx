@@ -1,6 +1,6 @@
 import { Image } from "expo-image";
-import { useState, type ReactNode, type Ref } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
+import { Animated, StyleSheet, View } from "react-native";
 import {
   GestureDetector,
   useExclusiveGestures,
@@ -14,6 +14,7 @@ import { AppText, colors, layout, radius, shadow, space } from "@/design";
 
 import { bestSpot, trailDots, type Box } from "./balloonLayout";
 import { ThoughtBalloon, TRAIL_DOTS } from "./ThoughtBalloon";
+import { haptics } from "@/lib/haptics";
 
 export type CanvasRef = React.ComponentRef<typeof View>;
 
@@ -112,6 +113,23 @@ export function TranslationCanvas({
   const [bubble, setBubble] = useState<Size>({ w: 250, h: 120 });
   const [drag, setDrag] = useState<BalloonSpot | null>(null);
 
+  // Owner-approved motion: the new picture fades in with a slight zoom (the "wow" moment),
+  // and the balloon pops in, its dots appearing one by one. Both settle before any export.
+  const [reveal] = useState(() => new Animated.Value(1));
+  const [pop] = useState(() => new Animated.Value(1));
+  const shownUri = useRef<string | null>(null);
+  const revealPicture = () => {
+    if (shownUri.current === photoUri) return;
+    shownUri.current = photoUri;
+    reveal.setValue(0);
+    Animated.timing(reveal, { toValue: 1, duration: 450, useNativeDriver: true }).start();
+  };
+  useEffect(() => {
+    if (!phrase) return;
+    pop.setValue(0);
+    Animated.spring(pop, { toValue: 1, useNativeDriver: true, speed: 14, bounciness: 9 }).start();
+  }, [phrase, pop]);
+
   // The balloon is designed for a ~360pt-wide photo and scales with it.
   // Same proportions at any size: the shared picture looks like the one on screen.
   // Owner: a bit smaller than full size (between the result and the home carousel).
@@ -164,8 +182,9 @@ export function TranslationCanvas({
     runOnJS: true,
     onUpdate: (e) => setDrag(moved(e.translationX, e.translationY)),
     onDeactivate: (e) => {
-      if (!e.canceled)
-        onBalloonMove?.(
+      if (e.canceled) return;
+      haptics.select();
+      onBalloonMove?.(
           fit(moved(e.translationX, e.translationY), frame, bubble),
         );
     },
@@ -175,7 +194,9 @@ export function TranslationCanvas({
     enabled: !!onBalloonPress,
     runOnJS: true,
     onDeactivate: (e) => {
-      if (!e.canceled) onBalloonPress?.();
+      if (e.canceled) return;
+      haptics.select();
+      onBalloonPress?.();
     },
   });
   const gesture = useExclusiveGestures(pan, tap);
@@ -209,25 +230,44 @@ export function TranslationCanvas({
           })
         }
       >
-        <Image
-          source={photoSource ?? { uri: photoUri }}
-          style={{
-            position: "absolute",
-            width: frame.w / crop.w,
-            height: frame.h / crop.h,
-            left: (-crop.x * frame.w) / crop.w,
-            top: (-crop.y * frame.h) / crop.h,
-          }}
-          contentFit="cover"
-          onLoad={(e) =>
-            setLoaded({ width: e.source.width, height: e.source.height })
-          }
-        />
+        <Animated.View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              opacity: reveal,
+              transform: [
+                { scale: reveal.interpolate({ inputRange: [0, 1], outputRange: [1.04, 1] }) },
+              ],
+            },
+          ]}
+        >
+          <Image
+            source={photoSource ?? { uri: photoUri }}
+            style={{
+              position: "absolute",
+              width: frame.w / crop.w,
+              height: frame.h / crop.h,
+              left: (-crop.x * frame.w) / crop.w,
+              top: (-crop.y * frame.h) / crop.h,
+            }}
+            contentFit="cover"
+            onLoad={(e) => {
+              setLoaded({ width: e.source.width, height: e.source.height });
+              revealPicture();
+            }}
+          />
+        </Animated.View>
         {dots.map((d, i) => (
-          <View
+          <Animated.View
             key={i}
             pointerEvents="none"
             style={[
+              {
+                opacity: pop.interpolate({
+                  inputRange: [0, 0.3 + i * 0.2, 0.5 + i * 0.2, 2],
+                  outputRange: [0, 0, 1, 1],
+                }),
+              },
               styles.dot,
               {
                 left: d.cx - d.size / 2,
@@ -242,10 +282,15 @@ export function TranslationCanvas({
         ))}
         {phrase ? (
           <GestureDetector gesture={gesture}>
-            <View
+            <Animated.View
               style={[
                 styles.balloon,
-                { left: spot.x * frame.w, top: spot.y * frame.h },
+                {
+                  left: spot.x * frame.w,
+                  top: spot.y * frame.h,
+                  opacity: pop.interpolate({ inputRange: [0, 0.4, 2], outputRange: [0, 1, 1] }),
+                  transform: [{ scale: pop.interpolate({ inputRange: [0, 1, 2], outputRange: [0.8, 1, 1.2] }) }],
+                },
               ]}
               onLayout={(e) =>
                 setBubble({
@@ -260,7 +305,7 @@ export function TranslationCanvas({
                 scale={balloonScale}
                 tint={balloonTint}
               />
-            </View>
+            </Animated.View>
           </GestureDetector>
         ) : null}
         {/* Always on the exported image: marks it as AI-generated (EU AI Act) and credits the app. */}

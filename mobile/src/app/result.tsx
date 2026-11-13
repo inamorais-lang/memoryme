@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { haptics } from "@/lib/haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -165,9 +166,11 @@ export default function ResultScreen() {
         customPhrase: undefined,
         freePhraseUsed: true,
       });
+      haptics.success();
       if (item.customPhrase)
         backend.setCustomPhrase(item.id, null).catch(() => {});
     } catch {
+      haptics.error();
       Alert.alert(t("result.errorTitle"), t("result.errorBody"));
     } finally {
       setBusy(null);
@@ -182,6 +185,7 @@ export default function ResultScreen() {
 
   function nextCorner() {
     const next = (corner + 1) % BALLOON_CORNERS.length;
+    haptics.select();
     setCorner(next);
     placeBalloon(BALLOON_CORNERS[next]);
   }
@@ -202,7 +206,10 @@ export default function ResultScreen() {
     setEditing(false);
     backend
       .setCustomPhrase(item.id, text)
-      .catch(() => Alert.alert(t("result.network")));
+      .catch(() => {
+        haptics.error();
+        Alert.alert(t("result.network"));
+      });
   }
 
   function useAiLine() {
@@ -253,6 +260,7 @@ export default function ResultScreen() {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     } catch {
+      haptics.error();
       Alert.alert(t("result.errorTitle"), t("result.errorBody"));
     } finally {
       setBusy(null);
@@ -271,6 +279,7 @@ export default function ResultScreen() {
             await backend.deleteTranslation(item.id);
             newPhoto();
           } catch {
+            haptics.error();
             Alert.alert(t("result.deleteError"));
           }
         },

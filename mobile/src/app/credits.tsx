@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { haptics } from "@/lib/haptics";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -127,6 +128,7 @@ export default function CreditsScreen() {
       );
       if (outcome.status === "purchased") {
         await auth.refreshCredits();
+        haptics.success();
         Alert.alert(t("paywall.success", { count: outcome.creditsAdded }));
         router.back();
       } else if (outcome.status === "pending") {
@@ -135,6 +137,7 @@ export default function CreditsScreen() {
     } catch (e) {
       // Paid but our server could not confirm it: the transaction stays open and is
       // handed over again on the next launch (or "Restore purchases").
+      haptics.error();
       Alert.alert(
         t(
           e instanceof BackendError ? "paywall.notConfirmed" : "paywall.failed",

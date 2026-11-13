@@ -1,4 +1,6 @@
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Animated, Pressable, StyleSheet, View } from 'react-native';
+import { haptics } from '../lib/haptics';
 
 import { AppText } from './AppText';
 import { colors, layout, motion, radius, space } from './tokens';
@@ -30,8 +32,13 @@ export function Button({ label, note, onPress, variant = 'primary', disabled, lo
   const small = variant === 'tertiary';
   const mini = variant === 'mini';
   const c = palette[variant];
+  // Apple-like press: the button shrinks a little and springs back.
+  const [scale] = useState(() => new Animated.Value(1));
+  const springTo = (to: number) =>
+    Animated.spring(scale, { toValue: to, useNativeDriver: true, speed: 40, bounciness: 6 }).start();
 
   return (
+    <Animated.View style={{ transform: [{ scale }] }}>
     <Pressable
       testID={testID}
       accessibilityRole="button"
@@ -40,13 +47,17 @@ export function Button({ label, note, onPress, variant = 'primary', disabled, lo
       accessibilityState={{ disabled: !!inactive, busy: !!loading }}
       disabled={inactive}
       hitSlop={mini ? space.sm : undefined}
-      onPress={onPress}
+      onPressIn={() => springTo(motion.pressScale)}
+      onPressOut={() => springTo(1)}
+      onPress={() => {
+        if (variant === 'primary' || variant === 'secondary') haptics.tap();
+        onPress();
+      }}
       style={({ pressed }) => [
         styles.base,
         small && styles.small,
         mini && styles.mini,
         { backgroundColor: pressed ? c.pressed : c.bg },
-        pressed && styles.pressed,
         inactive && styles.inactive,
       ]}>
       <View style={styles.content}>
@@ -63,6 +74,7 @@ export function Button({ label, note, onPress, variant = 'primary', disabled, lo
         </View>
       </View>
     </Pressable>
+    </Animated.View>
   );
 }
 
@@ -81,9 +93,6 @@ const styles = StyleSheet.create({
   mini: {
     minHeight: layout.buttonHeightMini,
     paddingHorizontal: space.md,
-  },
-  pressed: {
-    transform: [{ scale: motion.pressScale }],
   },
   inactive: {
     opacity: 0.4,

@@ -7,6 +7,8 @@ export type Personality = {
   tagline: string;
   /** Phase 1 only: local phrases. From Phase 2 the AI writes them. */
   phrases: string[];
+  /** Only these countries (a local mode, e.g. the UK's Royal Guard); default: by language. */
+  markets?: Market[];
 };
 
 /**
@@ -27,6 +29,7 @@ export const personalities: Personality[] = [
   { id: "pt-ventre", language: 'pt-PT', name: "Dança do Ventre", tagline: "Abana a anca por um biscoito.", phrases: ["Cada moeda que tilinta é um biscoito.", "Dancei. Agora paga o espetáculo.", "Esta anca não abana de graça.", "Plateia de um humano. Aceito.", "O tapete é o meu palco."] },
   { id: "pt-rapper", language: 'pt-PT', name: "Rapper Anos 90", tagline: "Rima sobre biscoitos. Muito à vontade.", phrases: ["Sofá é meu, biscoito também, yo.", "Dormi a sesta. Rima perfeita.", "Ouro ao pescoço, ração no prato.", "O carteiro tocou. Não há autógrafos.", "Flow lento. Como a minha sesta."] },
   { id: "pt-rapper2026", language: 'pt-PT', name: "Rapper 2026", tagline: "Correntes a brilhar. Biscoitos em dia.", phrases: ["Correntes a brilhar, biscoito a chegar.", "Sou estrela. O humano é o motorista.", "Drip no máximo. Tigela vazia.", "Sem fotos. Só com o meu agente.", "A sesta é exclusiva. VIP só eu."] },
+  { id: "pt-alentejo", language: 'pt-PT', name: "Alentejano", tagline: "Calma, sombra e sesta. Pressa é para os outros.", phrases: ["Devagar, que tenho o dia todo.", "Correr? Isso cansa.", "A sombra é minha. O sol é teu.", "Sesta primeiro. Depois logo se vê.", "Amanhã também é dia."] },
   { id: "pt-esfomeado", language: 'pt-PT', name: "Esfomeado", tagline: "Comeu há cinco minutos. Está a definhar.", phrases: ["Comi há cinco minutos. Estou a definhar.", "A tigela está meio vazia. Quase morri.", "Isso que comes é meu. Partilhar é amar.", "Ouvi o frigorífico. Vim a correr.", "Já jantei? Não me lembro. Serve outra vez."] },
   { id: "pt-dramatico", language: 'pt-PT', name: "Dramático", tagline: "Cada banho é uma tragédia. Cada não, uma traição.", phrases: ["Fecharam a porta. Nunca mais serei o mesmo.", "Deram-me banho. Que fique registado.", "Saíste cinco minutos. Envelheci dez anos.", "O jantar atrasou. Escrevi o testamento.", "Ninguém me ama. Só me dão comida e festas."] },
   { id: "pt-vilao", language: 'pt-PT', name: "Vilão", tagline: "Planeia dominar a casa. Começa pelo copo na mesa.", phrases: ["Deitei o copo da mesa. Foi pela ciência.", "Hoje o sofá. Amanhã, a casa toda.", "O aspirador sabe demasiado.", "Sorrio porque já escolhi o próximo copo.", "O carteiro voltou. Desta vez é pessoal."] },
@@ -45,6 +48,7 @@ export const personalities: Personality[] = [
   { id: "en-ventre", language: 'en', name: "Belly Dancer", tagline: "Shakes those hips for a treat.", phrases: ["Every jingle costs a biscuit.", "I danced. Now pay for the show.", "These hips don't shake for free.", "Audience of one human. Fine.", "The rug is my stage."] },
   { id: "en-rapper", language: 'en', name: "90s Rapper", tagline: "Rhymes about treats. Very chill.", phrases: ["Sofa is mine, treats on time.", "Big nap, no cap.", "Gold on my neck, kibble on deck.", "Mailman knocked. No autographs.", "Slow flow. Like my naps."] },
   { id: "en-rapper2026", language: 'en', name: "Rapper 2026", tagline: "Iced-out chains. Treats on schedule.", phrases: ["Chains on ice, treats on time.", "I'm the star. The human drives.", "Max drip. Empty bowl.", "No photos. Talk to my agent.", "Nap is exclusive. VIP: me."] },
+  { id: "en-guarda", language: 'en', name: "Royal Guard", tagline: "Must not move. Unless there are biscuits.", phrases: ["On duty. The biscuit can wait. Barely.", "I did not move. The squirrel did.", "Standing still. Smelling sandwiches.", "No smiling on duty. Tail disagrees.", "Guarding the sofa with my life."], markets: ["GB"] },
   { id: "en-esfomeado", language: 'en', name: "Always Hungry", tagline: "Ate five minutes ago. Is wasting away.", phrases: ["Ate five minutes ago. I'm wasting away.", "The bowl is half empty. I almost died.", "What you're eating is mine.", "I heard the fridge. I came running.", "Did I eat? Can't recall. Serve again."] },
   { id: "en-dramatico", language: 'en', name: "Dramatic", tagline: "Every bath is a tragedy. Every no, a betrayal.", phrases: ["They closed the door. I will never recover.", "I was bathed. Let history remember.", "You left for five minutes. I aged ten years.", "Dinner was late. I wrote my will.", "Nobody loves me. Only food and belly rubs."] },
   { id: "en-vilao", language: 'en', name: "Villain", tagline: "Plotting to rule the house. Starting with that glass.", phrases: ["Knocked it off the table. For science.", "Today the couch. Tomorrow, the world.", "The vacuum knows too much.", "I smile because I picked the next glass.", "The mailman is back. Now it's personal."] },
@@ -63,6 +67,7 @@ export const personalities: Personality[] = [
   { id: "es-ventre", language: 'es', name: "Danza del Vientre", tagline: "Mueve las caderas por una galleta.", phrases: ["Cada moneda que suena, una galleta.", "Ya bailé. Ahora paga el show.", "Esta cadera no se mueve gratis.", "Público de un humano. Acepto.", "La alfombra es mi escenario."] },
   { id: "es-rapper", language: 'es', name: "Rapero de los 90", tagline: "Rima sobre galletas. Muy tranquilo.", phrases: ["El sofá es mío, la galleta también.", "Siesta larga, rima de oro.", "Oro en el cuello, pienso en el plato.", "Llamó el cartero. Sin autógrafos.", "Flow lento. Como mi siesta."] },
   { id: "es-rapper2026", language: 'es', name: "Rapero 2026", tagline: "Cadenas brillando. Galletas al día.", phrases: ["Cadenas brillando, galleta llegando.", "Soy la estrella. El humano conduce.", "Drip al máximo. Cuenco vacío.", "Sin fotos. Habla con mi agente.", "La siesta es VIP. Solo yo."] },
+  { id: "es-sevillana", language: 'es', name: "Sevillana", tagline: "Volantes, palmas y arte. ¡Olé!", phrases: ["¡Olé! Ahora la galleta.", "Bailo por tapas.", "Con este arte, merezco un premio.", "Un paso más y me como el jamón.", "La feria empieza cuando yo llego."] },
   { id: "es-esfomeado", language: 'es', name: "Hambriento", tagline: "Comió hace cinco minutos. Se está muriendo.", phrases: ["Comí hace cinco minutos. Me muero.", "Cuenco medio vacío. Casi me muero.", "Eso que comes es mío. Compartir es amar.", "Oí la nevera. Vine corriendo.", "¿Ya cené? No me acuerdo. Sirve otra vez."] },
   { id: "es-dramatico", language: 'es', name: "Dramático", tagline: "Cada baño es una tragedia. Cada no, una traición.", phrases: ["Cerraron la puerta. Nunca seré el mismo.", "Me bañaron. Que conste en acta.", "Saliste cinco minutos. Envejecí diez años.", "La cena llegó tarde. Hice testamento.", "Nadie me quiere. Solo comida y mimos."] },
   { id: "es-vilao", language: 'es', name: "Villano", tagline: "Planea dominar la casa. Empieza por el vaso.", phrases: ["Tiré el vaso de la mesa. Por la ciencia.", "Hoy el sofá. Mañana, la casa entera.", "La aspiradora sabe demasiado.", "Sonrío: ya elegí el próximo vaso.", "Volvió el cartero. Ahora es personal."] },
@@ -95,6 +100,7 @@ export const personalities: Personality[] = [
 
 /** Mirrors the `markets` column on the server. */
 export function marketsOf(p: Personality): Market[] {
+  if (p.markets) return p.markets;
   if (p.language === 'pt-PT') return ['PT'];
   if (p.language === 'es') return ['ES'];
   if (p.language === 'fr') return ['FR'];

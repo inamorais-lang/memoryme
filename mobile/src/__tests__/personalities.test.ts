@@ -4,11 +4,11 @@ import { personalities, personalitiesFor, personalitiesForMarket } from '@/featu
 import { pickPhrase } from '@/features/translate/translate';
 
 describe('personalities', () => {
-  it.each(['pt-PT', 'en', 'es', 'fr'] as const)('has the 18 moods for %s', (language) => {
-    expect(personalitiesFor(language)).toHaveLength(18);
+  it.each([['pt-PT', 19], ['en', 19], ['es', 19], ['fr', 18]] as const)('has the moods for %s (18 + its local one)', (language, n) => {
+    expect(personalitiesFor(language)).toHaveLength(n);
   });
 
-  it.each([['PT', 18], ['US', 18], ['GB', 18], ['ES', 18], ['FR', 18]] as const)('offers %s its own cast of %i', (market, n) => {
+  it.each([['PT', 19], ['US', 18], ['GB', 19], ['ES', 19], ['FR', 18]] as const)('offers %s its own cast of %i', (market, n) => {
     expect(personalitiesForMarket(market)).toHaveLength(n);
   });
 

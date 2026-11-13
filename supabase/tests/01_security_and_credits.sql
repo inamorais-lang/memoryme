@@ -149,7 +149,7 @@ set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
 
 select test.check((select count(*) = 1 from public.profiles), 'user sees only their own profile');
 select test.check((select count(*) = 0 from public.generations where user_id <> auth.uid()), 'user sees only their own generations');
-select test.check((select count(*) = 72 from public.personalities), 'user sees the 72 active moods (18 × PT, EN, ES, FR)');
+select test.check((select count(*) = 75 from public.personalities), 'user sees the 75 active moods (18 each + 3 local)');
 
 select test.expect_error($$select image_prompt from public.personalities limit 1$$, 'permission denied');
 select test.expect_error($$select image_prompt from public.scenes limit 1$$, 'permission denied');
@@ -197,11 +197,11 @@ select test.check((select custom_phrase = 'A minha frase' from public.generation
 
 -- ───────── Anonymous ─────────
 set role anon;
-select test.check((select count(*) = 72 from public.personalities), 'personality list is public');
-select test.check((select count(*) = 18 from public.personalities where markets @> array['PT']), 'PT market: 18 moods');
+select test.check((select count(*) = 75 from public.personalities), 'personality list is public');
+select test.check((select count(*) = 19 from public.personalities where markets @> array['PT']), 'PT market: 19 moods');
 select test.check((select count(*) = 18 from public.personalities where markets @> array['US']), 'US market: 18 moods');
-select test.check((select count(*) = 18 from public.personalities where markets @> array['GB']), 'UK market: 18 moods');
-select test.check((select count(*) = 18 from public.personalities where markets @> array['ES']), 'Spain: 18 moods');
+select test.check((select count(*) = 19 from public.personalities where markets @> array['GB']), 'UK market: 19 moods');
+select test.check((select count(*) = 19 from public.personalities where markets @> array['ES']), 'Spain: 19 moods');
 select test.check((select count(*) = 18 from public.personalities where markets @> array['FR']), 'France: 18 moods');
 select test.check((select count(*) = 0 from public.personalities where id = 'en-campaign-rally'), 'no political personality is offered');
 select test.check((select count(*) = 0 from public.personalities where id in ('pt-tia-cascais', 'en-karen')), 'human archetypes are retired');

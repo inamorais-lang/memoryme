@@ -24,6 +24,9 @@ const MARGIN = 0.03;
 /** Height kept free at the bottom for the watermark (pt); the balloon never covers it. */
 const WATERMARK_ROOM = 34;
 /** The four corners "Mover balão" cycles through (clamped to fit). */
+/** Balloon size relative to the original design (1 = the first, bigger version). */
+const BALLOON_SIZE = 0.8;
+
 export const BALLOON_CORNERS: BalloonSpot[] = [
   { x: 0, y: 0 },
   { x: 1, y: 0 },
@@ -111,7 +114,8 @@ export function TranslationCanvas({
 
   // The balloon is designed for a ~360pt-wide photo and scales with it.
   // Same proportions at any size: the shared picture looks like the one on screen.
-  const balloonScale = Math.min(1, Math.max(0.4, frame.w / 360));
+  // Owner: a bit smaller than full size (between the result and the home carousel).
+  const balloonScale = BALLOON_SIZE * Math.min(1, Math.max(0.4, frame.w / 360));
 
   // Without a head box (older translations), aim at the middle of the photo.
   const headBox: Box = head
@@ -362,5 +366,5 @@ const styles = StyleSheet.create({
   },
   // Narrow enough to leave the pet's face visible.
   // touchAction stops the mobile browser from scrolling while dragging (web only).
-  balloon: { position: "absolute", width: "68%", touchAction: "none" },
+  balloon: { position: "absolute", width: "58%", touchAction: "none" },
 });

@@ -4,7 +4,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
   Alert,
   AppState,
   Linking,
@@ -121,7 +120,13 @@ export default function ResultScreen() {
           done = true;
           return setStatus("missing");
         }
-        setItem(found);
+        // Each read signs a new URL for the same picture: keep the first one, or the
+        // picture reloads (and blinks) every second while the line is being written.
+        setItem((prev) =>
+          prev?.id === found.id && prev.imageUri && found.imageUri
+            ? { ...found, imageUri: prev.imageUri }
+            : found,
+        );
         if (found.status === "succeeded") {
           done = true;
           setStatus("ready");
@@ -338,12 +343,16 @@ export default function ResultScreen() {
     );
   }
 
-  // The picture shows as soon as it is saved; the line follows a few seconds later.
-  const lineComing = status === "loading" && !!item?.imageUri;
-  if (!item?.imageUri) {
-    const photo = draft.photo;
+  // Owner: while the line is being written the new picture shows faded on the waiting
+  // screen, with the bar still moving; the full result appears once, when it is ready.
+  if (status === "loading" || !item?.imageUri) {
+    const painted = item?.imageUri
+      ? { uri: item.imageUri, width: item.width, height: item.height }
+      : null;
+    const photo = painted ?? draft.photo;
     return (
-      <Screen scroll={false}>
+      // Own key: React must not reuse these views for the result screen (its size is measured on mount).
+      <Screen key="waiting" scroll={false}>
         {photo ? (
           <View style={styles.dimmed}>
             <TranslationCanvas
@@ -370,9 +379,7 @@ export default function ResultScreen() {
       : item.head
         ? undefined
         : BALLOON_CORNERS[item.balloonPosition === "bottom" ? 3 : 0];
-  const shownPhrase = lineComing
-    ? (item.customPhrase ?? "…")
-    : editing
+  const shownPhrase = editing
       ? draftText || t("result.writePlaceholder")
       : (item.customPhrase ?? item.phrase);
   const saved = savedLook === look;
@@ -505,16 +512,10 @@ export default function ResultScreen() {
   return (
     // No scroll here: a vertical drag on the balloon must move the balloon, not the page.
     <Screen
+      key="result"
       scroll={false}
       footer={
-        lineComing ? (
-          <View style={styles.lineComing} testID="line-coming">
-            <ActivityIndicator color={colors.ink} />
-            <AppText variant="bodyStrong">
-              {t("result.wait.steps.writing")}
-            </AppText>
-          </View>
-        ) : editing ? (
+        editing ? (
           writingFooter
         ) : (
           actionsFooter
@@ -536,7 +537,7 @@ export default function ResultScreen() {
           head={item.head}
           prop={item.prop}
           body={item.body}
-          onBalloonMove={lineComing ? undefined : placeBalloon}
+          onBalloonMove={placeBalloon}
           maxHeight={canvasRoom > 0 ? canvasRoom : canvasMaxHeight}
           balloonTint={tintFor(item.id) + tintShift}
           onBalloonPress={() => setTintShift((n) => n + 1)}
@@ -563,13 +564,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", gap: space.sm },
   flex: { flex: 1 },
   report: { alignSelf: "center", paddingTop: space.xs },
-  lineComing: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: space.sm,
-    paddingVertical: space.lg,
-  },
   secondary: {
     flexDirection: "row",
     justifyContent: "center",

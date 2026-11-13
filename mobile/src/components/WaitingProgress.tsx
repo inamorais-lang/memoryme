@@ -71,6 +71,35 @@ export function WaitingProgress({ stage = "checking" }: { stage?: WaitStage }) {
       <View style={styles.bar}>
         <Animated.View style={[styles.fill, { width }]} />
       </View>
+      {offer ? (
+        <View style={styles.offer} testID="push-offer">
+          <AppText variant="bodyStrong" align="center">
+            {t("result.wait.pushOffer")}
+          </AppText>
+          <View style={styles.offerButtons}>
+            <View style={styles.flex}>
+              <Button
+                variant="secondary"
+                label={t("result.wait.pushYes")}
+                onPress={() => {
+                  setOffer(false);
+                  enablePush();
+                }}
+              />
+            </View>
+            <View style={styles.flex}>
+              <Button
+                variant="tertiary"
+                label={t("result.wait.pushNo")}
+                onPress={() => {
+                  setOffer(false);
+                  declinePushOffer();
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      ) : null}
       <View style={styles.steps}>
         {ORDER.map((step, index) => {
           const done = index < current;
@@ -104,35 +133,6 @@ export function WaitingProgress({ stage = "checking" }: { stage?: WaitStage }) {
       <AppText variant="small" color={colors.inkMuted} align="center">
         {t("result.wait.hint")}
       </AppText>
-      {offer ? (
-        <View style={styles.offer} testID="push-offer">
-          <AppText variant="bodyStrong" align="center">
-            {t("result.wait.pushOffer")}
-          </AppText>
-          <View style={styles.offerButtons}>
-            <View style={styles.flex}>
-              <Button
-                variant="secondary"
-                label={t("result.wait.pushYes")}
-                onPress={() => {
-                  setOffer(false);
-                  enablePush();
-                }}
-              />
-            </View>
-            <View style={styles.flex}>
-              <Button
-                variant="tertiary"
-                label={t("result.wait.pushNo")}
-                onPress={() => {
-                  setOffer(false);
-                  declinePushOffer();
-                }}
-              />
-            </View>
-          </View>
-        </View>
-      ) : null}
     </View>
   );
 }

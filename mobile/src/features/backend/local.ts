@@ -86,6 +86,7 @@ export const localBackend: Backend = {
   async registerPush() {},
   async unregisterPush() {},
   async touchSeen() {},
+  async countShare() {},
   async setBalloonSpot(id, x, y) {
     await updateTranslation(id, { balloonX: x, balloonY: y });
   },

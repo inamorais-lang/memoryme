@@ -240,6 +240,11 @@
         '</div>' +
         '<h3>Por dia</h3>' + table((s.per_day ?? []).filter((d) => d.accounts || d.images || d.failed || d.purchases).map((d) => [new Date(d.day).toLocaleDateString('pt-PT'), d.accounts, d.images, d.failed, d.purchases, (d.fast * COST_USD.fast + d.faithful * COST_USD.faithful).toFixed(2) + ' $']), ['Dia', 'Contas novas', 'Imagens', 'Falhas', 'Compras', 'Custo IA']) +
         '<h3>Modos mais escolhidos</h3>' + table((s.modes ?? []).map((m) => [m.mode, m.count]), ['Modo', 'Imagens']) +
+        '<h3>🏆 Modos de maior sucesso (mais partilhados)</h3>' +
+        '<p class="muted" style="margin:0 0 6px;font-size:13px">Imagens que as pessoas partilharam ou guardaram (conta desde 13/11).</p>' +
+        table((s.shared_modes ?? []).map((m) => [m.mode, m.images, m.shared, (m.images ? Math.round((100 * m.shared) / m.images) : 0) + '%', m.shares, m.saves]), ['Modo', 'Imagens', 'Partilhadas', 'Sucesso', 'Partilhar', 'Guardar']) +
+        '<h3>💬 Frases (mais partilhadas primeiro)</h3>' +
+        table((s.top_phrases ?? []).map((f) => [f.phrase + (f.own ? ' ✍️' : ''), f.mode, f.shares]), ['Frase (✍️ = escrita pela pessoa)', 'Modo', 'Partilhas']) +
         '<h3>Compras por pacote</h3>' + ((s.packs ?? []).length ? table(s.packs.map((p) => [p.product.replace('app.petbubble.credits.', '') + ' créditos', p.count, ((PACK_EUR[p.product] ?? 0) * p.count).toFixed(2) + ' €']), ['Pacote', 'Compras', 'Receita bruta']) : '<p class="muted">Ainda sem compras reais.' + (s.sandbox_purchases ? ` (${s.sandbox_purchases} compras de teste no TestFlight não contam.)` : '') + '</p>') +
         '<h3>Línguas</h3>' + table((s.languages ?? []).map((l) => [LANG[l.language] ?? l.language, l.count]), ['Língua', 'Imagens']) +
         '<h3>Países (pessoas com notificações ligadas)</h3>' + ((s.countries ?? []).length ? table(s.countries.map((c) => [c.market, c.count]), ['País', 'Pessoas']) : '<p class="muted">Ainda sem dados.</p>') +

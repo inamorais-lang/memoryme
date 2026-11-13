@@ -177,6 +177,9 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
     async unregisterPush(token) {
       await supabase.rpc('unregister_push_token', { p_token: token });
     },
+    async countShare(id, kind) {
+      await supabase.rpc('count_share', { p_generation_id: id, p_kind: kind });
+    },
     async touchSeen() {
       await supabase.rpc('touch_seen');
     },

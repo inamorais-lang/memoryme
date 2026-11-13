@@ -341,3 +341,14 @@ select test.expect_error($$select public.admin_stats('aaaaaaaa-0000-0000-0000-00
 select test.check(true, 'statistics only for admins');
 insert into private.admins (user_id) values ('bbbbbbbb-0000-0000-0000-000000000002') on conflict do nothing;
 select test.check((select (public.admin_stats('bbbbbbbb-0000-0000-0000-000000000002', 7)->'totals'->>'accounts')::int >= 2), 'the admin sees the statistics');
+
+-- ───────── Partilhas (estatísticas) ─────────
+update public.generations set status = 'succeeded' where id = (select id from a_gen);
+set role authenticated;
+set request.jwt.claim.sub = 'bbbbbbbb-0000-0000-0000-000000000002';
+select public.count_share((select id from a_gen), 'share');
+set request.jwt.claim.sub = 'aaaaaaaa-0000-0000-0000-000000000001';
+select public.count_share((select id from a_gen), 'share');
+select public.count_share((select id from a_gen), 'save');
+reset role;
+select test.check((select share_count = 1 and save_count = 1 from public.generations where id = (select id from a_gen)), 'only the owner counts shares of a picture');

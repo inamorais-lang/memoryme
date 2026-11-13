@@ -236,6 +236,7 @@ export default function ResultScreen() {
         message,
       );
       if (outcome === "unavailable") Alert.alert(t("result.shareUnavailable"));
+      else if (item) backend.countShare(item.id, "share").catch(() => {});
     } catch {
       // Closing the share sheet also lands here on some platforms; nothing to report.
     } finally {
@@ -260,6 +261,7 @@ export default function ResultScreen() {
           },
         ]);
       } else {
+        if (item) backend.countShare(item.id, "save").catch(() => {});
         setSavedLook(look);
         if (Platform.OS !== "web")
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

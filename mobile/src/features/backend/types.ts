@@ -113,6 +113,8 @@ export interface Backend {
   unregisterPush(token: string): Promise<void>;
   /** The app was opened (the credits reminder counts from here). */
   touchSeen(): Promise<void>;
+  /** Statistics for the owner: the picture was shared or saved. */
+  countShare(id: string, kind: 'share' | 'save'): Promise<void>;
   /** Credit packs on sale (product id + credits), in display order; empty without the server. */
   listPacks(): Promise<{ productId: string; credits: number }[]>;
   /** Hands a signed App Store transaction to the server, which adds its credits once. */

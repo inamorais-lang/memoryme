@@ -35,6 +35,8 @@ export interface Store {
   upload(bucket: 'generated', path: string, bytes: Uint8Array, contentType: string): Promise<void>;
   finish(generationId: string, imagePath: string, phrase: string, head?: HeadBox, prop?: HeadBox, body?: HeadBox): Promise<boolean>;
   fail(generationId: string, reason: string): Promise<boolean>;
+  /** The person's latest lines (any picture), so new ones do not repeat them. */
+  recentPhrases?(userId: string): Promise<string[]>;
   /** Lines people wrote, starred by the owner: style examples for the AI (optional). */
   phraseExamples?(language: Language): Promise<string[]>;
   /** Waiting screen: which step the picture is at. Best effort, never fails the picture. */
@@ -100,6 +102,20 @@ export function toDataUri(bytes: Uint8Array, contentType: string): string {
   let binary = '';
   for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   return `data:${contentType.split(';')[0]};base64,${btoa(binary)}`;
+}
+
+/** The dry line comes from a different angle each time, so it is not always "Hoje é dia de…". */
+const DRY_ANGLES = [
+  'what the pet is doing right now',
+  'who the pet is in this picture (its role)',
+  'where the pet is',
+  'what the pet expects from the human now',
+  'a matter-of-fact remark about the outfit\'s purpose',
+  'what happens next, stated calmly',
+  'a calm rule the pet has set for today',
+];
+export function pickDryAngle(random: () => number = Math.random): string {
+  return DRY_ANGLES[Math.floor(random() * DRY_ANGLES.length)];
 }
 
 export function withCurrency(style: string, language: Language, spelling?: Spelling): string {
@@ -262,7 +278,9 @@ export async function runGeneration(
       spelling: gen.spelling,
       voice: prompts.voice,
       scene: style,
-      exclude: [],
+      // Variety: never repeat (or lightly rephrase) the person's recent lines.
+      exclude: await (store.recentPhrases?.(gen.userId) ?? Promise.resolve([])).catch(() => []),
+      dryAngle: pickDryAngle(),
       sex: gen.petSex,
       name: gen.petName,
       recipient: gen.recipientName,

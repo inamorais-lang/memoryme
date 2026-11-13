@@ -546,3 +546,16 @@ Deno.test('speed: the picture goes to the line writer inline and is shown while 
   assert.match(seen, /^data:image\/jpeg;base64,/);
   assert.deepEqual(stages, ['painting', 'writing u1/g1.jpg']);
 });
+
+Deno.test('variety: recent lines are excluded and the dry line gets an angle', async () => {
+  const { store } = fakeStore();
+  store.recentPhrases = async () => ['Estoy de feria.'];
+  let got: { exclude: string[]; dryAngle?: string } = { exclude: [] };
+  await runGeneration(
+    { store, phrases: { ...phrases({ isPet: true, phrase: 'x' }), write: async (a) => ((got = a), { isPet: true, phrase: 'x' }) }, images: okImage, log: quiet },
+    gen,
+  );
+  assert.deepEqual(got.exclude, ['Estoy de feria.']);
+  assert.ok(got.dryAngle);
+  assert.match(phraseUserPrompt({ voice: 'v', scene: 's', exclude: [], dryAngle: 'where the pet is' }), /dry third option, this time state where the pet is/);
+});

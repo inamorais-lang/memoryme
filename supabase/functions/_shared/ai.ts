@@ -50,6 +50,8 @@ export interface PhraseWriter {
     examples?: string[];
     /** Aniversário: the birthday person's name. */
     recipient?: string;
+    /** Angle for the dry line, to vary it. */
+    dryAngle?: string;
   }): Promise<PhraseResult>;
 }
 
@@ -323,7 +325,7 @@ export class ClaudePhraseWriter implements PhraseWriter {
             { type: 'image', source: imageSource(args.imageUrl) },
             {
               type: 'text',
-              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name, petCount: args.petCount, examples: args.examples, recipient: args.recipient }), reminder]
+              text: [phraseUserPrompt({ voice: args.voice, scene: args.scene, exclude: args.exclude, sex: args.sex, name: args.name, petCount: args.petCount, examples: args.examples, recipient: args.recipient, dryAngle: args.dryAngle }), reminder]
                 .filter(Boolean)
                 .join('\n\n'),
             },

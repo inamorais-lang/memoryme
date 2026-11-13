@@ -66,6 +66,16 @@ export function supabaseStore(admin: SupabaseClient): Store {
       const { error } = await admin.storage.from('originals').remove([path]);
       if (error) throw new Error(`remove_original_${error.message}`);
     },
+    async recentPhrases(userId) {
+      const { data } = await admin
+        .from('generations')
+        .select('phrase')
+        .eq('user_id', userId)
+        .not('phrase', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(15);
+      return (data ?? []).map((r) => r.phrase as string);
+    },
     async phraseExamples(language) {
       const { data } = await admin.from('phrase_examples').select('text').eq('language', language).limit(200);
       const all = (data ?? []).map((r) => r.text as string);

@@ -16,6 +16,7 @@ export type PersonalityPrompts = {
   faithful?: boolean;
   /** The mode's signature line, used whenever the dry option is picked (e.g. "Deixem-me dormir…"). */
   dryLine?: string;
+  dryAlways?: boolean;
 };
 
 /** 'place': chosen instead of a mode (own phrase tone). 'comic': optional funny extra. */
@@ -131,7 +132,7 @@ export function withCurrency(style: string, language: Language, spelling?: Spell
 export async function resolvePrompts(
   store: Store,
   choice: Choice,
-): Promise<{ language: Language; voice: string; style: string; exaggerated: boolean; faithful: boolean; dryLine?: string }> {
+): Promise<{ language: Language; voice: string; style: string; exaggerated: boolean; faithful: boolean; dryLine?: string; dryAlways?: boolean }> {
   let scene = choice.sceneId ? await store.scene(choice.sceneId) : null;
   let comic = choice.comicId ? await store.scene(choice.comicId) : null;
   // Older app versions sent the funny ones as the scene.
@@ -148,7 +149,7 @@ export async function resolvePrompts(
     : null;
   const place = choice.customStyle ?? scene?.style ?? null;
 
-  let base: { language: Language; voice: string; style: string; dryLine?: string };
+  let base: { language: Language; voice: string; style: string; dryLine?: string; dryAlways?: boolean };
   if (place && personality && personalityStyle) {
     // Two steps: the scene gives the place (and its pose), the mode gives the outfit, attitude and tone.
     base = {
@@ -166,6 +167,7 @@ export async function resolvePrompts(
       voice: personality.voice,
       style: personalityStyle!,
       dryLine: personality.dryLine,
+      dryAlways: personality.dryAlways,
     };
   } else {
     throw new Error('unknown_personality');
@@ -296,6 +298,7 @@ export async function runGeneration(
       exclude: await (store.recentPhrases?.(gen.userId) ?? Promise.resolve([])).catch(() => []),
       dryAngle: pickDryAngle(),
       dryLine: prompts.dryLine,
+      dryAlways: prompts.dryAlways,
       sex: gen.petSex,
       name: gen.petName,
       recipient: gen.recipientName,

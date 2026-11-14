@@ -10,7 +10,7 @@ export function supabaseStore(admin: SupabaseClient): Store {
     async personality(id) {
       const { data, error } = await admin
         .from('personalities')
-        .select('language, voice_prompt, image_prompt, image_prompt_male, outfit_prompt, outfit_prompt_male, faithful, dry_line')
+        .select('language, voice_prompt, image_prompt, image_prompt_male, outfit_prompt, outfit_prompt_male, faithful, dry_line, dry_always')
         .eq('id', id)
         .single();
       if (error || !data) throw new Error(`personality_${error?.message ?? 'missing'}`);
@@ -23,6 +23,7 @@ export function supabaseStore(admin: SupabaseClient): Store {
         outfitMale: data.outfit_prompt_male ?? undefined,
         faithful: data.faithful === true,
         dryLine: data.dry_line ?? undefined,
+        dryAlways: data.dry_always === true,
       } as PersonalityPrompts;
     },
     async scene(id) {

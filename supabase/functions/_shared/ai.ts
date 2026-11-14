@@ -56,6 +56,8 @@ export interface PhraseWriter {
     dryAngle?: string;
     /** The mode's signature line: replaces the dry option when it is picked (owner's choice). */
     dryLine?: string;
+    /** The mode always uses its signature lines (one per line in dryLine), never an AI joke. */
+    dryAlways?: boolean;
   }): Promise<PhraseResult>;
 }
 
@@ -393,7 +395,11 @@ export class ClaudePhraseWriter implements PhraseWriter {
     // a mode can fix it to its signature line (Preguiçoso: "Deixem-me dormir…").
     const deadpan = Math.random() < DEADPAN_SHARE;
     const result = parsePhrase(text.text, deadpan);
-    if (deadpan && result.isPet && args.dryLine) result.phrase = args.dryLine;
+    // Signature lines (one per line): prefer one the person has not seen lately, so they take turns.
+    const lines = (args.dryLine ?? '').split('\n').map((l) => l.trim()).filter(Boolean);
+    const fresh = lines.filter((l) => !args.exclude.includes(l));
+    const pool = fresh.length ? fresh : lines;
+    if ((deadpan || args.dryAlways) && result.isPet && pool.length) result.phrase = pool[Math.floor(Math.random() * pool.length)];
     return result;
   }
 }

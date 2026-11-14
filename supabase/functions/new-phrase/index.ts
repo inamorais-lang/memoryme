@@ -52,7 +52,9 @@ export default {
         scene: prompts.style,
         exclude: row.shown_phrases ?? [],
         // A new line must be different: the signature line only if it was not shown yet.
-        dryLine: (row.shown_phrases ?? []).includes(prompts.dryLine ?? '') ? undefined : prompts.dryLine,
+        // A new line must be different: only signature lines not shown yet; none left → an AI line.
+        dryLine: (prompts.dryLine ?? '').split('\n').filter((l) => l.trim() && !(row.shown_phrases ?? []).includes(l.trim())).join('\n') || undefined,
+        dryAlways: prompts.dryAlways,
         sex: gen.pet_sex === 'male' || gen.pet_sex === 'female' ? gen.pet_sex : undefined,
         name: gen.pet_name ?? undefined,
         recipient: gen.recipient_name ?? undefined,

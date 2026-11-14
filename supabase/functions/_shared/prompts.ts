@@ -55,7 +55,6 @@ export function phraseSystemPrompt(language: Language, spelling?: Spelling): str
     // Product owner: the picture is already the funny part; a dry line can be even funnier than a joke.
     'The third option is NOT a joke: a short, dry, deadpan statement in the pet\'s voice that simply states the moment or the mode, with total seriousness, like a calm caption (e.g. a party → "Hoje é dia de festa.", an office → "Sou o chefe.", a beach → "Estou de férias."). Vary the wording a lot: never a stock phrase, never "Estou de…" / "Hoje é…" / "I am on…" every time. Max 30 characters, no twist.',
     'Set is_pet to true when a cat or dog is visible (it normally is).',
-    'In "anatomy_ok", say whether each animal has a correct body: exactly four legs and four paws (count them carefully, including a raised paw or a paw holding something), one tail, two ears. false if any animal has an extra or a missing leg, paw, tail or ear.',
     'In "head", give the box around the pet\'s whole head (ears included) as fractions of the image: x and y of the top-left corner, then width and height, all between 0 and 1. The app uses it to keep the thought bubble off the face, so be accurate.',
     'In "body", give the box around the pet\'s whole body as it appears (head, outfit, paws and tail included), same format. The bubble avoids it after the face.',
     'In "prop", give the box of the scene\'s main object next to the pet (a TV remote, a glass, a cocktail, a surfboard, a cake…), same format, with present = true. If there is no such object, present = false and zeros.',

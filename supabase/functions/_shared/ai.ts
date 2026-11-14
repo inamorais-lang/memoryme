@@ -70,7 +70,6 @@ const PHRASE_SCHEMA = {
   type: 'object',
   properties: {
     is_pet: { type: 'boolean' },
-    anatomy_ok: { type: 'boolean' },
     phrases: { type: 'array', items: { type: 'string' } },
     head: {
       type: 'object',
@@ -97,7 +96,7 @@ const PHRASE_SCHEMA = {
       additionalProperties: false,
     },
   },
-  required: ['is_pet', 'anatomy_ok', 'phrases', 'head', 'body', 'prop'],
+  required: ['is_pet', 'phrases', 'head', 'body', 'prop'],
   additionalProperties: false,
 };
 

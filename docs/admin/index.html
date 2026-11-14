@@ -231,7 +231,7 @@
         ['Imagens criadas', t.images], ['Falhas (crédito devolvido)', t.failed], ['Espera média', (t.avg_seconds ?? '–') + ' s'],
         ['Frases novas grátis', t.free_phrases], ['Frases escritas', t.own_phrases], ['Reportadas', t.reported],
         ['Receita (bruta)', revenue.toFixed(2) + ' €'], ['Receita (após Apple)', net.toFixed(2) + ' €'], ['Custo da IA (estimado)', cost.toFixed(2) + ' $'],
-        ['Patas erradas', t.checked_bodies ? Math.round((100 * t.bad_bodies) / t.checked_bodies) + '% (' + t.bad_bodies + ' de ' + t.checked_bodies + ')' : '–'], ['Modelo rápido', t.fast], ['Modelo fiel', t.faithful], ['Créditos oferecidos', t.gifted_credits],
+        ['Modelo rápido', t.fast], ['Modelo fiel', t.faithful], ['Créditos oferecidos', t.gifted_credits],
       ];
       box.className = '';
       box.innerHTML =

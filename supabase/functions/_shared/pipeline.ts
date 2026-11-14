@@ -45,6 +45,7 @@ export interface Store {
   setStage?(generationId: string, stage: 'painting' | 'writing', imagePath?: string): Promise<void>;
   setModel?(generationId: string, model: 'fast' | 'faithful'): Promise<void>;
   setCheck?(generationId: string, info: Record<string, unknown>): Promise<void>;
+  setAnatomy?(generationId: string, ok: boolean): Promise<void>;
   /** Privacy: the original photo is only needed to make the picture. */
   removeOriginal(path: string): Promise<void>;
 }
@@ -304,6 +305,8 @@ export async function runGeneration(
     const [phrase] = await Promise.all([phrasePromise, saved]);
     if (!phrase.phrase) throw new Error(phrase.isPet ? 'phrase_empty' : 'phrase_no_pet');
 
+    // Measured only (owner, 14/11): how often the picture has a wrong body; nothing is redone.
+    if (phrase.anatomyOk !== undefined) store.setAnatomy?.(gen.id, phrase.anatomyOk).catch(() => {});
     const finished = await store.finish(gen.id, imagePath, phrase.phrase, phrase.head, phrase.prop, phrase.body);
     if (!finished) throw new Error('finish_rejected');
     return 'succeeded';

@@ -25,6 +25,10 @@ export default {
     } catch (e) {
       const code = e instanceof Error && /^[a-z_]+$/.test(e.message) ? e.message : 'invalid_signature';
       console.warn('verify-purchase refused', code);
+      // Diagnostics only: the reason, never the transaction or the user.
+      await ctx.supabaseAdmin
+        .rpc('log_purchase_failure', { p_code: code, p_detail: e instanceof Error ? e.message.slice(0, 300) : String(e).slice(0, 300) })
+        .then(() => {}, () => {});
       return json({ code }, 400);
     }
 
@@ -38,6 +42,7 @@ export default {
     });
     if (error) {
       console.error('grant_purchase', error);
+      await ctx.supabaseAdmin.rpc('log_purchase_failure', { p_code: 'grant_failed', p_detail: error.message.slice(0, 300) }).then(() => {}, () => {});
       return json({ code: error.message.includes('unknown_product') ? 'unknown_product' : 'server_error' }, error.message.includes('unknown_product') ? 400 : 500);
     }
     const row = Array.isArray(data) ? data[0] : data;

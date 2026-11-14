@@ -197,6 +197,14 @@ export default function CreditsScreen() {
         </View>
       }
     >
+      {/* Owner (option B): the balance stands out at the top, like on the home screen. */}
+      {auth.session && auth.credits !== null ? (
+        <View style={styles.balancePill} testID="balance">
+          <AppText variant="bodyStrong">
+            {t("paywall.balance", { count: auth.credits })}
+          </AppText>
+        </View>
+      ) : null}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -237,11 +245,6 @@ export default function CreditsScreen() {
             </View>
           ))}
         </View>
-        {auth.session && auth.credits !== null ? (
-          <AppText variant="smallStrong" testID="balance">
-            {t("paywall.balance", { count: auth.credits })}
-          </AppText>
-        ) : null}
       </View>
 
       {packs === null ? <ActivityIndicator color={colors.ink} /> : null}
@@ -309,6 +312,13 @@ export default function CreditsScreen() {
 }
 
 const styles = StyleSheet.create({
+  balancePill: {
+    alignSelf: "flex-start",
+    paddingHorizontal: space.lg,
+    paddingVertical: space.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.secondary,
+  },
   footer: { gap: space.sm },
   examplesRow: { marginHorizontal: -space.lg },
   examples: {

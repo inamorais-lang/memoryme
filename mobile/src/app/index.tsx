@@ -1,7 +1,7 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Linking, StyleSheet, View } from 'react-native';
+import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HomeShowcase } from '@/components/HomeShowcase';
@@ -48,9 +48,14 @@ export default function Home() {
         {auth.enabled ? (
           <View style={styles.topBar}>
             {auth.credits !== null ? (
-              <View style={styles.creditPill} testID="credits">
+              // Owner: tapping the balance opens the credits page (balance + packs).
+              <Pressable
+                style={({ pressed }) => [styles.creditPill, pressed && styles.creditPillPressed]}
+                testID="credits"
+                accessibilityRole="button"
+                onPress={() => router.push('/credits')}>
                 <AppText variant="smallStrong">{t('home.credits', { count: auth.credits })}</AppText>
-              </View>
+              </Pressable>
             ) : (
               <View />
             )}
@@ -117,6 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     backgroundColor: colors.secondary,
   },
+  creditPillPressed: { backgroundColor: colors.secondaryPressed },
   hero: { flex: 1, gap: space.sm, paddingTop: space.md, paddingBottom: space.md },
   actions: { gap: space.md },
   highlight: { backgroundColor: colors.secondary },

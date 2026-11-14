@@ -33,7 +33,7 @@ const fr: Strings = {
   personality: {
     changePhoto: '📷 Changer de photo',
     screenTitle: 'Humeur',
-    title: 'Dans quelle humeur est ton compagnon aujourd’hui ?',
+    title: 'De quelle humeur est ton compagnon aujourd’hui ?',
     subtitle: 'Choisis une humeur.',
     translate_one: 'Créer l’image · 1 crédit',
     translate_other: 'Créer l’image · {{count}} crédits',
@@ -60,13 +60,13 @@ const fr: Strings = {
   scene: {
     comicTitle: 'Touche rigolote (facultative, gratuite)',
     comicNone: 'Aucune',
-    customHint: 'Décris le décor. Pas de vraies personnes, de marques, de religion ni rien de déplacé.',
+    customHint: 'Décris l’humeur. Pas de vraies personnes, de marques, de religion ni rien de déplacé.',
     customPlaceholder: 'Ex. : en train de surfer une vague géante',
     tooShort: 'Écris au moins 3 caractères',
-    invalid: 'Ce décor n’est pas valable. Écris entre 3 et 80 caractères.',
+    invalid: 'Cette humeur n’est pas valable. Écris entre 3 et 80 caractères.',
   },
   result: {
-    newMode: 'Nouveau mode',
+    newMode: 'Nouvelle humeur',
     screenTitle: 'Ton image',
     wait: {
       steps: {
@@ -81,7 +81,7 @@ const fr: Strings = {
       },
       jokes: {
         checking: ["On compte les moustaches…", "On vérifie que c’est bien un compagnon…", "On demande la permission à ton compagnon…"],
-        painting: ["Ton compagnon refuse le chapeau. On négocie…", "On choisit la tenue. Il est très exigeant…", "On brosse le poil pour la photo…", "On installe le décor. Il veut plus de lumière…", "On essaie qu’il reste tranquille deux secondes…", "Il a demandé 3 biscuits pour porter la tenue. Accepté…", "L’agent de ton compagnon veut relire le contrat…", "On négocie le cachet. Il veut être payé en câlins…"],
+        painting: ["Ton compagnon refuse le chapeau. On négocie…", "On choisit la tenue. Il est très exigeant…", "On brosse le poil pour la photo…", "On installe le décor. Il veut plus de lumière…", "On essaie de le faire tenir tranquille deux secondes…", "Il a demandé 3 biscuits pour porter la tenue. Accepté…", "L’agent de ton compagnon veut relire le contrat…", "On négocie le cachet. Il veut être payé en câlins…"],
         writing: ["Il a beaucoup à dire. On garde le meilleur…", "On traduit les miaous et les ouafs…", "On coupe les gros mots…"],
       },
       hint: "Ça prend jusqu’à 1 minute. Tu peux partir : l’image sera dans « Tes images ».",
@@ -93,8 +93,8 @@ const fr: Strings = {
     notAPet_other: 'Nous n’avons trouvé ni chat ni chien sur cette photo. Tes {{count}} crédits ont été remboursés.',
     failedRefunded_one: 'Nous n’avons pas pu créer l’image. Ton crédit a été remboursé.',
     failedRefunded_other: 'Nous n’avons pas pu créer l’image. Tes {{count}} crédits ont été remboursés.',
-    sceneRejected: 'Ce décor n’est pas autorisé (vraies personnes, marques, religion ou contenu déplacé). Ton crédit a été remboursé.',
-    slow: 'C’est plus long que d’habitude. L’image apparaîtra dans ton historique dès qu’elle sera prête.',
+    sceneRejected: 'Cette humeur n’est pas autorisée (vraies personnes, marques, religion ou contenu déplacé). Ton crédit a été remboursé.',
+    slow: 'C’est plus long que d’habitude. L’image apparaîtra dans « Tes images » dès qu’elle sera prête.',
     share: 'Partager',
     shareMessage: 'Découvre à quoi pense ton compagnon avec PetBubble : {{url}}',
     free: 'gratuit',
@@ -117,7 +117,7 @@ const fr: Strings = {
     newPhoto: 'Nouvelle photo',
     deleteImage: 'Supprimer l’image',
     deleteTitle: 'Supprimer cette image ?',
-    deleteBody: 'L’image et sa phrase sont supprimées de ton historique et de notre serveur. C’est irréversible.',
+    deleteBody: 'L’image et sa phrase sont supprimées de « Tes images » et de notre serveur. C’est irréversible.',
     deleteConfirm: 'Supprimer',
     deleteError: 'Impossible de supprimer l’image. Réessaie.',
     report: "🚩 Signaler l’image",
@@ -137,7 +137,7 @@ const fr: Strings = {
   consent: {
     screenTitle: 'Avant de commencer',
     title: 'Ta photo part à l’IA',
-    body: 'Nous utilisons fal.ai et Anthropic (États-Unis) pour créer l’image et la phrase. La photo originale est supprimée sous 24 h et ne sert jamais à entraîner l’IA.',
+    body: 'Nous utilisons fal.ai et Anthropic (États-Unis) pour créer l’image et la phrase. La photo originale est supprimée sous 24 h. Anthropic ne l’utilise pas pour entraîner l’IA.',
     accept: 'Accepter et continuer',
     notNow: 'Pas maintenant',
     withdraw: 'Retirer l’autorisation de l’IA',
@@ -160,8 +160,8 @@ const fr: Strings = {
   paywall: {
     packCredits_one: '{{count}} crédit',
     packCredits_other: '{{count}} crédits',
-    packWhat_one: '{{count}} image de ton compagnon avec une phrase',
-    packWhat_other: '{{count}} images de ton compagnon avec une phrase',
+    packWhat_one: '{{count}} image drôle de ton compagnon en pleine réflexion',
+    packWhat_other: '{{count}} images drôles de ton compagnon en pleine réflexion',
     step1: 'Tu achètes des crédits. Ils n’expirent pas.',
     step2: 'Chaque nouvelle image utilise 1 crédit.',
     step3: 'Une autre phrase ou écrire la tienne, c’est gratuit.',
@@ -200,7 +200,7 @@ const fr: Strings = {
     codeRedeemed_other: 'Tu as reçu {{count}} crédits !',
     push: {
       title: 'Notifications',
-      on: 'Activées : on te prévient quand ton image est prête et quand il y a de nouveaux modes.',
+      on: 'Activées : on te prévient quand ton image est prête et quand il y a de nouvelles humeurs.',
       off: 'Désactivées.',
       blocked: 'Bloquées dans les Réglages de l’iPhone.',
       turnOn: 'Activer les notifications',
@@ -217,7 +217,7 @@ const fr: Strings = {
     signOut: 'Se déconnecter',
     deleteAccount: 'Supprimer le compte',
     deleteTitle: 'Supprimer ton compte ?',
-    deleteBody: 'Nous allons supprimer ton compte, tes photos et tes crédits. C’est irréversible.',
+    deleteBody: 'Nous allons supprimer ton compte, tes images et tes crédits. C’est irréversible.',
     deleteConfirm: 'Supprimer',
     deleted: 'Ton compte a été supprimé.',
     deleteError: 'Impossible de supprimer le compte. Réessaie.',

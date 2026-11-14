@@ -108,7 +108,10 @@ export function remoteBackend(supabase: SupabaseClient): Backend {
         .contains('markets', [market])
         .order('sort_order');
       if (error) throw new BackendError('network');
-      return data ?? [];
+      // Owner: British English says "Holiday", American "Vacation" (one shared English row).
+      return (data ?? []).map((p) =>
+        p.id === 'en-ferias' && currentSpelling() === 'GB' ? { ...p, name: 'Holiday Mode' } : p,
+      );
     },
     async listPacks() {
       const { data, error } = await supabase

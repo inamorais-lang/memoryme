@@ -153,7 +153,7 @@ select test.check((select count(*) = 75 from public.personalities), 'user sees t
 
 select test.expect_error($$select image_prompt from public.personalities limit 1$$, 'permission denied');
 select test.expect_error($$select image_prompt from public.scenes limit 1$$, 'permission denied');
-select test.check((select count(*) = 18 from public.scenes where language = 'pt-PT'), 'users can list the scenes (names only)');
+select test.check((select count(*) = 17 from public.scenes where language = 'pt-PT'), 'users can list the scenes (names only; Narigudo hidden)');
 select test.check(true, 'AI prompts are hidden from the app');
 
 select test.expect_error($$update public.profiles set credits = 999$$, 'permission denied');

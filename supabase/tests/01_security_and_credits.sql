@@ -121,8 +121,8 @@ create temp table pl (id uuid);
 grant all on pl to service_role, authenticated;
 insert into pl select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/w.jpg', null, 'pt-praia', 'pt-oculos');
 select test.check((select personality_id is null and scene_id = 'pt-praia' and comic_id = 'pt-oculos' and cost = 1 from public.generations where id = (select id from pl)), 'a place scene without a mode, plus a funny extra, costs 1 credit');
-insert into pl select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/x.jpg', 'no espaço', null, 'pt-narigudo', 'fr');
-select test.check((select count(*) = 1 from public.generations where custom_scene = 'no espaço' and comic_id = 'pt-narigudo' and language = 'fr' and cost = 1), 'a custom scene without a mode, plus a funny extra, costs 1 credit');
+insert into pl select public.start_generation('bbbbbbbb-0000-0000-0000-000000000002', null, 'bbbbbbbb-0000-0000-0000-000000000002/x.jpg', 'no espaço', null, 'pt-olhos', 'fr');
+select test.check((select count(*) = 1 from public.generations where custom_scene = 'no espaço' and comic_id = 'pt-olhos' and language = 'fr' and cost = 1), 'a custom scene without a mode, plus a funny extra, costs 1 credit');
 -- 3 + 3 granted (one older pending test picture expired and was refunded), minus 1 and 1.
 select test.check((select credits = 4 from public.profiles where id = 'bbbbbbbb-0000-0000-0000-000000000002'), 'the funny extra is free');
 select test.expect_error(
